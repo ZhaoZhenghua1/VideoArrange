@@ -1,4 +1,4 @@
-#include "videoarrange.h"
+#include "VideoEditor.h"
 #include <QtWidgets/QApplication>
 
 #include "SwitchButton.h"
@@ -8,7 +8,7 @@
 #include <QLabel>
 #include <QGraphicsRectItem>
 #include <QVBoxLayout>
-#include "LayerEditor.h"
+#include "VideoArrange.h"
 
 int main(int argc, char *argv[])
 {
@@ -34,7 +34,7 @@ int main(int argc, char *argv[])
 // 	pv2->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 // 	w.setCentralWidget(pw);
 
-	LayerEditor le;
+	VideoArrange le;
 	le.show();
 	return a.exec();
 }

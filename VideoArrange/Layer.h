@@ -3,6 +3,7 @@
 
 class SwitchButton;
 class QLabel;
+//Í¼²ã
 class Layer : public QWidget
 {
 	Q_OBJECT

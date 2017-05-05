@@ -1,13 +1,11 @@
 #include "TimeView.h"
 #include <QResizeEvent>
-
+#include <QDebug>
 
 TimeView::TimeView()
 {
 	QGraphicsScene* scene = new QGraphicsScene;
 	setScene(scene);
-
-	setTimeZone(new TimeZone(this));
 }
 
 
@@ -47,13 +45,9 @@ std::tuple<int, qreal> timeBarRuleStrategy(const unsigned int timeLength, qreal 
 	return{ (int)timeSpace , pixSpace };
 }
 
-void TimeView::setTimeZone(TimeZone* timeZone)
+void TimeView::setTimeLength(unsigned int time)
 {
-	delete m_timeZone;
-	m_timeZone = timeZone;
-	timeZone->m_timeView = this;
-	scene()->addItem(timeZone);
-	m_timeZone->setPos(0,0);
+	timeZone()->m_iTimeLength = time;
 }
 
 //放大
@@ -67,6 +61,7 @@ void TimeView::zoomIn()
 	QRectF sceneRec = sceneRect();
 	sceneRec.setWidth(sceneRec.width() *2);
 	setSceneRect(sceneRec);
+	m_bIsMinimized = false;
 }
 //缩小
 void TimeView::zoomOut()
@@ -82,6 +77,7 @@ void TimeView::zoomOut()
 	if (sceneRec.width() / 2 <= viewport()->width())
 	{
 		sceneRec.setWidth(viewport()->width());
+		m_bIsMinimized = true;
 	}
 	//缩小为原来的1/2
 	else
@@ -91,35 +87,46 @@ void TimeView::zoomOut()
 	setSceneRect(sceneRec);
 }
 
+#include <QApplication>
+void TimeView::update()
+{
+// 	QEvent event(QEvent::UpdateRequest);
+// 	QApplication::sendEvent(this, &event);
+//	QGraphicsView::update();
+}
+
 bool TimeView::isTimeMinimized()
 {
-	//具有最大的时间间距
-	return std::get<TIMESPACE>(timeBarRuleStrategy(m_timeZone->m_iTimeLength, viewport()->width())) == (int)m_timeZone->m_dTimeSpace;
+	return m_bIsMinimized;
 }
 
 bool TimeView::isTimeMaximized()
 {
-	return (int)m_timeZone->m_dTimeSpace <= 200;
+	return (int)timeZone()->m_dTimeSpace <= 200;
 }
 
 void TimeView::setSceneRect(const QRectF& rect)
 {
 	scene()->setSceneRect(rect);
-	m_timeZone->setRect(rect);
+	timeZone()->setRect(rect);
+
+	std::tuple<int, qreal> ret = timeBarRuleStrategy(timeZone()->m_iTimeLength, scene()->width());
+	timeZone()->m_dTimeSpace = std::get<TIMESPACE>(ret);
+	timeZone()->m_dPixSpace = std::get<PIXSPACE>(ret);
 }
 
 void TimeView::resizeEvent(QResizeEvent *event)
 {
-	QGraphicsView::resizeEvent(event);
+	//场景超出视图时
+	if (sceneRect().width() < width())
+	{
+		m_bIsMinimized = true;
+	}
 	//场景和视图一样大小时，随视图大小
 	if (isTimeMinimized())
 	{
 		setSceneRect(QRectF(0, 0, event->size().width(), event->size().height()));
 	}
-
+	QGraphicsView::resizeEvent(event);
 }
 
-TimeZone::TimeZone(TimeView* timeView) : m_timeView(timeView)
-{
-
-}

@@ -38,15 +38,6 @@
     <ClCompile Include="main.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="videoarrange.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_videoarrange.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_videoarrange.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="Layer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -62,62 +53,101 @@
     <ClCompile Include="GeneratedFiles\Release\moc_SwitchButton.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="TimeRuler.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoEditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_VideoEditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_VideoEditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="VideoArrange.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeZone\TimeView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeZone\TimePointerView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeZone\TimeVideoView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeZone\TimeBarView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_TimeBarView.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_TimeBarView.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeZone\TimeEffectView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_TimeView.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_TimeView.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_Layer.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
     <ClCompile Include="GeneratedFiles\Release\moc_Layer.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="LayerEditor.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="GeneratedFiles\Debug\moc_TimePointerView.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="TimeBar.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="GeneratedFiles\Release\moc_TimePointerView.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="EffectEditor.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="GeneratedFiles\Debug\moc_VideoArrange.cpp">
+      <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="TimeRuler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TimePointer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="TimeView.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="GeneratedFiles\Release\moc_VideoArrange.cpp">
+      <Filter>Generated Files\Release</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <CustomBuild Include="videoarrange.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
     <CustomBuild Include="Resources\videoarrange.qrc">
       <Filter>Resource Files</Filter>
     </CustomBuild>
     <CustomBuild Include="SwitchButton.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="VideoEditor.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="TimeZone\TimeBarView.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="TimeZone\TimeView.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
     <CustomBuild Include="Layer.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="TimeZone\TimePointerView.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="VideoArrange.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="LayerEditor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TimeBar.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="EffectEditor.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TimeRuler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TimePointer.h">
+    <ClInclude Include="TimeZone\TimeVideoView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="TimeZone.h">
+    <ClInclude Include="TimeZone\TimeEffectView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
