@@ -5,7 +5,7 @@
 #include <QGraphicsWidget>
 //时间轴相关
 class TimeView;
-class TimeZone : public QGraphicsRectItem
+class TimeZone : public QGraphicsWidget
 {
 protected:
 	//virtual TimeView* timeView() = 0;

@@ -8,7 +8,7 @@ class TimeBar : public TimeZone
 public:
 	TimeBar(TimeBarView* view) :m_view(view)
 	{
-		setBrush(Qt::darkGray);
+//		setBrush(Qt::darkGray);
 	}
 protected:
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */) Q_DECL_OVERRIDE;

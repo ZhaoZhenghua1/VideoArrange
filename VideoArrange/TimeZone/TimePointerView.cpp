@@ -55,7 +55,8 @@ void TimePointer::click(const unsigned int timepos)
 
 void TimePointer::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 {
-	setBrush(QColor(0, 255, 0, 10));
+//	setBrush(QColor(0, 255, 0, 10));
+	painter->fillRect(rect(), QBrush(QColor(0, 255, 0, 10)));
 	TimeZone::paint(painter, option, widget);
 //视图之外不绘制
 	int x = m_uiClickTimePos / m_uiTimeSpace * m_dPixSpace;

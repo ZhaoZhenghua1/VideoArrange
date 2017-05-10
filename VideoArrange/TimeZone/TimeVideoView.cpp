@@ -1,22 +1,48 @@
 #include "TimeVideoView.h"
+#include "TimeVideoLine.h"
+
 #include <QTime>
 #include <QPainter>
 #include <QDragEnterEvent>
 #include <QMimeData>
 #include <QGraphicsWidget>
+#include <QGraphicsAnchorLayout>
 
 const char* const DOAG_DROP_TYPE = "LM-video-resource";
 TimeVideo::TimeVideo(TimeVideoView* view):m_view(view)
 {
-	m_layoutWidget = new QGraphicsWidget(this);
-	setRect(0, 0, 100, 100);
+	m_anchorLayout = new QGraphicsAnchorLayout;
+	m_anchorLayout->setContentsMargins(0, 0, 0, 0);
+	m_anchorLayout->setSpacing(1);
+	TimeVideoLine* tls[7];
+	for (int i = 0;i < 7;++i)
+	{
+		tls[i] = new TimeVideoLine;
+	}
+	m_anchorLayout->addAnchor(tls[0], Qt::AnchorTop,m_anchorLayout , Qt::AnchorTop);
+ 	m_anchorLayout->addAnchor(tls[0], Qt::AnchorLeft,m_anchorLayout , Qt::AnchorLeft);
+ 	m_anchorLayout->addAnchor(tls[0], Qt::AnchorRight, m_anchorLayout, Qt::AnchorRight);
+	QGraphicsAnchor* anchor = m_anchorLayout->addAnchor(tls[0], Qt::AnchorBottom, m_anchorLayout, Qt::AnchorTop);
+	anchor->setSpacing(46);
+
+ 	for (int i = 1 ; i < 7 ; ++i)
+ 	{
+ 		m_anchorLayout->addAnchor(tls[i], Qt::AnchorTop, tls[i-1], Qt::AnchorBottom);
+ 		m_anchorLayout->addAnchor(tls[i], Qt::AnchorLeft, m_anchorLayout, Qt::AnchorLeft);
+ 		m_anchorLayout->addAnchor(tls[i], Qt::AnchorRight, m_anchorLayout, Qt::AnchorRight);
+ 		QGraphicsAnchor* anchor = m_anchorLayout->addAnchor(tls[i], Qt::AnchorBottom, tls[i-1], Qt::AnchorBottom);
+ 		anchor->setSpacing(-46);
+ 	}
+
+	setLayout(m_anchorLayout);
 }
 
 void TimeVideo::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */) 
 {
-	QGraphicsRectItem::paint(painter, option, widget);
+	TimeZone::paint(painter, option, widget);
 	qreal w = rect().width();
 
+	painter->fillRect(rect(), Qt::yellow);
 	for (qreal x = 0; x <= w; x += m_dPixSpace)
 	{
 		QPoint pos(x, 20);
@@ -36,9 +62,10 @@ void TimeVideo::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 	}
 }
 
-QVariant TimeVideo::itemChange(GraphicsItemChange change, const QVariant& value) 
+void TimeVideo::setGeometry(const QRectF &rect)
 {
-	return TimeZone::itemChange(change, value);
+	TimeZone::setGeometry(rect);
+	QRectF geo = geometry();
 }
 
 TimeVideoView::TimeVideoView()
@@ -56,7 +83,7 @@ TimeZone* TimeVideoView::timeZone()
 {
 	return m_timeVideo;
 }
-
+/*
 void TimeVideoView::dragEnterEvent(QDragEnterEvent *event) 
 {
 	if (event->mimeData()->hasFormat(DOAG_DROP_TYPE))
@@ -76,4 +103,4 @@ void TimeVideoView::dragMoveEvent(QDragMoveEvent *event)
 
 void TimeVideoView::dropEvent(QDropEvent *event) 
 {
-}
+}*/

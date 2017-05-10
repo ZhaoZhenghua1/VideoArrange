@@ -149,6 +149,12 @@
     <ClCompile Include="TimeZone\TimeVideoLine.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_TimeVideoView.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_TimeVideoView.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Resources\videoarrange.qrc">
@@ -181,12 +187,12 @@
     <CustomBuild Include="Table\MediaResModel.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="TimeZone\TimeVideoView.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="TimeRuler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TimeZone\TimeVideoView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TimeZone\TimeEffectView.h">

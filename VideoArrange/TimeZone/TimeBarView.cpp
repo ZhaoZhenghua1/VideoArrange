@@ -28,7 +28,9 @@ void TimeBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
 {
 	QTime t;
 	t.start();
-	QGraphicsRectItem::paint(painter, option, widget);
+	
+	painter->fillRect(rect(), Qt::gray);
+	TimeZone::paint(painter, option, widget);
 	qreal w = rect().width();
 
 	for (qreal x = 0; x <= w; x += m_dPixSpace)
