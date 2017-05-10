@@ -39,20 +39,26 @@ void TimeBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
 		{
 			continue;
 		}
-		if (m_dTimeSpace < 1000)
+		if (m_uiTimeSpace < 1000)
 		{
-			painter->drawText(pos,QTime(0,0).addMSecs(x/ m_dPixSpace*m_dTimeSpace).toString("hh:mm:ss.zzz"));
+			painter->drawText(pos,QTime(0,0).addMSecs(x/ m_dPixSpace*m_uiTimeSpace + 0.5).toString("hh:mm:ss.zzz"));
 		}
 		else
 		{
-			painter->drawText(pos, QTime(0, 0).addMSecs(x / m_dPixSpace*m_dTimeSpace).toString("hh:mm:ss"));
+			painter->drawText(pos, QTime(0, 0).addMSecs(x / m_dPixSpace*m_uiTimeSpace + 0.5).toString("hh:mm:ss"));
 		}
 	}
-	qDebug() << t.elapsed();
 }
 
 void TimeBar::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
-	QGraphicsRectItem::mousePressEvent(event);
-	emit m_view->sigTimebarClicked(event->scenePos().x());
+	TimeZone::mousePressEvent(event);
+	emit m_view->sigTimebarClicked(event->scenePos().x()/m_dPixSpace*m_uiTimeSpace);
+	event->setAccepted(true);
+}
+
+void TimeBar::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+{
+	TimeZone::mouseMoveEvent(event);
+	emit m_view->sigTimebarClicked(event->scenePos().x() / m_dPixSpace*m_uiTimeSpace);
 }

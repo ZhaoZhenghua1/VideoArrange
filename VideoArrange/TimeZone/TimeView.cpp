@@ -102,7 +102,7 @@ bool TimeView::isTimeMinimized()
 
 bool TimeView::isTimeMaximized()
 {
-	return (int)timeZone()->m_dTimeSpace <= 200;
+	return (int)timeZone()->m_uiTimeSpace <= 200;
 }
 
 void TimeView::setSceneRect(const QRectF& rect)
@@ -111,7 +111,7 @@ void TimeView::setSceneRect(const QRectF& rect)
 	timeZone()->setRect(rect);
 
 	std::tuple<int, qreal> ret = timeBarRuleStrategy(timeZone()->m_iTimeLength, scene()->width());
-	timeZone()->m_dTimeSpace = std::get<TIMESPACE>(ret);
+	timeZone()->m_uiTimeSpace = std::get<TIMESPACE>(ret);
 	timeZone()->m_dPixSpace = std::get<PIXSPACE>(ret);
 }
 
@@ -121,6 +121,11 @@ void TimeView::resizeEvent(QResizeEvent *event)
 	if (sceneRect().width() < width())
 	{
 		m_bIsMinimized = true;
+	}
+	if (sceneRect().height() < height())
+	{
+		scene()->setSceneRect(sceneRect().adjusted(0,0,event->size().width(), event->size().height()));//QRectF(0, 0, event->size().width(), event->size().height()));
+		timeZone()->setRect(timeZone()->rect().adjusted(0, 0, 0, height()));
 	}
 	//场景和视图一样大小时，随视图大小
 	if (isTimeMinimized())

@@ -13,6 +13,7 @@ public:
 protected:
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */) Q_DECL_OVERRIDE;
 	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) Q_DECL_OVERRIDE;
+	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event)Q_DECL_OVERRIDE;
 public:
 	
 	TimeBarView* m_view = nullptr;
@@ -26,7 +27,7 @@ public:
 	TimeBarView();
 	~TimeBarView();
 signals:
-	void sigTimebarClicked(qreal xPos);
+	void sigTimebarClicked(unsigned int timePos);
 protected:
 	virtual TimeZone* timeZone()Q_DECL_OVERRIDE;
 private:

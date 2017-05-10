@@ -11,7 +11,7 @@ protected:
 	//virtual TimeView* timeView() = 0;
 protected:
 	unsigned int m_iTimeLength = 30*60*1000;//时间长度
-	qreal m_dTimeSpace = 1;//时间间隔
+	unsigned int m_uiTimeSpace = 1;//时间间隔
 	qreal m_dPixSpace = 1;//像素间隔
 
 	friend class TimeView;

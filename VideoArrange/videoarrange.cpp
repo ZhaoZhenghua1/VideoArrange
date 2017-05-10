@@ -9,9 +9,12 @@
 #include "TimeZone/TimeBarView.h"
 #include "TimeZone/TimePointerView.h"
 #include "TimeZone/TimeVideoView.h"
+#include "Layer/LayerView.h"
 
+const int LEFT_WIDTH = 112;
 VideoArrange::VideoArrange()
 {
+	resize(900, 600);
 	m_sceneTopLeft = new QGraphicsScene;
 	m_sceneBottomLeft = new QGraphicsScene;
 	
@@ -36,7 +39,7 @@ VideoArrange::VideoArrange()
 	timeLayout->setSpacing(1);
 	timeLayout->setContentsMargins(0, 0, 0, 0);
 	pWTime->setLayout(timeLayout);
-	m_labelTime->setFixedWidth(118);
+	m_labelTime->setFixedWidth(LEFT_WIDTH);
 	m_btnTime->setFixedWidth(16);
 	timeLayout->addWidget(m_labelTime);
 	timeLayout->addWidget(m_timeBarView);
@@ -50,10 +53,10 @@ VideoArrange::VideoArrange()
 	layoutTop->setContentsMargins(0, 0, 0, 0);
 	layoutTop->setSpacing(1);
 	pWTop->setLayout(layoutTop);
-	QGraphicsView* pViewLayerLeft = new QGraphicsView;
-	pViewLayerLeft->setScene(m_sceneTopLeft);
-	pViewLayerLeft->setFixedWidth(118);
-	layoutTop->addWidget(pViewLayerLeft);
+	m_leftLayerView = new LayerView;
+	m_leftLayerView->setScene(m_sceneTopLeft);
+	m_leftLayerView->setFixedWidth(LEFT_WIDTH);
+	layoutTop->addWidget(m_leftLayerView);
 	m_timeVideoView = new TimeVideoView;
 	layoutTop->addWidget(m_timeVideoView);
 
@@ -74,20 +77,19 @@ VideoArrange::VideoArrange()
 	layoutBottom->setSpacing(1);
 	PWBottom->setLayout(layoutBottom);
 	QGraphicsView* pViewEffectLeft = new QGraphicsView;
-	pViewEffectLeft->setFixedWidth(118);
+	pViewEffectLeft->setFixedWidth(LEFT_WIDTH);
 	pViewEffectLeft->setScene(m_sceneBottomLeft);
 	layoutBottom->addWidget(pViewEffectLeft);
 	m_pViewEffectRight = new QGraphicsView;
 	//pViewEffectRight->setScene(m_sceneBottomRight);
 	layoutBottom->addWidget(m_pViewEffectRight);
 
-	m_sceneTopLeft->setSceneRect(QRectF(0, 0, 118,300));
-	m_sceneBottomLeft->setSceneRect(QRectF(0, 0, 118, 300));
+	m_sceneTopLeft->setSceneRect(QRectF(0, 0, LEFT_WIDTH,300));
+	m_sceneBottomLeft->setSceneRect(QRectF(0, 0, LEFT_WIDTH, 300));
 
 	//¹ö¶¯ÌõÉèÖÃ
-	m_timeVideoView->setVerticalScrollBar(pViewLayerLeft->verticalScrollBar());
-	pViewLayerLeft->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	pViewLayerLeft->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	m_leftLayerView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	m_leftLayerView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	m_pViewEffectRight->setVerticalScrollBar(pViewEffectLeft->verticalScrollBar());
 	pViewEffectLeft->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -108,13 +110,14 @@ VideoArrange::VideoArrange()
 	cornerLayout->setSpacing(0);
 	cornerLayout->setContentsMargins(0, 0, 0, 0);
 	pWBottomLeftCorner->setLayout(cornerLayout);
-	pWBottomLeftCorner->setFixedWidth(118);
+	pWBottomLeftCorner->setFixedWidth(LEFT_WIDTH);
 	cornerLayout->addWidget(m_btnPlay);
 	cornerLayout->addWidget(m_btnZoomOut);
 	cornerLayout->addWidget(m_btnZoomIn);
 
 	m_timePointerView = new TimePointerView;
 	m_timePointerView->setParent(this);
+	m_timePointerView->hide();
 
 	connect(m_btnZoomIn, &QPushButton::clicked, m_timeBarView, &TimeBarView::zoomIn);
 	connect(m_btnZoomIn, &QPushButton::clicked, m_timePointerView, &TimeBarView::zoomIn);
@@ -128,10 +131,7 @@ VideoArrange::VideoArrange()
 	connect(m_timeBarView->horizontalScrollBar(), &QScrollBar::valueChanged, m_timeVideoView->horizontalScrollBar(), &QScrollBar::setValue);
 	connect(m_timeBarView->horizontalScrollBar(), &QScrollBar::valueChanged, m_timePointerView->horizontalScrollBar(), &QScrollBar::setValue);
 
-// 	connect(m_timeBarView->horizontalScrollBar(), SIGNAL(valueChanged(int)), m_timeVideoView, SLOT(update()));
-// 	connect(m_timeBarView->horizontalScrollBar(), SIGNAL(valueChanged(int)), m_timeBarView, SLOT(update()));
-// 	connect(m_timeBarView->horizontalScrollBar(), SIGNAL(valueChanged(int)), m_timePointerView, SLOT(update()));
-	connect(m_timeBarView->horizontalScrollBar(), SIGNAL(valueChanged(int)), this, SLOT(onScroll()));
+	connect(m_timeVideoView->verticalScrollBar(), &QScrollBar::valueChanged, m_leftLayerView->verticalScrollBar(), &QScrollBar::setValue);
 
 	connect(m_timeBarView, &TimeBarView::sigTimebarClicked, m_timePointerView, &TimePointerView::onClickTimeBar);
 
@@ -146,13 +146,13 @@ VideoArrange::~VideoArrange()
 void VideoArrange::resizeEvent(QResizeEvent * event)
 {
 	QAbstractScrollArea::resizeEvent(event);
-	QRect rectGeo(m_timeBarView->geometry().topLeft(), m_pViewEffectRight->geometry().bottomRight());
+	QRect rectGeo(m_timeBarView->geometry().topLeft(), m_pViewEffectRight->parentWidget()->geometry().bottomRight()+=(QPoint(-17,0)));
 	m_timePointerView->setGeometry(rectGeo);
-//	m_timePointerView->hide();
+	m_timePointerView->show();
 }
 
 void VideoArrange::onScroll()
 {
-	resize(size() + QSize(0,1));
-	resize(size() + QSize(0, -1));
+//	resize(size() + QSize(0,1));
+//	resize(size() + QSize(0, -1));
 }

@@ -7,6 +7,7 @@ class QLabel;
 class TimeBarView;
 class TimeVideoView;
 class TimePointerView;
+class LayerView;
 class QGraphicsView;
 //Í¼²ã±à¼­
 class VideoArrange : public QAbstractScrollArea
@@ -31,6 +32,8 @@ private:
 	TimeVideoView* m_timeVideoView;
 	TimePointerView* m_timePointerView;
 	QGraphicsView* m_pViewEffectRight;
+
+	LayerView* m_leftLayerView;
 
 	QLabel* m_labelTime;
 	QPushButton* m_btnTime;

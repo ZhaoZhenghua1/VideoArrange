@@ -1,15 +1,16 @@
 #pragma once
-#include <QWidget>
+#include <QGraphicsWidget>
 
 class SwitchButton;
-class QLabel;
+class GraphicsLayoutTextItem;
 //Í¼²ã
-class Layer : public QWidget
+class LayerItem : public QGraphicsWidget
 {
 	Q_OBJECT
 public:
-	Layer();
-	~Layer();
+	LayerItem();
+	LayerItem(const QString& layername);
+	~LayerItem();
 public:
 	void setLayerName(const QString& layername);
 	private slots:
@@ -17,6 +18,10 @@ public:
 	bool onLightOn(bool lignton);
 	bool onVoiceOn(bool voiceon);
 	bool onUnlock(bool unlock);
+
+protected:
+	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)Q_DECL_OVERRIDE;
+	virtual QSizeF sizeHint(Qt::SizeHint which, const QSizeF &constraint /* = QSizeF() */);
 signals:
 	void sigLayerUnfold(bool unfold);
 	void sigLightOn(bool lighton);
@@ -24,6 +29,6 @@ signals:
 	void sigUnlock(bool unlock);
 private:
 	SwitchButton* m_arr3Btns[3] = { 0 };
-	QLabel* m_pLabel = nullptr;
+	GraphicsLayoutTextItem* m_pLabel = nullptr;
 };
 

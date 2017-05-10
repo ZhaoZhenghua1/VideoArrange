@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project>
+        <resourcelist>
+            <resource filePath="E:\BaiduNetdiskDownload\视频教程\实例\节目模板2\Wildlife.wmv" id="resourceID_0" type="2">
+            </resource>
+        </resourcelist>
+        <track>
+        	<layerlist>
+        		<layer lock="0" preview="1" voice="1" select="1" layerName="">
+        			<medialist>
+        				<media timeStart="50" timeLength="50" resourceId="resourceID_0" select="1">
+        					
+        				</media>
+        			</medialist>
+        		</layer>
+        	</layerlist>
+        </track>
+</project>

@@ -1,15 +1,16 @@
 #include "VideoEditor.h"
 #include <QtWidgets/QApplication>
 
-#include "SwitchButton.h"
-#include "Layer.h"
+//#include "SwitchButton.h"
+//#include "Layer.h"
 #include <QGraphicsView>
 #include <QGraphicsScene>
 #include <QLabel>
 #include <QGraphicsRectItem>
 #include <QVBoxLayout>
 #include "VideoArrange.h"
-
+#include "Layer/LayerView.h"
+#include "Table/TableView.h"
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
@@ -36,5 +37,7 @@ int main(int argc, char *argv[])
 
 	VideoArrange le;
 	le.show();
+	TableView tv;
+	tv.show();
 	return a.exec();
 }

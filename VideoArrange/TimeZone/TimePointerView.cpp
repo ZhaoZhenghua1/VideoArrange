@@ -1,5 +1,6 @@
 #include "TimePointerView.h"
 #include <QPainter>
+#include <QGraphicsSceneMouseEvent>
 
 
 TimePointerView::TimePointerView()
@@ -9,7 +10,7 @@ TimePointerView::TimePointerView()
 	viewport()->setAttribute(Qt::WA_TranslucentBackground);
 	viewport()->setAttribute(Qt::WA_TransparentForMouseEvents);
 
-	m_timePointer = new TimePointer;
+	m_timePointer = new TimePointer(this);
 	scene()->addItem(m_timePointer);
 
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -25,9 +26,15 @@ TimePointerView::~TimePointerView()
 {
 }
 
-void TimePointerView::onClickTimeBar(const qreal xpos)
+void TimePointerView::onClickTimeBar(const unsigned int timepos)
 {
-	m_timePointer->click(xpos);
+	m_timePointer->click(timepos);
+}
+
+void TimePointerView::resizeEvent(QResizeEvent *event)
+{
+	TimeView::resizeEvent(event);
+
 }
 
 TimeZone* TimePointerView::timeZone()
@@ -35,15 +42,27 @@ TimeZone* TimePointerView::timeZone()
 	return m_timePointer;
 }
 
-void TimePointer::click(qreal xpos)
+TimePointer::TimePointer(TimePointerView* view):m_view(view)
 {
-	m_qrClickPos = xpos;
+	
+}
+
+void TimePointer::click(const unsigned int timepos)
+{
+	m_uiClickTimePos = timepos;
 	update();
 }
 
 void TimePointer::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 {
-//	setBrush(QColor(0, 255, 0, 50));
+	setBrush(QColor(0, 255, 0, 10));
 	TimeZone::paint(painter, option, widget);
-	painter->drawLine(QPointF(m_qrClickPos,0),QPointF(m_qrClickPos,rect().height()));
+//视图之外不绘制
+	int x = m_uiClickTimePos / m_uiTimeSpace * m_dPixSpace;
+	QPoint pos(x, 20);
+	if (m_view->rect().contains(m_view->mapFromScene(pos)))
+	{
+		painter->drawLine(QPointF(x, 0), QPointF(x, rect().height()));
+	}
+	
 }
