@@ -16,7 +16,8 @@ TimeVideoItem::~TimeVideoItem()
 void TimeVideoItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 {
 	painter->fillRect(rect(), Qt::gray);
-	painter->drawText(0, 0, m_qsRes);
+	painter->setPen(Qt::white);
+	painter->drawText(rect(), m_qsRes);
 }
 
 QVariant TimeVideoItem::itemChange(GraphicsItemChange change, const QVariant &value)

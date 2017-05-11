@@ -5,13 +5,15 @@
 #include <QApplication>
 #include <QDrag>
 #include <QMimeData>
+#include "../ResData/ResData.h"
 
 TableView::TableView()
 {
 	QString styles = "background-color: rgb(50, 50, 50); color:rgb(0,255,255);";
 	header()->setStyleSheet(styles);
-	MediaResModel* model = new MediaResModel(this);
-	setModel(model);
+
+	setModel(ResData::instance()->createMediaResModel());
+
 	setStyleSheet("background-color: rgb(28, 58, 255);color: rgb(255, 255, 255);QHeaderView{background-color: rgb(50, 50, 50);}");
 	setAcceptDrops(true);
 	setDragEnabled(true);
@@ -40,26 +42,60 @@ void TableView::startDrag(Qt::DropActions supportedActions)
 	
 }
 
-// void TableView::mouseMoveEvent(QMouseEvent *event)
-// {
-// 	QTreeView::mouseMoveEvent(event);
-// 	if (QLineF(event->screenPos(), m_posPressed)
-// 		.length() < QApplication::startDragDistance()) {
-// 		return;
-// 	}
-// 
-// 	QDrag *drag = new QDrag(this);
-// 	QMimeData *mime = new QMimeData;
-// 	drag->setMimeData(mime);
-// 	
-// 	drag->setPixmap(model()->data());
-// 	//	drag->setHotSpot(QPoint(15, 20));
-// 
-// 	drag->exec();
-// }
-// 
-// void TableView::mousePressEvent(QMouseEvent *event)
-// {
-// 	QTreeView::mousePressEvent(event);
-// 	m_posPressed = event->screenPos();
-// }
+void TableView::dragEnterEvent(QDragEnterEvent *event)
+{
+	const QMimeData *mimeData = event->mimeData();
+	QStringList formats = mimeData->formats();
+	QList<QUrl> urlList = mimeData->urls();
+	bool valid = false;
+	//判断拖动的文件中是否有有效的媒体文件
+	for (int i = 0; i < urlList.size(); ++i)
+	{
+		QString file = urlList.at(i).toLocalFile();
+		if (!file.isEmpty())
+		{
+			if (ResData::instance()->isValidMediaFile(file))
+			{
+				valid = true;
+				break;
+			}
+		}
+	}
+	if (valid)
+	{
+		event->acceptProposedAction();
+	}
+	else
+	{
+		event->ignore();
+	}
+}
+
+void TableView::dragMoveEvent(QDragMoveEvent *event)
+{
+	event->acceptProposedAction();
+}
+
+void TableView::dragLeaveEvent(QDragLeaveEvent *event)
+{
+	event->accept();
+}
+
+void TableView::dropEvent(QDropEvent *event)
+{
+	QStringList fileLst;
+	const QMimeData *mimeData = event->mimeData();
+	QStringList formats = mimeData->formats();
+	QList<QUrl> urlList = mimeData->urls();
+	for (int i = 0; i < urlList.size(); ++i)
+	{
+		QString file = urlList.at(i).toLocalFile();
+		if (!file.isEmpty())
+		{
+			fileLst.push_back(file);
+		}
+	}
+	ResData::instance()->addMediaResFiles(fileLst);
+	doItemsLayout();
+}
+

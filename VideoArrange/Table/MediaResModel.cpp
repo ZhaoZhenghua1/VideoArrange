@@ -4,25 +4,18 @@
 #include <QColor>
 #include <QFont>
 #include <QPixmap>
-
+#include <QFileInfo>
+#include "../ResData/ResData.h"
 
 const QStringList INVALID_NODE_LST = { "#cdata-section" ,"#comment" ,"#document" ,"#document-fragment" ,"#text" };
 const char* const DOAG_DROP_TYPE = "LM-video-resource";
 const int RES_ID = Qt::UserRole + 1;
 //! [0]
-MediaResModel::MediaResModel(QObject *parent)
+MediaResModel::MediaResModel(const QDomElement& resLstElem, QObject *parent)
 	: QAbstractItemModel(parent)
 {
-	QFile file("project.xml");
-	if (file.open(QIODevice::ReadOnly)) 
-	{
-		m_domDocConfig.setContent(&file);
-		file.close();
-	}
-	QDomElement projectNode = m_domDocConfig.firstChildElement("project");
-	QDomElement resNode = projectNode.firstChildElement("resourcelist");
-	QString name = resNode.nodeName();
-    rootItem = new DomItem(resNode, 0);
+	m_elem = resLstElem;
+    rootItem = new DomItem(m_elem, 0);
 }
 //! [0]
 
@@ -72,6 +65,11 @@ Qt::DropActions MediaResModel::supportedDragActions() const
 	return Qt::CopyAction | Qt::MoveAction;
 }
 
+void MediaResModel::addFiles(const QStringList& files)
+{
+	
+}
+
 //! [2]
 
 //! [3]
@@ -91,17 +89,17 @@ QVariant MediaResModel::data(const QModelIndex &index, int role) const
 		switch (index.column())
 		{
 		case 0:
-			return "col 0";
+			return QFileInfo(elem.attribute("filePath")).fileName();
 		case 2:
-			return "2";
+			return QString::fromLocal8Bit("类型");
 		case 3:
-			return "3";
+			return QString::fromLocal8Bit("分辨率");
 		case 4:
-			return "4";
+			return QString::fromLocal8Bit("时间长度");
 		case 5:
-			return "5";
+			return QFileInfo(elem.attribute("filePath")).absoluteFilePath();
 		default:
-			return QVariant();
+			return "";
 		}
 	}
 	else if (Qt::DecorationRole == role)
@@ -157,17 +155,17 @@ QVariant MediaResModel::headerData(int section, Qt::Orientation orientation,
 			switch (section)
 			{
 			case 0:
-				return tr("Name");
+				return QString::fromLocal8Bit("名称");
 			case 1:
-				return tr("Preview");
+				return QString::fromLocal8Bit("缩略图");
 			case 2:
-				return tr("Type");
+				return QString::fromLocal8Bit("类型");
 			case 3:
-				return tr("Resolution");
+				return QString::fromLocal8Bit("分辨率");
 			case 4:
-				return tr("Time Length");
+				return QString::fromLocal8Bit("时间长度");
 			case 5:
-				return tr("Location");
+				return QString::fromLocal8Bit("位置");
 			default:
 				return QVariant();
 			}

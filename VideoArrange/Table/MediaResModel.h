@@ -42,18 +42,17 @@
 #define DOMMODEL_H
 
 #include <QAbstractItemModel>
-#include <QDomDocument>
 #include <QModelIndex>
+#include <QDomElement>
 
 class DomItem;
-
 //! [0]
 class MediaResModel : public QAbstractItemModel
 {
     Q_OBJECT
 
 public:
-    explicit MediaResModel(QObject *parent = 0);
+    explicit MediaResModel(const QDomElement& resLstElem, QObject *parent = 0);
     ~MediaResModel();
 
     QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
@@ -72,8 +71,10 @@ public:
 	bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)Q_DECL_OVERRIDE;
 	Qt::DropActions supportedDropActions()const Q_DECL_OVERRIDE;
 	Qt::DropActions supportedDragActions()const Q_DECL_OVERRIDE;
+public:
+	void addFiles(const QStringList& files);
 private:
-    QDomDocument m_domDocConfig;
+	QDomElement m_elem;
     DomItem *rootItem;
 };
 //! [0]

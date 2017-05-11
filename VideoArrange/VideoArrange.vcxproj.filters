@@ -47,9 +47,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_SwitchButton.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="TimeRuler.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="VideoEditor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -155,6 +152,9 @@
     <ClCompile Include="GeneratedFiles\Release\moc_TimeVideoView.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="ResData\ResData.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Resources\videoarrange.qrc">
@@ -192,9 +192,6 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TimeRuler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="TimeZone\TimeEffectView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -217,6 +214,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TimeZone\TimeVideoLine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ResData\ResData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
