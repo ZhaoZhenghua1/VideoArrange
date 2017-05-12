@@ -30,8 +30,8 @@ private:
 
 	TimeBarView* m_timeBarView;
 	TimeVideoView* m_timeVideoView;
-	TimePointerView* m_timePointerView;
-	QGraphicsView* m_pViewEffectRight;
+//	TimePointerView* m_timePointerView;
+//	QGraphicsView* m_pViewEffectRight;
 
 	LayerView* m_leftLayerView;
 

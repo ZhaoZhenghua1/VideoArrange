@@ -1,4 +1,4 @@
-#include "ResData.h"
+#include "Document.h"
 #include "../Table/MediaResModel.h"
 
 #include <QFile>
@@ -8,29 +8,30 @@
 const QStringList MAP_MEDIA = { "JPG","PNG","BMP","DIB","JPEG","JPE","JFIF","GIF","TIF","TIFF" };
 const QStringList VIDEO_MEDIA = { "AVI","WMV","WMP","ASF","WMA","WAV","MID","MIDI","RM","RAM","RMVB","RA","RP","SMI","MP4" };//后面根据需求再追加
 
-ResData::ResData()
+Document::Document()
 {
-	//temp
-	load("project.xml");
+	open("project.xml");
 }
 
 
-ResData::~ResData()
+Document::~Document()
 {
 }
 
-ResData* ResData::instance()
+Document* Document::instance()
 {
-	static ResData* ins = nullptr;
+	static Document* ins = nullptr;
 	if (nullptr == ins)
 	{
-		ins = new ResData;
+		ins = new Document;
 	}
 	return ins;
 }
 
-void ResData::load(const QString& path)
+void Document::open(const QString& path)
 {
+	m_fileName = path;
+ 
 	QFile file(path);
 	if (file.open(QIODevice::ReadOnly))
 	{
@@ -39,7 +40,7 @@ void ResData::load(const QString& path)
 	}
 }
 
-bool ResData::isValidMediaFile(const QString& path)
+bool Document::isValidMediaFile(const QString& path)
 {
 	QFileInfo fileInfo(path);
 	if (!fileInfo.exists())
@@ -57,7 +58,7 @@ bool ResData::isValidMediaFile(const QString& path)
 	return false;
 }
 
-bool ResData::exist(const QString& path)
+bool Document::exist(const QString& path)
 {
 	QFileInfo info(path);
 	QDomElement projectNode = m_doc.firstChildElement("project");
@@ -75,17 +76,17 @@ bool ResData::exist(const QString& path)
 	return false;
 }
 
-int ResData::mediaType(const QString& path)
+int Document::mediaType(const QString& path)
 {
 	return 2;
 }
 
-QDomDocument ResData::document()
+QDomDocument Document::document()
 {
 	return m_doc;
 }
 
-void ResData::addMediaResFiles(const QStringList& files)
+void Document::addMediaResFiles(const QStringList& files)
 {
 	QDomElement projectNode = m_doc.firstChildElement("project");
 	QDomElement resNode = projectNode.firstChildElement("resourcelist");
@@ -95,7 +96,7 @@ void ResData::addMediaResFiles(const QStringList& files)
 	{
 		if (isValidMediaFile(*ite) && !exist(*ite))
 		{
-			QDomElement elem = ResData::instance()->document().createElement("resource");
+			QDomElement elem = Document::instance()->document().createElement("resource");
 			elem.setAttribute("filePath", *ite);
 			elem.setAttribute("id", createId());
 			elem.setAttribute("type", mediaType(*ite));
@@ -110,7 +111,7 @@ void ResData::addMediaResFiles(const QStringList& files)
 	}
 }
 
-QString ResData::createId()
+QString Document::createId()
 {
 	QDomElement projectNode = m_doc.firstChildElement("project");
 	QDomElement resLstNode = projectNode.firstChildElement("resourcelist");
@@ -135,9 +136,13 @@ QString ResData::createId()
 	return QString("resourceID_%1").arg(index);
 }
 
-void ResData::save()
+void Document::save()
 {
-	QFile file("project.xml");
+	if (m_fileName.isEmpty())
+	{
+		return;
+	}
+	QFile file(m_fileName);
 
 	if (file.open(QIODevice::WriteOnly))
 	{
@@ -148,7 +153,7 @@ void ResData::save()
 	}
 }
 
-MediaResModel* ResData::createMediaResModel()
+MediaResModel* Document::createMediaResModel()
 {
 	QDomElement projectNode = m_doc.firstChildElement("project");
 	QDomElement resNode = projectNode.firstChildElement("resourcelist");

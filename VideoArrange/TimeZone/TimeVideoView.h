@@ -23,6 +23,7 @@ public:
 	~TimeVideoView();
 protected:
 	virtual TimeZone* timeZone()Q_DECL_OVERRIDE;
+	virtual qreal sceneHeight()Q_DECL_OVERRIDE;
 protected:
 protected:
 // 	virtual void dragEnterEvent(QDragEnterEvent *event) override;

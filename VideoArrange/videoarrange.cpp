@@ -54,7 +54,6 @@ VideoArrange::VideoArrange()
 	layoutTop->setSpacing(1);
 	pWTop->setLayout(layoutTop);
 	m_leftLayerView = new LayerView;
-	m_leftLayerView->setScene(m_sceneTopLeft);
 	m_leftLayerView->setFixedWidth(LEFT_WIDTH);
 	layoutTop->addWidget(m_leftLayerView);
 	m_timeVideoView = new TimeVideoView;
@@ -70,39 +69,39 @@ VideoArrange::VideoArrange()
 	splitter->addWidget(pWTimeLayer);
 
 	//下方效果编辑
-	QWidget* PWBottom = new QWidget;
-	splitter->addWidget(PWBottom);
-	QHBoxLayout* layoutBottom = new QHBoxLayout;
-	layoutBottom->setContentsMargins(0, 0, 0, 0);
-	layoutBottom->setSpacing(1);
-	PWBottom->setLayout(layoutBottom);
-	QGraphicsView* pViewEffectLeft = new QGraphicsView;
-	pViewEffectLeft->setFixedWidth(LEFT_WIDTH);
-	pViewEffectLeft->setScene(m_sceneBottomLeft);
-	layoutBottom->addWidget(pViewEffectLeft);
-	m_pViewEffectRight = new QGraphicsView;
-	//pViewEffectRight->setScene(m_sceneBottomRight);
-	layoutBottom->addWidget(m_pViewEffectRight);
+// 	QWidget* PWBottom = new QWidget;
+// 	splitter->addWidget(PWBottom);
+// 	QHBoxLayout* layoutBottom = new QHBoxLayout;
+// 	layoutBottom->setContentsMargins(0, 0, 0, 0);
+// 	layoutBottom->setSpacing(1);
+// 	PWBottom->setLayout(layoutBottom);
+// 	QGraphicsView* pViewEffectLeft = new QGraphicsView;
+// 	pViewEffectLeft->setFixedWidth(LEFT_WIDTH);
+// 	pViewEffectLeft->setScene(m_sceneBottomLeft);
+// 	layoutBottom->addWidget(pViewEffectLeft);
+// 	m_pViewEffectRight = new QGraphicsView;
+// 	//pViewEffectRight->setScene(m_sceneBottomRight);
+// 	layoutBottom->addWidget(m_pViewEffectRight);
 
 	m_sceneTopLeft->setSceneRect(QRectF(0, 0, LEFT_WIDTH,300));
 	m_sceneBottomLeft->setSceneRect(QRectF(0, 0, LEFT_WIDTH, 300));
 
 	//滚动条设置
-	m_leftLayerView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+//	m_leftLayerView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	m_leftLayerView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-	m_pViewEffectRight->setVerticalScrollBar(pViewEffectLeft->verticalScrollBar());
-	pViewEffectLeft->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	pViewEffectLeft->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+// 	m_pViewEffectRight->setVerticalScrollBar(pViewEffectLeft->verticalScrollBar());
+// 	pViewEffectLeft->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+// 	pViewEffectLeft->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 	setHorizontalScrollBar(m_timeBarView->horizontalScrollBar());
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	m_timeVideoView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	m_pViewEffectRight->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	m_timeVideoView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-	m_pViewEffectRight->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	m_timeBarView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	m_timeBarView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+//	m_pViewEffectRight->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+//	m_pViewEffectRight->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
 	//左下角播放，放大，缩小 按钮
 	QWidget* pWBottomLeftCorner = new QWidget;
@@ -115,25 +114,25 @@ VideoArrange::VideoArrange()
 	cornerLayout->addWidget(m_btnZoomOut);
 	cornerLayout->addWidget(m_btnZoomIn);
 
-	m_timePointerView = new TimePointerView;
-	m_timePointerView->setParent(this);
-	m_timePointerView->hide();
+// 	m_timePointerView = new TimePointerView;
+// 	m_timePointerView->setParent(this);
+// 	m_timePointerView->hide();
 
 	connect(m_btnZoomIn, &QPushButton::clicked, m_timeBarView, &TimeBarView::zoomIn);
-	connect(m_btnZoomIn, &QPushButton::clicked, m_timePointerView, &TimeBarView::zoomIn);
+//	connect(m_btnZoomIn, &QPushButton::clicked, m_timePointerView, &TimeBarView::zoomIn);
 	connect(m_btnZoomIn, &QPushButton::clicked, m_timeVideoView, &TimeBarView::zoomIn);
 
 	connect(m_btnZoomOut, &QPushButton::clicked, m_timeBarView, &TimeBarView::zoomOut);
-	connect(m_btnZoomOut, &QPushButton::clicked, m_timePointerView, &TimeBarView::zoomOut);
+//	connect(m_btnZoomOut, &QPushButton::clicked, m_timePointerView, &TimeBarView::zoomOut);
 	connect(m_btnZoomOut, &QPushButton::clicked, m_timeVideoView, &TimeBarView::zoomOut);
 
 
 	connect(m_timeBarView->horizontalScrollBar(), &QScrollBar::valueChanged, m_timeVideoView->horizontalScrollBar(), &QScrollBar::setValue);
-	connect(m_timeBarView->horizontalScrollBar(), &QScrollBar::valueChanged, m_timePointerView->horizontalScrollBar(), &QScrollBar::setValue);
+//	connect(m_timeBarView->horizontalScrollBar(), &QScrollBar::valueChanged, m_timePointerView->horizontalScrollBar(), &QScrollBar::setValue);
 
 	connect(m_timeVideoView->verticalScrollBar(), &QScrollBar::valueChanged, m_leftLayerView->verticalScrollBar(), &QScrollBar::setValue);
 
-	connect(m_timeBarView, &TimeBarView::sigTimebarClicked, m_timePointerView, &TimePointerView::onClickTimeBar);
+//	connect(m_timeBarView, &TimeBarView::sigTimebarClicked, m_timePointerView, &TimePointerView::onClickTimeBar);
 
 	addScrollBarWidget(pWBottomLeftCorner, Qt::AlignLeft);
 }
@@ -146,9 +145,6 @@ VideoArrange::~VideoArrange()
 void VideoArrange::resizeEvent(QResizeEvent * event)
 {
 	QAbstractScrollArea::resizeEvent(event);
-	QRect rectGeo(m_timeBarView->geometry().topLeft(), m_pViewEffectRight->parentWidget()->geometry().bottomRight()+=(QPoint(-17,0)));
-	m_timePointerView->setGeometry(rectGeo);
-	m_timePointerView->show();
 }
 
 void VideoArrange::onScroll()

@@ -11,8 +11,7 @@ public:
 	~LayerView();
 protected:
 	virtual void resizeEvent(QResizeEvent *event)Q_DECL_OVERRIDE;
-private slots:
-	void onUnfoldRelayout();
+	virtual void paintEvent(QPaintEvent *event)Q_DECL_OVERRIDE;
 private:
 	RootWidget* m_rootWidget;
 };

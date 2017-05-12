@@ -87,19 +87,12 @@ void TimeView::zoomOut()
 	setSceneRect(sceneRec);
 }
 
-#include <QApplication>
-void TimeView::update()
-{
-// 	QEvent event(QEvent::UpdateRequest);
-// 	QApplication::sendEvent(this, &event);
-//	QGraphicsView::update();
-}
-
 bool TimeView::isTimeMinimized()
 {
 	return m_bIsMinimized;
 }
 
+//时间间隔为200ms时为最大化
 bool TimeView::isTimeMaximized()
 {
 	return (int)timeZone()->m_uiTimeSpace <= 200;
@@ -122,16 +115,17 @@ void TimeView::resizeEvent(QResizeEvent *event)
 	{
 		m_bIsMinimized = true;
 	}
-	if (sceneRect().height() < height())
-	{
-		scene()->setSceneRect(sceneRect().adjusted(0,0,event->size().width(), event->size().height()));//QRectF(0, 0, event->size().width(), event->size().height()));
-		timeZone()->setGeometry(timeZone()->rect().adjusted(0, 0, event->size().width(), height()));
-	}
+
 	//场景和视图一样大小时，随视图大小
 	if (isTimeMinimized())
 	{
-		setSceneRect(QRectF(0, 0, event->size().width(), event->size().height()));
+		setSceneRect(QRectF(0, 0, event->size().width(), sceneHeight()));
 	}
 	QGraphicsView::resizeEvent(event);
+}
+
+qreal TimeView::sceneHeight()
+{
+	return viewport()->height();
 }
 

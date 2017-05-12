@@ -5,7 +5,7 @@
 #include <QFont>
 #include <QPixmap>
 #include <QFileInfo>
-#include "../ResData/ResData.h"
+#include "../Document/Document.h"
 
 const QStringList INVALID_NODE_LST = { "#cdata-section" ,"#comment" ,"#document" ,"#document-fragment" ,"#text" };
 const char* const DOAG_DROP_TYPE = "LM-video-resource";
@@ -102,6 +102,7 @@ QVariant MediaResModel::data(const QModelIndex &index, int role) const
 			return "";
 		}
 	}
+	//todo:添加资源接口，提供缩略图，分辨率，长度等的信息
 	else if (Qt::DecorationRole == role)
 	{
 		switch (index.column())

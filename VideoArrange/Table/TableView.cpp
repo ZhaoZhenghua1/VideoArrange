@@ -5,14 +5,14 @@
 #include <QApplication>
 #include <QDrag>
 #include <QMimeData>
-#include "../ResData/ResData.h"
+#include "../Document/Document.h"
 
 TableView::TableView()
 {
 	QString styles = "background-color: rgb(50, 50, 50); color:rgb(0,255,255);";
 	header()->setStyleSheet(styles);
 
-	setModel(ResData::instance()->createMediaResModel());
+	setModel(Document::instance()->createMediaResModel());
 
 	setStyleSheet("background-color: rgb(28, 58, 255);color: rgb(255, 255, 255);QHeaderView{background-color: rgb(50, 50, 50);}");
 	setAcceptDrops(true);
@@ -54,7 +54,7 @@ void TableView::dragEnterEvent(QDragEnterEvent *event)
 		QString file = urlList.at(i).toLocalFile();
 		if (!file.isEmpty())
 		{
-			if (ResData::instance()->isValidMediaFile(file))
+			if (Document::instance()->isValidMediaFile(file))
 			{
 				valid = true;
 				break;
@@ -95,7 +95,7 @@ void TableView::dropEvent(QDropEvent *event)
 			fileLst.push_back(file);
 		}
 	}
-	ResData::instance()->addMediaResFiles(fileLst);
+	Document::instance()->addMediaResFiles(fileLst);
 	doItemsLayout();
 }
 

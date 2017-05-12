@@ -11,6 +11,7 @@
 #include "VideoArrange.h"
 #include "Layer/LayerView.h"
 #include "Table/TableView.h"
+#include "VideoEditor.h"
 int main(int argc, char *argv[])
 {
 	QApplication a(argc, argv);
@@ -34,10 +35,8 @@ int main(int argc, char *argv[])
 // 	pv1->setVerticalScrollBar(pv2->verticalScrollBar());
 // 	pv2->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 // 	w.setCentralWidget(pw);
+	VideoEditor ve;
+	ve.show();
 
-	VideoArrange le;
-	le.show();
-	TableView tv;
-	tv.show();
 	return a.exec();
 }

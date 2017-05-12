@@ -28,14 +28,14 @@ public:
 public slots:
 	void zoomIn();//放大
 	void zoomOut();//缩小
-	void update();
 public:
 	bool isTimeMinimized();
 	bool isTimeMaximized();
 protected:
 	void setSceneRect(const QRectF& rect);
 	virtual void resizeEvent(QResizeEvent *event)Q_DECL_OVERRIDE;
-
+	//时间视图宽度由视图决定，高度由子类决定
+	virtual qreal sceneHeight();
 	virtual TimeZone* timeZone() = 0;
 private:
 	bool m_bIsMinimized = true;

@@ -10,7 +10,10 @@ class VideoEditor : public QMainWindow
 public:
 	VideoEditor(QWidget *parent = 0);
 	~VideoEditor();
-
+	public slots:
+	void onOpen();
+	void onSave();
+	void onNew();
 private:
 
 };

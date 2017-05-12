@@ -19,6 +19,11 @@ TimeVideoLine::~TimeVideoLine()
 void TimeVideoLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 {
 	painter->fillRect(rect(), Qt::black);
+// 	for (int x = -1000; x <= 1000 ; x+= 100)
+// 	{
+// 		painter->setPen(Qt::white);
+// 		painter->drawText(x, 20, QString("%1").arg(x));
+// 	}
 }
 
 void TimeVideoLine::setGeometry(const QRectF &rect) 
@@ -46,6 +51,7 @@ void TimeVideoLine::dragMoveEvent(QGraphicsSceneDragDropEvent *event)
 
 void TimeVideoLine::dropEvent(QGraphicsSceneDragDropEvent *event) 
 {
+	event->accept();
 	const QMimeData* mimeData = event->mimeData();
 	QString qsResId = mimeData->data(DOAG_DROP_TYPE);
 	TimeVideoItem* pItem = new TimeVideoItem(qsResId);

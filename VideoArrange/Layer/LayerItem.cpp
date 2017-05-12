@@ -91,7 +91,7 @@ bool LayerItem::onUnlock(bool unlock)
 #include <QPainter>
 void LayerItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 {
-	painter->fillRect(boundingRect(), Qt::blue);
+	painter->fillRect(boundingRect(), Qt::green);
 }
 
 QSizeF LayerItem::sizeHint(Qt::SizeHint which, const QSizeF &constraint /* = QSizeF() */)

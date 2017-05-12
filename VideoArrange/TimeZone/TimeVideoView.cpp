@@ -25,7 +25,7 @@ TimeVideo::TimeVideo(TimeVideoView* view):m_view(view)
 	QGraphicsAnchor* anchor = m_anchorLayout->addAnchor(tls[0], Qt::AnchorBottom, m_anchorLayout, Qt::AnchorTop);
 	anchor->setSpacing(46);
 
- 	for (int i = 1 ; i < 7 ; ++i)
+ 	for (int i = 1 ; i < 2 ; ++i)
  	{
  		m_anchorLayout->addAnchor(tls[i], Qt::AnchorTop, tls[i-1], Qt::AnchorBottom);
  		m_anchorLayout->addAnchor(tls[i], Qt::AnchorLeft, m_anchorLayout, Qt::AnchorLeft);
@@ -65,7 +65,6 @@ void TimeVideo::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 void TimeVideo::setGeometry(const QRectF &rect)
 {
 	TimeZone::setGeometry(rect);
-	QRectF geo = geometry();
 }
 
 TimeVideoView::TimeVideoView()
@@ -83,24 +82,8 @@ TimeZone* TimeVideoView::timeZone()
 {
 	return m_timeVideo;
 }
-/*
-void TimeVideoView::dragEnterEvent(QDragEnterEvent *event) 
-{
-	if (event->mimeData()->hasFormat(DOAG_DROP_TYPE))
-		event->accept();
-	else
-		event->ignore();
-}
 
-void TimeVideoView::dragLeaveEvent(QDragLeaveEvent *event)
+qreal TimeVideoView::sceneHeight() 
 {
-	event->accept();
+	return viewport()->height() + 200;
 }
-
-void TimeVideoView::dragMoveEvent(QDragMoveEvent *event) 
-{
-}
-
-void TimeVideoView::dropEvent(QDropEvent *event) 
-{
-}*/
