@@ -1,8 +1,10 @@
 #pragma once
 
 #include <QDomDocument>
+#include <QList>
 
 class MediaResModel;
+class Observer;
 class Document
 {
 public:
@@ -19,9 +21,11 @@ public:
 	QString createId();
 	void save();
 	QDomDocument document();
-	MediaResModel* createMediaResModel();
+	QDomElement data(const QStringList& path);
+	void addObserver(Observer * observer);
 private:
 	QDomDocument m_doc;
 	QString m_fileName;
+	QList<Observer*> m_lstObservers;
 };
 

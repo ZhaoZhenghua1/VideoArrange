@@ -118,9 +118,9 @@ VideoArrange::VideoArrange()
 // 	m_timePointerView->setParent(this);
 // 	m_timePointerView->hide();
 
+	connect(m_btnZoomIn, &QPushButton::clicked, m_timeVideoView, &TimeBarView::zoomIn);
 	connect(m_btnZoomIn, &QPushButton::clicked, m_timeBarView, &TimeBarView::zoomIn);
 //	connect(m_btnZoomIn, &QPushButton::clicked, m_timePointerView, &TimeBarView::zoomIn);
-	connect(m_btnZoomIn, &QPushButton::clicked, m_timeVideoView, &TimeBarView::zoomIn);
 
 	connect(m_btnZoomOut, &QPushButton::clicked, m_timeBarView, &TimeBarView::zoomOut);
 //	connect(m_btnZoomOut, &QPushButton::clicked, m_timePointerView, &TimeBarView::zoomOut);

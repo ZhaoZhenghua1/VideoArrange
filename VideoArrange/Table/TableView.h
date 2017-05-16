@@ -1,7 +1,8 @@
 #pragma once
 #include <QTreeView>
+#include "../Document/Observer.h"
 
-class TableView : public QTreeView
+class TableView : public QTreeView , public Observer
 {
 public:
 	TableView();
@@ -12,5 +13,7 @@ protected:
 	virtual void dragMoveEvent(QDragMoveEvent *event) override;
 	virtual void dragLeaveEvent(QDragLeaveEvent *event) override;
 	virtual void dropEvent(QDropEvent *event) override;
+protected:
+	virtual void init() override;
 };
 

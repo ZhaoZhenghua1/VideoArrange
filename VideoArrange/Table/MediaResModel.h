@@ -52,7 +52,7 @@ class MediaResModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
-    explicit MediaResModel(const QDomElement& resLstElem, QObject *parent = 0);
+    explicit MediaResModel(QObject *parent = 0);
     ~MediaResModel();
 
     QVariant data(const QModelIndex &index, int role) const Q_DECL_OVERRIDE;
@@ -73,9 +73,10 @@ public:
 	Qt::DropActions supportedDragActions()const Q_DECL_OVERRIDE;
 public:
 	void addFiles(const QStringList& files);
+	void setData(const QDomElement& resLstElem);
 private:
 	QDomElement m_elem;
-    DomItem *rootItem;
+    DomItem *m_rootItem = nullptr;
 };
 //! [0]
 

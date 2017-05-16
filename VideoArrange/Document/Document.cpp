@@ -1,16 +1,17 @@
 #include "Document.h"
-#include "../Table/MediaResModel.h"
+#include "Observer.h"
 
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QMessageBox>
 
 const QStringList MAP_MEDIA = { "JPG","PNG","BMP","DIB","JPEG","JPE","JFIF","GIF","TIF","TIFF" };
 const QStringList VIDEO_MEDIA = { "AVI","WMV","WMP","ASF","WMA","WAV","MID","MIDI","RM","RAM","RMVB","RA","RP","SMI","MP4" };//后面根据需求再追加
 
 Document::Document()
 {
-	open("project.xml");
+	
 }
 
 
@@ -30,13 +31,35 @@ Document* Document::instance()
 
 void Document::open(const QString& path)
 {
+	if (m_fileName == path)
+	{
+		return;
+	}
 	m_fileName = path;
  
+	bool succeed = false;
 	QFile file(path);
 	if (file.open(QIODevice::ReadOnly))
 	{
-		m_doc.setContent(&file);
+		QString errorMsg;
+		int errorLine, errorColumn;
+		if (m_doc.setContent(&file, &errorMsg, &errorLine, &errorColumn))
+		{
+			succeed = true;
+		}
+		else
+		{
+			QMessageBox::information(nullptr, "Error", errorMsg + QString(" errorLine:%1, errorColumn:%2").arg(errorLine).arg(errorColumn));
+		}
 		file.close();
+	}
+
+	if (succeed)
+	{
+		for (auto ite = m_lstObservers.begin(); ite != m_lstObservers.end(); ++ite)
+		{
+			(*ite)->init();
+		}
 	}
 }
 
@@ -153,9 +176,24 @@ void Document::save()
 	}
 }
 
-MediaResModel* Document::createMediaResModel()
+// MediaResModel* Document::createMediaResModel()
+// {
+// 	QDomElement projectNode = m_doc.firstChildElement("project");
+// 	QDomElement resNode = projectNode.firstChildElement("resourcelist");
+// 	return new MediaResModel(resNode);
+// }
+
+QDomElement Document::data(const QStringList& path)
 {
-	QDomElement projectNode = m_doc.firstChildElement("project");
-	QDomElement resNode = projectNode.firstChildElement("resourcelist");
-	return new MediaResModel(resNode);
+	QDomElement elem = m_doc.firstChildElement(path.first());
+	for (auto ite = path.cbegin() + 1; ite != path.cend() && !elem.isNull(); ++ite)
+	{
+		elem = elem.firstChildElement(*ite);
+	}
+	return elem;
+}
+
+void Document::addObserver(Observer * observer)
+{
+	m_lstObservers.push_back(observer);
 }

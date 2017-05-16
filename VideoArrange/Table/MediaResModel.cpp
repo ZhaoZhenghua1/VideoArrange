@@ -11,18 +11,17 @@ const QStringList INVALID_NODE_LST = { "#cdata-section" ,"#comment" ,"#document"
 const char* const DOAG_DROP_TYPE = "LM-video-resource";
 const int RES_ID = Qt::UserRole + 1;
 //! [0]
-MediaResModel::MediaResModel(const QDomElement& resLstElem, QObject *parent)
+MediaResModel::MediaResModel(QObject *parent)
 	: QAbstractItemModel(parent)
 {
-	m_elem = resLstElem;
-    rootItem = new DomItem(m_elem, 0);
+	m_rootItem = new DomItem(m_elem, 0);
 }
 //! [0]
 
 //! [1]
 MediaResModel::~MediaResModel()
 {
-    delete rootItem;
+    delete m_rootItem;
 }
 //! [1]
 
@@ -135,6 +134,13 @@ bool MediaResModel::setData(const QModelIndex &index, const QVariant &val, int r
 	return QAbstractItemModel::setData(index, val, role);
 }
 
+void MediaResModel::setData(const QDomElement& resLstElem)
+{
+	m_elem = resLstElem;
+	delete m_rootItem;
+	m_rootItem = new DomItem(m_elem, 0);
+}
+
 //! [5]
 Qt::ItemFlags MediaResModel::flags(const QModelIndex &index) const
 {
@@ -198,7 +204,7 @@ QModelIndex MediaResModel::index(int row, int column, const QModelIndex &parent)
 
 	if (!parent.isValid())
 	{
-        parentItem = rootItem;
+        parentItem = m_rootItem;
 	}
     else
         parentItem = static_cast<DomItem*>(parent.internalPointer());
@@ -222,7 +228,7 @@ QModelIndex MediaResModel::parent(const QModelIndex &child) const
     DomItem *childItem = static_cast<DomItem*>(child.internalPointer());
     DomItem *parentItem = childItem->parent();
 
-    if (!parentItem || parentItem == rootItem)
+    if (!parentItem || parentItem == m_rootItem)
         return QModelIndex();
 
     return createIndex(parentItem->row(), 0, parentItem);
@@ -238,7 +244,7 @@ int MediaResModel::rowCount(const QModelIndex &parent) const
     DomItem *parentItem;
 
     if (!parent.isValid())
-        parentItem = rootItem;
+        parentItem = m_rootItem;
     else
         parentItem = static_cast<DomItem*>(parent.internalPointer());
 	QString nodename = parentItem->node().nodeName();

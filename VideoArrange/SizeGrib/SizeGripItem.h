@@ -94,6 +94,7 @@ class SizeGripItem : public QGraphicsItem
         void setBottomLeft(const QPointF& pos);
         void setLeft(qreal x);
 
+		void fixToParent();
     private:
         void doResize();
         void updateHandleItemPositions();

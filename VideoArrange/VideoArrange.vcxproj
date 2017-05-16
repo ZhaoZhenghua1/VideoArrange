@@ -207,6 +207,7 @@
     <ClCompile Include="Layer\GraphicsLayoutRectItem.cpp" />
     <ClCompile Include="Layer\LayerItem.cpp" />
     <ClCompile Include="Document\Document.cpp" />
+    <ClCompile Include="Document\Observer.cpp" />
     <ClCompile Include="SizeGrib\SizeGripItem.cpp" />
     <ClCompile Include="Table\DomItem.cpp" />
     <ClCompile Include="Table\MediaResModel.cpp" />
@@ -329,6 +330,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_XML_LIB "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtXml"</Command>
     </CustomBuild>
     <ClInclude Include="Document\Document.h" />
+    <ClInclude Include="Document\Observer.h" />
     <ClInclude Include="SizeGrib\SizeGripItem.h" />
     <ClInclude Include="Table\DomItem.h" />
     <ClInclude Include="Table\TableView.h" />

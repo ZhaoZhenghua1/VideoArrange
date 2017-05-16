@@ -4,12 +4,14 @@
         <resource filePath="E:\BaiduNetdiskDownload\视频教程\实例\节目模板2\Wildlife.wmv" id="resourceID_1" type="2"/>
         <resource filePath="C:/Users/LightMagic/Pictures/blue2.png" id="resourceID_2" type="2"/>
         <resource filePath="C:/Users/LightMagic/Pictures/blue.png" id="resourceID_3" type="2"/>
+        <resource filePath="C:/Users/LightMagic/Pictures/map4.png" id="resourceID_4" type="2"/>
+        <resource filePath="C:/Users/LightMagic/Pictures/map3.png" id="resourceID_5" type="2"/>
     </resourcelist>
     <track>
         <layerlist>
-            <layer layerName="" select="1" preview="1" lock="0" voice="1">
+            <layer layerName="" lock="0" voice="1" select="1" preview="1">
                 <medialist>
-                    <media timeLength="50" select="1" resourceId="resourceID_0" timeStart="50"/>
+                    <media timeLength="50" timeStart="50" select="1" resourceId="resourceID_0"/>
                 </medialist>
             </layer>
         </layerlist>

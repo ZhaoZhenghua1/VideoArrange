@@ -4,6 +4,7 @@
 #include <QGraphicsScene>
 #include <QGraphicsView>
 #include "../SizeGrib/SizeGripItem.h"
+#include "TimeView.h"
 
 namespace
 {
@@ -12,22 +13,25 @@ namespace
 	public:
 		virtual void operator()(QGraphicsItem* item, const QRectF& rect)
 		{
-			QGraphicsRectItem* rectItem =
-				dynamic_cast<QGraphicsRectItem*>(item);
-
+			TimeVideoItem* rectItem =
+				dynamic_cast<TimeVideoItem*>(item);
+			if (rect.width() < 1)
+			{
+				return;
+			}
 			if (rectItem)
 			{
 				rectItem->setRect(rect);
+				rectItem->updateTime();
 			}
 		}
 	};
 }
 
-TimeVideoItem::TimeVideoItem(const QString& res):m_qsRes(res)
+TimeVideoItem::TimeVideoItem(TimeZone* timezone):m_timezone(timezone)
 {
 	setFlags(ItemIsMovable | ItemSendsGeometryChanges | ItemSendsScenePositionChanges);
 	setBrush(Qt::darkCyan);
-
 }
 
 
@@ -42,6 +46,49 @@ void TimeVideoItem::setRect(const QRectF& rect)
 	{
 		m_sizeGrip = new SizeGripItem(new RectResizer, this);
 	}
+	m_sizeGrip->fixToParent();
+}
+
+//根据时间更新位置
+void TimeVideoItem::updatePos()
+{
+	QRectF resizeRect = QRectF(m_timezone->timeToPosition(m_startTime) - pos().x(), 0, m_timezone->timeToPosition(m_timeLen), 35);
+	setRect(resizeRect);
+}
+
+//根据位置更新时间
+void TimeVideoItem::updateTime()
+{
+	m_startTime = m_timezone->positionToTime(pos().x() + rect().left());
+	m_timeLen = m_timezone->positionToTime(rect().width());
+	m_dataElem.setAttribute("timeStart", QString("%1").arg(m_startTime));
+	m_dataElem.setAttribute("timeLength", QString("%1").arg(m_timeLen));
+}
+
+bool TimeVideoItem::initData(const QDomElement& media)
+{
+	QString qsResId = media.attribute("resourceId");
+	bool okTimeStart, okTimeLength;
+	unsigned int timeStart = media.attribute("timeStart").toUInt(&okTimeStart);
+	unsigned int timeLen = media.attribute("timeLength").toUInt(&okTimeLength);
+	if (!okTimeStart || !okTimeLength && qsResId.isEmpty())
+	{
+		Q_ASSERT(false);
+		return false;
+	}
+	m_dataElem = media;
+	m_startTime = timeStart;
+	m_timeLen = timeLen;
+	m_qsRes = qsResId;
+	updatePos();
+
+	show();
+	return true;
+}
+
+QDomElement TimeVideoItem::data()
+{
+	return m_dataElem;
 }
 
 void TimeVideoItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
@@ -82,6 +129,10 @@ QVariant TimeVideoItem::itemChange(GraphicsItemChange change, const QVariant &va
 		QPointF newPos = value.toPointF();
 		newPos.setY(0);
 		return newPos;
+	}
+	else if (change == ItemPositionHasChanged && scene())
+	{
+		updateTime();
 	}
 	return QGraphicsItem::itemChange(change, value);
 }

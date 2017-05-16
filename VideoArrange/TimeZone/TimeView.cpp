@@ -100,12 +100,12 @@ bool TimeView::isTimeMaximized()
 
 void TimeView::setSceneRect(const QRectF& rect)
 {
-	scene()->setSceneRect(rect);
-	timeZone()->setGeometry(rect);
-
-	std::tuple<int, qreal> ret = timeBarRuleStrategy(timeZone()->m_iTimeLength, scene()->width());
+	std::tuple<int, qreal> ret = timeBarRuleStrategy(timeZone()->m_iTimeLength, rect.width());
 	timeZone()->m_uiTimeSpace = std::get<TIMESPACE>(ret);
 	timeZone()->m_dPixSpace = std::get<PIXSPACE>(ret);
+
+	scene()->setSceneRect(rect);
+	timeZone()->setGeometry(rect);
 }
 
 void TimeView::resizeEvent(QResizeEvent *event)
@@ -129,3 +129,12 @@ qreal TimeView::sceneHeight()
 	return viewport()->height();
 }
 
+qreal TimeZone::timeToPosition(unsigned int timeMS)
+{
+	return timeMS * 1.0 / m_uiTimeSpace * m_dPixSpace;
+}
+
+unsigned int TimeZone::positionToTime(qreal pos)
+{
+	return pos / m_dPixSpace * m_uiTimeSpace + 0.5;
+}

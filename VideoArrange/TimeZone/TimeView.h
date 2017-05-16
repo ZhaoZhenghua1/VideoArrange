@@ -7,6 +7,9 @@
 class TimeView;
 class TimeZone : public QGraphicsWidget
 {
+public:
+	qreal timeToPosition(unsigned int timeMS);
+	unsigned int positionToTime(qreal pos);
 protected:
 	//virtual TimeView* timeView() = 0;
 protected:

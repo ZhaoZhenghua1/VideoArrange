@@ -50,7 +50,7 @@ VideoEditor::~VideoEditor()
 
 void VideoEditor::onOpen()
 {
-	QString fileName = QFileDialog::getOpenFileName(nullptr, QString::fromLocal8Bit("打开工程"), QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), "xmls(*.xml)");
+	QString fileName = QFileDialog::getOpenFileName(nullptr, QString::fromLocal8Bit("打开工程"), QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), "xml(*.xml)");
 	Document::instance()->open(fileName);
 }
 
@@ -61,5 +61,5 @@ void VideoEditor::onSave()
 
 void VideoEditor::onNew()
 {
-	QString fileName = QFileDialog::getSaveFileName(nullptr, QString::fromLocal8Bit("新建工程"), QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), "xmls(*.xml)");
+	QString fileName = QFileDialog::getSaveFileName(nullptr, QString::fromLocal8Bit("新建工程"), QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), "xml(*.xml)");
 }

@@ -158,6 +158,9 @@
     <ClCompile Include="Document\Document.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Document\Observer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Resources\videoarrange.qrc">
@@ -223,6 +226,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Document\Document.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Document\Observer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

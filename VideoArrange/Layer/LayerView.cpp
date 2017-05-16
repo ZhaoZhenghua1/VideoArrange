@@ -1,7 +1,9 @@
 #include "LayerView.h"
+#include "LayerItem.h"
+#include "../Document/Document.h"
+
 #include <QGraphicsWidget>
 #include <QGraphicsLinearLayout>
-#include "LayerItem.h"
 
 class RootWidget : public QGraphicsWidget
 {
@@ -21,22 +23,13 @@ LayerView::LayerView()
 	QGraphicsScene* scene = new QGraphicsScene;
 
 	scene->setBackgroundBrush(Qt::blue);
+	
 	m_rootWidget = new RootWidget;
-
-	QGraphicsLinearLayout* layout = new QGraphicsLinearLayout(Qt::Vertical);
-	layout->setContentsMargins(0, 0, 0, 0);
-	layout->setSpacing(1);
-	for (int i = 0 ; i < 7; ++i)
-	{
-		LayerItem* item = new LayerItem;
-		layout->addItem(item);
-	}
-
- 	m_rootWidget->setLayout(layout);
-
 	scene->addItem(m_rootWidget);
 
 	setScene(scene);
+
+	Document::instance()->addObserver(this);
 }
 
 
@@ -60,4 +53,25 @@ void LayerView::resizeEvent(QResizeEvent *event)
 void LayerView::paintEvent(QPaintEvent *event)
 {
 	QGraphicsView::paintEvent(event);
+}
+
+void LayerView::init()
+{
+	delete m_rootWidget;
+	m_rootWidget = new RootWidget;
+
+	QGraphicsLinearLayout* layout = new QGraphicsLinearLayout(Qt::Vertical);
+	layout->setContentsMargins(0, 0, 0, 0);
+	layout->setSpacing(1);
+
+	QDomElement d = Observer::data({ "project","track","layerlist" });
+	for (QDomElement elem = d.firstChildElement("layer"); !elem.isNull(); elem = elem.nextSiblingElement("layer"))
+	{
+		LayerItem* item = new LayerItem;
+		layout->addItem(item);
+	}
+
+	m_rootWidget->setLayout(layout);
+
+	scene()->addItem(m_rootWidget);
 }

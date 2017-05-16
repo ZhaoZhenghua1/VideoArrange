@@ -12,11 +12,12 @@ TableView::TableView()
 	QString styles = "background-color: rgb(50, 50, 50); color:rgb(0,255,255);";
 	header()->setStyleSheet(styles);
 
-	setModel(Document::instance()->createMediaResModel());
-
 	setStyleSheet("background-color: rgb(28, 58, 255);color: rgb(255, 255, 255);QHeaderView{background-color: rgb(50, 50, 50);}");
 	setAcceptDrops(true);
 	setDragEnabled(true);
+	setModel(new MediaResModel());
+
+	Document::instance()->addObserver(this);
 }
 
 TableView::~TableView()
@@ -96,6 +97,12 @@ void TableView::dropEvent(QDropEvent *event)
 		}
 	}
 	Document::instance()->addMediaResFiles(fileLst);
+	doItemsLayout();
+}
+
+void TableView::init()
+{
+	((MediaResModel*)model())->setData(Document::instance()->data({ "project" ,"resourcelist" }));
 	doItemsLayout();
 }
 
