@@ -27,7 +27,7 @@ public:
 	TimeBarView();
 	~TimeBarView();
 signals:
-	void sigTimebarClicked(unsigned int timePos);
+	void sigTimebarClicked(qreal timePos);
 protected:
 	virtual TimeZone* timeZone()Q_DECL_OVERRIDE;
 private:

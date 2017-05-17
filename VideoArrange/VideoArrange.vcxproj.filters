@@ -161,6 +161,15 @@
     <ClCompile Include="Document\Observer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Play\PlayWidget.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_PlayWidget.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_PlayWidget.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Resources\videoarrange.qrc">
@@ -197,6 +206,9 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="TimeZone\TimeVideoItem.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Play\PlayWidget.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>

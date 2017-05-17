@@ -6,6 +6,8 @@
 #include <QPushButton>
 #include <QLabel>
 #include <QScrollBar>
+#include <QTime>
+
 #include "TimeZone/TimeBarView.h"
 #include "TimeZone/TimePointerView.h"
 #include "TimeZone/TimeVideoView.h"
@@ -19,10 +21,18 @@ VideoArrange::VideoArrange()
 	m_sceneBottomLeft = new QGraphicsScene;
 	
 	m_btnPlay = new QPushButton("play");
-	m_btnZoomIn = new QPushButton("zout");
-	m_btnZoomOut = new QPushButton("zin");
+	m_btnZoomIn = new QPushButton("zin");
+	m_btnZoomOut = new QPushButton("zout");
 
 	m_labelTime = new QLabel("00:00:00.0000");
+
+	QPalette palette = m_labelTime->palette();
+	palette.setColor(QPalette::Window, Qt::gray);
+	m_labelTime->setPalette(palette);
+	m_labelTime->setAutoFillBackground(true);
+
+	//m_labelTime->setStyleSheet("background-color: gray;");
+	m_labelTime->setAlignment(Qt::AlignRight | Qt::AlignVCenter);
 	m_timeBarView = new TimeBarView;
 	m_btnTime = new QPushButton("t");
 
@@ -114,41 +124,55 @@ VideoArrange::VideoArrange()
 	cornerLayout->addWidget(m_btnZoomOut);
 	cornerLayout->addWidget(m_btnZoomIn);
 
-// 	m_timePointerView = new TimePointerView;
-// 	m_timePointerView->setParent(this);
-// 	m_timePointerView->hide();
+ 	m_timePointerView = new TimePointerView;
+ 	m_timePointerView->setParent(this);
 
 	connect(m_btnZoomIn, &QPushButton::clicked, m_timeVideoView, &TimeBarView::zoomIn);
 	connect(m_btnZoomIn, &QPushButton::clicked, m_timeBarView, &TimeBarView::zoomIn);
-//	connect(m_btnZoomIn, &QPushButton::clicked, m_timePointerView, &TimeBarView::zoomIn);
+	connect(m_btnZoomIn, &QPushButton::clicked, m_timePointerView, &TimeBarView::zoomIn);
 
 	connect(m_btnZoomOut, &QPushButton::clicked, m_timeBarView, &TimeBarView::zoomOut);
-//	connect(m_btnZoomOut, &QPushButton::clicked, m_timePointerView, &TimeBarView::zoomOut);
+	connect(m_btnZoomOut, &QPushButton::clicked, m_timePointerView, &TimeBarView::zoomOut);
 	connect(m_btnZoomOut, &QPushButton::clicked, m_timeVideoView, &TimeBarView::zoomOut);
 
 
 	connect(m_timeBarView->horizontalScrollBar(), &QScrollBar::valueChanged, m_timeVideoView->horizontalScrollBar(), &QScrollBar::setValue);
-//	connect(m_timeBarView->horizontalScrollBar(), &QScrollBar::valueChanged, m_timePointerView->horizontalScrollBar(), &QScrollBar::setValue);
+	connect(m_timeBarView->horizontalScrollBar(), &QScrollBar::valueChanged, m_timePointerView->horizontalScrollBar(), &QScrollBar::setValue);
 
 	connect(m_timeVideoView->verticalScrollBar(), &QScrollBar::valueChanged, m_leftLayerView->verticalScrollBar(), &QScrollBar::setValue);
 
-//	connect(m_timeBarView, &TimeBarView::sigTimebarClicked, m_timePointerView, &TimePointerView::onClickTimeBar);
+	connect(m_timeBarView, &TimeBarView::sigTimebarClicked, m_timePointerView, &TimePointerView::onClickTimeBar);
+	connect(m_timeBarView, &TimeBarView::sigTimebarClicked, this, &VideoArrange::onClickTimeBar);
 
+	connect(m_btnTime, SIGNAL(clicked()), this, SLOT(onClickBtnTime()));
 	addScrollBarWidget(pWBottomLeftCorner, Qt::AlignLeft);
 }
-
 
 VideoArrange::~VideoArrange()
 {
 }
 
+void VideoArrange::onClickTimeBar(qreal t)
+{
+	QTime time = QTime(0, 0).addMSecs(t + 0.5);
+	m_labelTime->setText(time.toString("hh:mm:ss.zzz"));
+}
+
+void VideoArrange::onClickBtnTime()
+{
+	if (0 == m_timePointerView->currentTime())
+	{
+		m_timeBarView->horizontalScrollBar()->setValue(0);
+	}
+	else
+	{
+		emit m_timeBarView->sigTimebarClicked(0);
+	}
+}
+
 void VideoArrange::resizeEvent(QResizeEvent * event)
 {
 	QAbstractScrollArea::resizeEvent(event);
+	m_timePointerView->setGeometry(114, 1, m_timeVideoView->viewport()->width(), viewport()->height());
 }
 
-void VideoArrange::onScroll()
-{
-//	resize(size() + QSize(0,1));
-//	resize(size() + QSize(0, -1));
-}

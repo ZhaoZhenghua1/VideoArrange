@@ -6,11 +6,12 @@ class TimePointer : public TimeZone
 {
 public:
 	TimePointer(TimePointerView* view);
-	void click(const unsigned int timepos);
+	void click(qreal timepos);
+	unsigned int currentTime();
 protected:
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)Q_DECL_OVERRIDE;
 private:
-	unsigned int m_uiClickTimePos = 0;
+	qreal m_uiClickTimePos = 0;
 	TimePointerView* m_view;
 };
 
@@ -21,8 +22,10 @@ class TimePointerView : public TimeView
 public:
 	TimePointerView();
 	~TimePointerView();
+
+	unsigned int currentTime();
 public slots:
-void onClickTimeBar(const unsigned int timepos);
+void onClickTimeBar(qreal timepos);
 protected:
 	virtual void resizeEvent(QResizeEvent *event)Q_DECL_OVERRIDE;
 	virtual TimeZone* timeZone() Q_DECL_OVERRIDE;

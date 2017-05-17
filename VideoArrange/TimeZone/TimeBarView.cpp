@@ -29,15 +29,21 @@ void TimeBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
 	painter->fillRect(rect(), Qt::gray);
 	TimeZone::paint(painter, option, widget);
 	qreal w = rect().width();
-
+	bool painted = false;
 	for (qreal x = 0; x <= w; x += m_dPixSpace)
 	{
 		QPoint pos(x, rect().height()  - 7);
 		//视图之外不绘制
 		if (!m_view->rect().contains(m_view->mapFromScene(pos)))
 		{
+			//视图之内绘制完成，不需要继续绘制
+			if (painted)
+			{
+				return;
+			}
 			continue;
 		}
+		painted = true;
 		QString drawStr;
 		QTime time = QTime(0, 0).addMSecs(x / m_dPixSpace*m_uiTimeSpace + 0.5);
 		if (time.hour() > 0)
@@ -73,7 +79,7 @@ void TimeBar::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 	TimeZone::mousePressEvent(event);
 	qreal posX = event->scenePos().x();
-	unsigned int t = posX / m_dPixSpace*m_uiTimeSpace;
+	qreal t = posX / m_dPixSpace*m_uiTimeSpace;
 	emit m_view->sigTimebarClicked(t);
 	event->setAccepted(true);
 }

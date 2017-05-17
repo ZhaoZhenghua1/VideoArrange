@@ -36,7 +36,7 @@ TimeVideo::TimeVideo(TimeVideoView* view):m_view(view)
 //  	}
 
 	setLayout(m_anchorLayout);
-
+	
 	Document::instance()->addObserver(this);
 }
 
@@ -46,23 +46,23 @@ void TimeVideo::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 	qreal w = rect().width();
 
 	painter->fillRect(rect(), Qt::yellow);
-	for (qreal x = 0; x <= w; x += m_dPixSpace)
-	{
-		QPoint pos(x, 20);
-		//视图之外不绘制
-		if (!m_view->rect().contains(m_view->mapFromScene(pos)))
-		{
-			continue;
-		}
-		if (m_uiTimeSpace < 1000)
-		{
-			painter->drawText(pos, QTime(0, 0).addMSecs(x / m_dPixSpace*m_uiTimeSpace).toString("hh:mm:ss.zzz"));
-		}
-		else
-		{
-			painter->drawText(pos, QTime(0, 0).addMSecs(x / m_dPixSpace*m_uiTimeSpace).toString("hh:mm:ss"));
-		}
-	}
+// 	for (qreal x = 0; x <= w; x += m_dPixSpace)
+// 	{
+// 		QPoint pos(x, 20);
+// 		//视图之外不绘制
+// 		if (!m_view->rect().contains(m_view->mapFromScene(pos)))
+// 		{
+// 			continue;
+// 		}
+// 		if (m_uiTimeSpace < 1000)
+// 		{
+// 			painter->drawText(pos, QTime(0, 0).addMSecs(x / m_dPixSpace*m_uiTimeSpace).toString("hh:mm:ss.zzz"));
+// 		}
+// 		else
+// 		{
+// 			painter->drawText(pos, QTime(0, 0).addMSecs(x / m_dPixSpace*m_uiTimeSpace).toString("hh:mm:ss"));
+// 		}
+// 	}
 }
 
 void TimeVideo::setGeometry(const QRectF &rect)
@@ -111,13 +111,17 @@ void TimeVideo::init()
 TimeVideoView::TimeVideoView()
 {
 	m_timeVideo = new TimeVideo(this);
-	
 	scene()->addItem(m_timeVideo);
 }
 
 
 TimeVideoView::~TimeVideoView()
 {
+}
+
+void TimeVideoView::paintEvent(QPaintEvent *event) 
+{
+	TimeView::paintEvent(event);
 }
 
 TimeZone* TimeVideoView::timeZone()

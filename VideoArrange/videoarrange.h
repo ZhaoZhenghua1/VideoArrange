@@ -16,10 +16,11 @@ class VideoArrange : public QAbstractScrollArea
 public:
 	VideoArrange();
 	~VideoArrange();
+public slots:
+	void onClickTimeBar(qreal time);
+	void onClickBtnTime();
 protected:
 	virtual void resizeEvent(QResizeEvent *)Q_DECL_OVERRIDE;
-private slots:
-	void onScroll();
 private:
 	QGraphicsScene* m_sceneTopLeft = nullptr;
 	QGraphicsScene* m_sceneBottomLeft = nullptr;
@@ -30,7 +31,7 @@ private:
 
 	TimeBarView* m_timeBarView;
 	TimeVideoView* m_timeVideoView;
-//	TimePointerView* m_timePointerView;
+	TimePointerView* m_timePointerView;
 //	QGraphicsView* m_pViewEffectRight;
 
 	LayerView* m_leftLayerView;

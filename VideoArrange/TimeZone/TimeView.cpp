@@ -95,7 +95,7 @@ bool TimeView::isTimeMinimized()
 //时间间隔为200ms时为最大化
 bool TimeView::isTimeMaximized()
 {
-	return (int)timeZone()->m_uiTimeSpace <= 200;
+	return timeZone()->m_uiTimeSpace <= 200;
 }
 
 void TimeView::setSceneRect(const QRectF& rect)

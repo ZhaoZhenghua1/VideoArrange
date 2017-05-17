@@ -28,6 +28,8 @@ public:
 	TimeVideoView();
 	~TimeVideoView();
 protected:
+	virtual void paintEvent(QPaintEvent *event)Q_DECL_OVERRIDE;
+protected:
 	virtual TimeZone* timeZone()Q_DECL_OVERRIDE;
 	virtual qreal sceneHeight()Q_DECL_OVERRIDE;
 protected:
