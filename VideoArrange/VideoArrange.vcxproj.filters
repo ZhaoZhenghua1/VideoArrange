@@ -194,20 +194,17 @@
     <ClCompile Include="Layer\Layer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_Layer.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_Layer.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
-    <ClCompile Include="Layer\LayerTitle.cpp">
+    <ClCompile Include="uilogic\LayerFactory.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_LayerTitle.cpp">
+    <ClCompile Include="GeneratedFiles\Debug\moc_LeftHandleLayer.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_LayerTitle.cpp">
+    <ClCompile Include="GeneratedFiles\Release\moc_LeftHandleLayer.cpp">
       <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Layer\LeftHandleLayer.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -259,7 +256,7 @@
     <CustomBuild Include="Layer\Layer.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="Layer\LayerTitle.h">
+    <CustomBuild Include="Layer\LeftHandleLayer.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -295,6 +292,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Controls\CustomStyle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uilogic\LayerFactory.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

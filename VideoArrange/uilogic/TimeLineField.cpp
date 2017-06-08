@@ -114,6 +114,7 @@ TimeLineField::TimeLineField()
 
  	m_timePointerView = new TimePointerView;
  	m_timePointerView->setParent(this);
+	m_timePointerView->hide();
 
 	connect(timelineScrollBar, &TimeLineScrollBar::adjustWidth, m_timeVideoView, &TimeBarView::onAdjustWidth);
 	connect(timelineScrollBar, &TimeLineScrollBar::adjustWidth, m_timeBarView, &TimeBarView::onAdjustWidth);
@@ -158,7 +159,7 @@ void TimeLineField::resizeEvent(QResizeEvent * event)
 	QAbstractScrollArea::resizeEvent(event);
 	QTimer::singleShot(0, [this]() 
 	{
-		m_timePointerView->setGeometry(114, 1, m_timeVideoView->viewport()->width(), viewport()->height());
+//		m_timePointerView->setGeometry(114, 1, m_timeVideoView->viewport()->width(), viewport()->height());
 	});
 }
 

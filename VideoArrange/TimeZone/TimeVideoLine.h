@@ -3,13 +3,14 @@
 
 #include <QDomElement>
 #include <QGraphicsWidget>
+#include"../Layer/Layer.h"
 
 class TimeZone;
 // ±º‰œﬂ
-class TimeVideoLine : public QGraphicsWidget
+class TimeVideoLine : public LayerLeader
 {
 public:
-	TimeVideoLine(TimeZone* timezone);
+	TimeVideoLine();
 	~TimeVideoLine();
 
 	void initData(const QDomElement& elem);
@@ -23,7 +24,9 @@ protected:
 	virtual void dragMoveEvent(QGraphicsSceneDragDropEvent *event)Q_DECL_OVERRIDE;
 	virtual void dropEvent(QGraphicsSceneDragDropEvent *event)Q_DECL_OVERRIDE;
 private:
-	TimeZone* m_timezone = nullptr;
+	TimeZone* timeZone();
+private:
+//	TimeZone* m_timezone = nullptr;
 	QDomElement m_dataElem;
 };
 

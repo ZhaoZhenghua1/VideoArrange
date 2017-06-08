@@ -26,7 +26,7 @@
 #include "SizeGripItem.h"
 
 SizeGripItem::HandleItem::HandleItem(int positionFlags, SizeGripItem* parent)
-    : QGraphicsRectItem(-4, -4, 8, 20, parent),
+    : QGraphicsRectItem(-4, 0, 8, 24, parent),
       positionFlags_(positionFlags),
       parent_(parent)
 {
@@ -196,7 +196,7 @@ void SizeGripItem::updateHandleItemPositions()
                 break;
             case Right:
                 item->setPos(rect_.right(),
-                             rect_.top() + rect_.height() / 2 - 1);
+                             rect_.top() /*+ rect_.height() / 2 - 1*/);
                 break;
             case BottomRight:
                 item->setPos(rect_.bottomRight());
@@ -210,7 +210,7 @@ void SizeGripItem::updateHandleItemPositions()
                 break;
             case Left:
                 item->setPos(rect_.left(),
-                             rect_.top() + rect_.height() / 2 - 1);
+                             rect_.top() /*+ rect_.height() / 2 - 1*/);
                 break;
         }
 

@@ -5,6 +5,7 @@
 #include <QGraphicsView>
 #include "../SizeGrib/SizeGripItem.h"
 #include "TimeView.h"
+#include "TimeVideoLine.h"
 
 namespace
 {
@@ -28,7 +29,7 @@ namespace
 	};
 }
 
-TimeVideoItem::TimeVideoItem(TimeZone* timezone):m_timezone(timezone)
+TimeVideoItem::TimeVideoItem()
 {
 	setFlags(ItemIsMovable | ItemSendsGeometryChanges | ItemSendsScenePositionChanges);
 	setBrush(Qt::darkCyan);
@@ -52,15 +53,23 @@ void TimeVideoItem::setRect(const QRectF& rect)
 //根据时间更新位置
 void TimeVideoItem::updatePos()
 {
-	QRectF resizeRect = QRectF(m_timezone->timeToPosition(m_startTime) - pos().x(), 0, m_timezone->timeToPosition(m_timeLen), 35);
+	TimeZone* tz = timeZone();
+	if (!tz)
+		return;
+
+	QRectF resizeRect = QRectF(tz->timeToPosition(m_startTime) - pos().x(), 0, tz->timeToPosition(m_timeLen), 24);
 	setRect(resizeRect);
 }
 
 //根据位置更新时间
 void TimeVideoItem::updateTime()
 {
-	m_startTime = m_timezone->positionToTime(pos().x() + rect().left()) + 0.5;
-	m_timeLen = m_timezone->positionToTime(rect().width()) + 0.5;
+	TimeZone* tz = timeZone();
+	if (!tz)
+		return;
+
+	m_startTime = tz->positionToTime(pos().x() + rect().left()) + 0.5;
+	m_timeLen = tz->positionToTime(rect().width()) + 0.5;
 	m_dataElem.setAttribute("timeStart", QString("%1").arg(m_startTime));
 	m_dataElem.setAttribute("timeLength", QString("%1").arg(m_timeLen));
 }
@@ -111,7 +120,7 @@ QVariant TimeVideoItem::itemChange(GraphicsItemChange change, const QVariant &va
 		for (auto ite = items.begin() ; ite != items.end(); ++ite)
 		{
 			QGraphicsItem* localItem = *ite;
-			if (parentItem() == localItem)
+			if (parentItem() == localItem || !dynamic_cast<TimeVideoLine*>(localItem))
 			{
 				continue;
 			}
@@ -135,4 +144,16 @@ QVariant TimeVideoItem::itemChange(GraphicsItemChange change, const QVariant &va
 		updateTime();
 	}
 	return QGraphicsItem::itemChange(change, value);
+}
+
+TimeZone* TimeVideoItem::timeZone()
+{
+	for (QGraphicsItem * par = parentItem(); par; par = par->parentItem())
+	{
+		if (TimeZone* tz = dynamic_cast<TimeZone*>(par))
+		{
+			return tz;
+		}
+	}
+	return nullptr;
 }

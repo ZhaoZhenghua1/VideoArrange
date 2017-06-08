@@ -4,6 +4,7 @@
 #include <QGraphicsView>
 class QGraphicsWidget;
 class RootWidget;
+
 class LayerView : public QGraphicsView, public Observer
 {
 	Q_OBJECT
