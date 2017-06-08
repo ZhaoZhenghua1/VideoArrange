@@ -58,22 +58,22 @@ TimePointer::TimePointer(TimePointerView* view):m_view(view)
 
 void TimePointer::click(qreal timepos)
 {
-	m_uiClickTimePos = timepos;
+	m_qrClickTimePos = timepos;
 	update();
 }
 
 unsigned int TimePointer::currentTime()
 {
-	return m_uiClickTimePos + 0.5;
+	return m_qrClickTimePos + 0.5;
 }
 
 void TimePointer::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 {
 //	setBrush(QColor(0, 255, 0, 10));
-	painter->fillRect(rect(), QBrush(QColor(0, 255, 0, 0)));
+//	painter->fillRect(rect(), QBrush(QColor(0, 255, 0, 100)));
 	TimeZone::paint(painter, option, widget);
 //视图之外不绘制
-	qreal x = m_uiClickTimePos / m_uiTimeSpace * m_dPixSpace;
+	qreal x = timeToPosition(m_qrClickTimePos);
 	QPointF pos(x, 20);
 	if (m_view->rect().contains(m_view->mapFromScene(pos)))
 	{

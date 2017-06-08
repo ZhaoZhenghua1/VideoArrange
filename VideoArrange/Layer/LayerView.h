@@ -16,6 +16,6 @@ protected:
 protected:
 	virtual void init() override;
 private:
-	RootWidget* m_rootWidget = nullptr;
+	QGraphicsWidget* m_rootWidget = nullptr;
 };
 

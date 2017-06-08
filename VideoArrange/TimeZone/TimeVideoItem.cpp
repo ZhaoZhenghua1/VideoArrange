@@ -59,8 +59,8 @@ void TimeVideoItem::updatePos()
 //根据位置更新时间
 void TimeVideoItem::updateTime()
 {
-	m_startTime = m_timezone->positionToTime(pos().x() + rect().left());
-	m_timeLen = m_timezone->positionToTime(rect().width());
+	m_startTime = m_timezone->positionToTime(pos().x() + rect().left()) + 0.5;
+	m_timeLen = m_timezone->positionToTime(rect().width()) + 0.5;
 	m_dataElem.setAttribute("timeStart", QString("%1").arg(m_startTime));
 	m_dataElem.setAttribute("timeLength", QString("%1").arg(m_timeLen));
 }

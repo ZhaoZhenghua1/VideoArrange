@@ -6,40 +6,73 @@
 #include <QMenuBar>
 #include <QFileDialog>
 #include <QStandardPaths>
-#include "VideoArrange.h"
+#include <QDockWidget>
+
+#include "TimeLineField.h"
 #include "Table/TableView.h"
 #include "Document/Document.h"
 #include "Play/PlayWidget.h"
 
+#include <QLayout>
+#include <QPushButton>
+
 VideoEditor::VideoEditor(QWidget *parent)
 	: QMainWindow(parent)
 {
-	QGraphicsView* view = new QGraphicsView;
-	setCentralWidget(view);
+	delete takeCentralWidget();
+	//setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
+	setDocumentMode(true);
 
-	VideoArrange *videoArrange = new VideoArrange;
+	TimeLineField *videoArrange = new TimeLineField;
 	TableView* tableView = new TableView;
 	PlayWidget* playWidget = new PlayWidget;
 
-	QGraphicsScene* scene = new QGraphicsScene;
-	view->setScene(scene);
-
-	QGraphicsProxyWidget* proxyWVideo = new QGraphicsProxyWidget(nullptr, Qt::Dialog);
+	QDockWidget* proxyWVideo = new QDockWidget();
+	proxyWVideo->layout()->setSpacing(10);
 	proxyWVideo->setWindowTitle(QString::fromLocal8Bit("节目编排"));
+//	proxyWVideo->setFeatures(QDockWidget::NoDockWidgetFeatures);
 	proxyWVideo->setWidget(videoArrange);
 
-	QGraphicsProxyWidget* proxyWTable = new QGraphicsProxyWidget(nullptr, Qt::Dialog);
+	QDockWidget* proxyWTable = new QDockWidget();
 	proxyWTable->setWindowTitle(QString::fromLocal8Bit("媒体资源"));
+//	proxyWTable->setFeatures(QDockWidget::NoDockWidgetFeatures);
 	proxyWTable->setWidget(tableView);
 
-	QGraphicsProxyWidget* proxyWPlay = new QGraphicsProxyWidget(nullptr, playWidget->windowFlags() | Qt::Window);
+	QDockWidget* proxyWPlay = new QDockWidget();
 	proxyWPlay->setWindowTitle(QString::fromLocal8Bit("屏幕"));
+//	proxyWPlay->setFeatures(QDockWidget::NoDockWidgetFeatures);
 	proxyWPlay->setWidget(playWidget);
 
 
-	scene->addItem(proxyWVideo);
-	scene->addItem(proxyWTable);
-	scene->addItem(proxyWPlay);
+	addDockWidget(Qt::LeftDockWidgetArea, proxyWPlay);
+// 	addDockWidget(Qt::LeftDockWidgetArea, new QDockWidget);
+// 	addDockWidget(Qt::LeftDockWidgetArea, new QDockWidget);
+// 	addDockWidget(Qt::LeftDockWidgetArea, new QDockWidget);
+	addDockWidget(Qt::RightDockWidgetArea, proxyWTable);
+	addDockWidget(Qt::BottomDockWidgetArea, proxyWVideo);
+
+// 	QGraphicsView* view = new QGraphicsView;
+//  	QGraphicsScene* scene = new QGraphicsScene;
+// 	view->setScene(scene);
+// 	scene->setSceneRect(QRect(0, 0, 2000, 2000));
+// 	view->show();
+// 
+// 	QGraphicsProxyWidget* proxyWVideo = new QGraphicsProxyWidget(nullptr, Qt::Dialog);
+// 	proxyWVideo->setWindowTitle(QString::fromLocal8Bit("节目编排"));
+// 	proxyWVideo->setWidget(videoArrange);
+// 
+// 	QGraphicsProxyWidget* proxyWTable = new QGraphicsProxyWidget(nullptr, Qt::Dialog);
+// 	proxyWTable->setWindowTitle(QString::fromLocal8Bit("媒体资源"));
+// 	proxyWTable->setWidget(tableView);
+// 
+// 	QGraphicsProxyWidget* proxyWPlay = new QGraphicsProxyWidget(nullptr, playWidget->windowFlags() | Qt::Window);
+// 	proxyWPlay->setWindowTitle(QString::fromLocal8Bit("屏幕"));
+// 	proxyWPlay->setWidget(playWidget);
+// 
+// 
+// 	scene->addItem(proxyWVideo);
+// 	scene->addItem(proxyWTable);
+// 	scene->addItem(proxyWPlay);
 
 	{
 		QMenu * menu = new QMenu(QString::fromLocal8Bit("文件"));

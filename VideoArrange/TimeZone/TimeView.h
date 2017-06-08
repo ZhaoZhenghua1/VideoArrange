@@ -1,21 +1,26 @@
 #pragma once
 
 #include <QGraphicsView>
-#include <QGraphicsRectItem>
 #include <QGraphicsWidget>
 //时间轴相关
 class TimeView;
+
+//时间区域，控制时间刻度
 class TimeZone : public QGraphicsWidget
 {
 public:
-	qreal timeToPosition(unsigned int timeMS);
-	unsigned int positionToTime(qreal pos);
-protected:
-	//virtual TimeView* timeView() = 0;
-protected:
+	//当前刻度下，时间到像素位置的换算
+	qreal timeToPosition(qreal timeMS) const;
+	//当前刻度下，像素位置到时间的换算
+	qreal positionToTime(qreal pos) const;
+	//刻度间的像素间隔
+	qreal pixSpace() const{ return m_dPixSpace; }
+	//刻度间的时间间隔
+	unsigned int timeSpace()const { return m_uiTimeSpace; }
+private:
 	unsigned int m_iTimeLength = 30*60*1000;//时间长度
-	unsigned int m_uiTimeSpace = 1;//时间间隔
-	qreal m_dPixSpace = 1;//像素间隔
+	unsigned int m_uiTimeSpace = 1;//时间刻度间隔
+	qreal m_dPixSpace = 1;//像素刻度间隔
 
 	friend class TimeView;
 };
@@ -31,6 +36,7 @@ public:
 public slots:
 	void zoomIn();//放大
 	void zoomOut();//缩小
+	void onAdjustWidth(int width);
 public:
 	bool isTimeMinimized();
 	bool isTimeMaximized();

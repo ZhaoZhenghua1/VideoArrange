@@ -15,7 +15,10 @@ protected:
 	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event) Q_DECL_OVERRIDE;
 	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event)Q_DECL_OVERRIDE;
 public:
-	
+private:
+	//精度范围内取整
+	qreal timeToRound(qreal t);
+private:
 	TimeBarView* m_view = nullptr;
 };
 

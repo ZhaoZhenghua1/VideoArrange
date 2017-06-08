@@ -45,7 +45,7 @@ void TimeVideo::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 	TimeZone::paint(painter, option, widget);
 	qreal w = rect().width();
 
-	painter->fillRect(rect(), Qt::yellow);
+	painter->fillRect(rect(), QColor(33, 33, 33));
 // 	for (qreal x = 0; x <= w; x += m_dPixSpace)
 // 	{
 // 		QPoint pos(x, 20);

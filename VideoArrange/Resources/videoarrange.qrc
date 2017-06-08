@@ -15,5 +15,19 @@
         <file>map13.png</file>
         <file>map14.png</file>
         <file>map15.png</file>
+        <file>magnet_off_hover.png</file>
+        <file>magnet_on_hover.png</file>
+        <file>play_off_hover.png</file>
+        <file>play_on_hover.png</file>
+        <file>magnet_off_normal.png</file>
+        <file>magnet_on_normal.png</file>
+        <file>fold_normal.png</file>
+        <file>unfold_normal.png</file>
+        <file>offvoice_normal.png</file>
+        <file>onvoice_normal.png</file>
+        <file>lock_normal.png</file>
+        <file>unlock_normal.png</file>
+        <file>unvisible_normal.png</file>
+        <file>visible_normal.png</file>
     </qresource>
 </RCC>

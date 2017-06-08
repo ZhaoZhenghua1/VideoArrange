@@ -3,7 +3,7 @@
 
 class SwitchButton;
 class GraphicsLayoutTextItem;
-//图层
+//图层,可拖动改变大小
 class LayerItem : public QGraphicsWidget
 {
 	Q_OBJECT

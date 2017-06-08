@@ -2,7 +2,7 @@
 #include <QAbstractScrollArea>
 
 class QGraphicsScene;
-class QPushButton;
+class StatusButton;
 class QLabel;
 class TimeBarView;
 class TimeVideoView;
@@ -10,33 +10,27 @@ class TimePointerView;
 class LayerView;
 class QGraphicsView;
 //Í¼²ã±à¼­
-class VideoArrange : public QAbstractScrollArea
+class TimeLineField : public QAbstractScrollArea
 {
 	Q_OBJECT
 public:
-	VideoArrange();
-	~VideoArrange();
+	TimeLineField();
+	~TimeLineField();
 public slots:
 	void onClickTimeBar(qreal time);
 	void onClickBtnTime();
 protected:
 	virtual void resizeEvent(QResizeEvent *)Q_DECL_OVERRIDE;
 private:
-	QGraphicsScene* m_sceneTopLeft = nullptr;
-	QGraphicsScene* m_sceneBottomLeft = nullptr;
-
-	QPushButton* m_btnPlay;//²¥·Å
-	QPushButton* m_btnZoomOut;//ËõÐ¡
-	QPushButton* m_btnZoomIn;//·Å´ó
+	StatusButton* m_btnPlay;//²¥·Å
+	StatusButton* m_btnMagnet;//Îü¸½
 
 	TimeBarView* m_timeBarView;
 	TimeVideoView* m_timeVideoView;
 	TimePointerView* m_timePointerView;
-//	QGraphicsView* m_pViewEffectRight;
 
 	LayerView* m_leftLayerView;
 
 	QLabel* m_labelTime;
-	QPushButton* m_btnTime;
 };
 

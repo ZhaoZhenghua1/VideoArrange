@@ -2,10 +2,20 @@
 #include <QResizeEvent>
 #include <QDebug>
 
+namespace
+{
+	enum
+	{
+		TIMESPACE,
+		PIXSPACE
+	};
+}
+
 TimeView::TimeView()
 {
 	QGraphicsScene* scene = new QGraphicsScene;
 	setScene(scene);
+	setFrameShape(QFrame::NoFrame);
 }
 
 
@@ -13,11 +23,6 @@ TimeView::~TimeView()
 {
 }
 
-enum
-{
-	TIMESPACE,
-	PIXSPACE
-};
 //根据时间长度和时间轴长度计算时间间距和像素间距
 //时间间距为 1/2/5 * 10的幂次方
 std::tuple<int, qreal> timeBarRuleStrategy(const unsigned int timeLength, qreal distance)
@@ -48,6 +53,12 @@ std::tuple<int, qreal> timeBarRuleStrategy(const unsigned int timeLength, qreal 
 void TimeView::setTimeLength(unsigned int time)
 {
 	timeZone()->m_iTimeLength = time;
+
+	std::tuple<int, qreal> ret = timeBarRuleStrategy(timeZone()->m_iTimeLength, sceneRect().width());
+	timeZone()->m_uiTimeSpace = std::get<TIMESPACE>(ret);
+	timeZone()->m_dPixSpace = std::get<PIXSPACE>(ret);
+
+	update();
 }
 
 //放大
@@ -59,6 +70,7 @@ void TimeView::zoomIn()
 		return;
 	}
 	QRectF sceneRec = sceneRect();
+	//场景宽度加倍
 	sceneRec.setWidth(sceneRec.width() *2);
 	setSceneRect(sceneRec);
 	m_bIsMinimized = false;
@@ -87,6 +99,33 @@ void TimeView::zoomOut()
 	setSceneRect(sceneRec);
 }
 
+void TimeView::onAdjustWidth(int width)
+{
+	//已经最小化
+	if (width < 0 && isTimeMinimized())
+	{
+		return;
+	}
+	if (width > 0 && isTimeMaximized())
+	{
+		return;
+	}
+	QRectF sceneRec = sceneRect();
+	//不能再缩小为原来的1/2，则缩小为视图大小
+	if (sceneRec.width() + width <= viewport()->width())
+	{
+		sceneRec.setWidth(viewport()->width());
+		m_bIsMinimized = true;
+	}
+	//缩小为原来的1/2
+	else
+	{
+		sceneRec.setWidth(sceneRec.width() + width);
+		m_bIsMinimized = false;
+	}
+	setSceneRect(sceneRec);
+}
+
 bool TimeView::isTimeMinimized()
 {
 	return m_bIsMinimized;
@@ -100,6 +139,7 @@ bool TimeView::isTimeMaximized()
 
 void TimeView::setSceneRect(const QRectF& rect)
 {
+	//场景宽度改变后，修改时间轴策略
 	std::tuple<int, qreal> ret = timeBarRuleStrategy(timeZone()->m_iTimeLength, rect.width());
 	timeZone()->m_uiTimeSpace = std::get<TIMESPACE>(ret);
 	timeZone()->m_dPixSpace = std::get<PIXSPACE>(ret);
@@ -117,10 +157,16 @@ void TimeView::resizeEvent(QResizeEvent *event)
 	}
 
 	//场景和视图一样大小时，随视图大小
-	if (isTimeMinimized())
+	if (event->oldSize().width() != event->size().width() && isTimeMinimized())
 	{
 		setSceneRect(QRectF(0, 0, event->size().width(), sceneHeight()));
 	}
+
+	if (event->oldSize().height() != event->size().height())
+	{
+		setSceneRect(QRectF(0, 0, sceneRect().width(), sceneHeight()));
+	}
+
 	QGraphicsView::resizeEvent(event);
 }
 
@@ -129,12 +175,12 @@ qreal TimeView::sceneHeight()
 	return viewport()->height();
 }
 
-qreal TimeZone::timeToPosition(unsigned int timeMS)
+qreal TimeZone::timeToPosition(qreal timeMS) const
 {
 	return timeMS * 1.0 / m_uiTimeSpace * m_dPixSpace;
 }
 
-unsigned int TimeZone::positionToTime(qreal pos)
+qreal TimeZone::positionToTime(qreal pos) const
 {
-	return pos / m_dPixSpace * m_uiTimeSpace + 0.5;
+	return pos / m_dPixSpace * m_uiTimeSpace;
 }

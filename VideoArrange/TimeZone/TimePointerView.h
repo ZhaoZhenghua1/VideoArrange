@@ -11,7 +11,7 @@ public:
 protected:
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)Q_DECL_OVERRIDE;
 private:
-	qreal m_uiClickTimePos = 0;
+	qreal m_qrClickTimePos = 0;
 	TimePointerView* m_view;
 };
 
