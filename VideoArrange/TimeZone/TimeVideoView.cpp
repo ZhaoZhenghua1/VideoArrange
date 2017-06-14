@@ -27,7 +27,7 @@ void TimeVideo::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 	TimeZone::paint(painter, option, widget);
 	qreal w = rect().width();
 
-	painter->fillRect(rect(), QColor(33, 33, 33));
+	painter->fillRect(rect(), QColor(49, 49, 49));
 }
 
 void TimeVideo::setGeometry(const QRectF &rect)
@@ -89,6 +89,11 @@ void TimeVideoView::paintEvent(QPaintEvent *event)
 	TimeView::paintEvent(event);
 }
 
+void TimeVideoView::wheelEvent(QWheelEvent *event)
+{
+
+}
+
 TimeZone* TimeVideoView::timeZone()
 {
 	return m_timeVideo;
@@ -96,5 +101,10 @@ TimeZone* TimeVideoView::timeZone()
 
 qreal TimeVideoView::sceneHeight() 
 {
-	return viewport()->height() + 200;
+	qreal height = 0;
+	QGraphicsLayout* layout = m_timeVideo->layout();
+	if (layout->count() > 0)
+		height = layout->itemAt(layout->count() - 1)->geometry().bottom();
+	height = (height > viewport()->height() ? height : viewport()->height()) + 200;
+	return height;
 }

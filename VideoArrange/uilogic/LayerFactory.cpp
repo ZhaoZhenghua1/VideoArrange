@@ -1,9 +1,12 @@
 #include "LayerFactory.h"
 #include "Layer/LeftHandleLayer.h"
+#include "Layer/RightLayer.h"
 #include "TimeZone/TimeVideoLine.h"
 #include "../Document/Document.h"
 
 #include <QGraphicsAnchorLayout>
+#include <QGraphicsProxyWidget>
+#include <QLabel>
 
 LayerFactory::LayerFactory()
 {
@@ -33,6 +36,10 @@ void LayerFactory::createLayerToLayout(QDomElement data)
 	QVector<HandleFellow*> arrLeft(4);
 	std::generate(arrLeft.begin(), arrLeft.end(), []() {return new HandleFellow;});
 
+	QGraphicsProxyWidget* proxyWidget = new QGraphicsProxyWidget;
+	proxyWidget->setWidget(new QLabel(QString::fromLocal8Bit("Í¸Ã÷¶È")));
+	arrLeft[0]->setWidget(proxyWidget);
+
 	QVector<LayerFellow*> arrOrig(arrLeft.size());
 	for (int i = 0;i < arrLeft.size(); ++i)
 		arrOrig[i] = arrLeft[i];
@@ -41,17 +48,19 @@ void LayerFactory::createLayerToLayout(QDomElement data)
 	titleLeft->addGroupToLayout(arrOrig, m_leftLayout);
 
 	QVector<LayerFellow*> arrR(arrLeft.size());
-	std::generate(arrR.begin(), arrR.end(), []() {return new LayerFellow;});
+	std::generate(arrR.begin(), arrR.end(), []() {return new RightLayer;});
 
 	TimeVideoLine* titleR = new TimeVideoLine;
 	titleLeft->setPartner(titleR);
-	titleR->initData(data);
+	
 	for (int i = 0; i < arrLeft.size(); ++i)
 	{
 		arrLeft[i]->setPartner(arrR[i]);
 	}
 
 	titleR->addGroupToLayout(arrR, m_rightLayout);
+
+	titleR->initData(data);
 }
 
 LayerFactory* LayerFactory::instance()

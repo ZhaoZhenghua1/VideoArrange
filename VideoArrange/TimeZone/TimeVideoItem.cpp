@@ -6,7 +6,14 @@
 #include "../SizeGrib/SizeGripItem.h"
 #include "TimeView.h"
 #include "TimeVideoLine.h"
+#include "Controls/EffectEdit.h"
+#include <QGraphicsAnchorLayout>
+#include "Document/Document.h"
 
+enum EFFECT_TYPE
+{
+
+};
 namespace
 {
 	class RectResizer : public SizeGripItem::Resizer
@@ -24,6 +31,7 @@ namespace
 			{
 				rectItem->setRect(rect);
 				rectItem->updateTime();
+				rectItem->updateEffectEditPos();
 			}
 		}
 	};
@@ -38,6 +46,10 @@ TimeVideoItem::TimeVideoItem()
 
 TimeVideoItem::~TimeVideoItem()
 {
+	for (EffectEdit* item : m_effectEdits)
+	{
+		delete item;
+	}
 }
 
 void TimeVideoItem::setRect(const QRectF& rect)
@@ -59,6 +71,8 @@ void TimeVideoItem::updatePos()
 
 	QRectF resizeRect = QRectF(tz->timeToPosition(m_startTime) - pos().x(), 0, tz->timeToPosition(m_timeLen), 24);
 	setRect(resizeRect);
+
+	updateEffectEditPos();
 }
 
 //根据位置更新时间
@@ -90,6 +104,9 @@ bool TimeVideoItem::initData(const QDomElement& media)
 	m_timeLen = timeLen;
 	m_qsRes = qsResId;
 	updatePos();
+	createEffectEdit();
+	effectEditParentChanged();
+	updateEffectEditPos();
 
 	show();
 	return true;
@@ -98,6 +115,57 @@ bool TimeVideoItem::initData(const QDomElement& media)
 QDomElement TimeVideoItem::data()
 {
 	return m_dataElem;
+}
+
+void TimeVideoItem::createEffectEdit()
+{
+	m_effectEdits.push_back(new TransparencyEdit(timeZone()));
+	if (m_dataElem.firstChildElement("adjustmentlist").isNull())
+	{
+		QDomElement elem = Document::instance()->document().createElement("adjustmentlist");
+		m_dataElem.appendChild(elem);
+
+		QDomElement elem2 = Document::instance()->document().createElement("adjustment");
+		elem.appendChild(elem2);
+	}
+	m_effectEdits[0]->initData(m_dataElem.firstChildElement("adjustmentlist").firstChildElement("adjustment"));
+}
+
+void TimeVideoItem::effectEditParentChanged()
+{
+	QGraphicsWidget* par = dynamic_cast<QGraphicsWidget*>(timeZone());
+	if (!par)
+		return;
+
+	QGraphicsAnchorLayout* layout = dynamic_cast<QGraphicsAnchorLayout*>(par->layout());
+	if (!layout)
+		return;
+
+	int index = -1;
+	for (; index < layout->count(); ++index)
+		if (layout->itemAt(index) == dynamic_cast<QGraphicsWidget*>(parentItem()))
+			break;
+
+	if (index < 0 || index == layout->count())
+		return;
+
+	for (int i = 0; i < m_effectEdits.size(); ++i)
+	{
+		QGraphicsLayoutItem * secondItem = layout->itemAt(index + i + 1);
+		if (QGraphicsWidget* par = dynamic_cast<QGraphicsWidget*>(secondItem))
+		{
+			m_effectEdits[i]->parentChanged(par);
+		}
+	}
+}
+
+void TimeVideoItem::updateEffectEditPos()
+{
+	QRectF posRect(rect());
+	for (int i = 0; i < m_effectEdits.size(); ++i)
+	{
+		m_effectEdits[i]->updatePos(posRect.left() + pos().x(), posRect.width());	
+	}
 }
 
 void TimeVideoItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
@@ -131,6 +199,7 @@ QVariant TimeVideoItem::itemChange(GraphicsItemChange change, const QVariant &va
 			if (rect.contains(localItemPos))
 			{
 				setParentItem(localItem);
+				effectEditParentChanged();
 				break;
 			}
 		}
@@ -142,6 +211,7 @@ QVariant TimeVideoItem::itemChange(GraphicsItemChange change, const QVariant &va
 	else if (change == ItemPositionHasChanged && scene())
 	{
 		updateTime();
+		updateEffectEditPos();
 	}
 	return QGraphicsItem::itemChange(change, value);
 }

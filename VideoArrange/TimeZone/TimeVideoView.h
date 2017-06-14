@@ -29,6 +29,7 @@ public:
 	~TimeVideoView();
 protected:
 	virtual void paintEvent(QPaintEvent *event)Q_DECL_OVERRIDE;
+	virtual void wheelEvent(QWheelEvent *event)override;
 protected:
 	virtual TimeZone* timeZone()Q_DECL_OVERRIDE;
 	virtual qreal sceneHeight()Q_DECL_OVERRIDE;

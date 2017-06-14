@@ -1,5 +1,4 @@
 #include "LayerView.h"
-#include "LayerItem.h"
 #include "../Document/Document.h"
 #include "uilogic/LayerFactory.h"
 #include <QGraphicsWidget>
@@ -21,7 +20,7 @@ public:
 protected:
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 	{
-		painter->fillRect(boundingRect(), Qt::black);
+		painter->fillRect(boundingRect(), QColor(49, 49, 49));
 	}
 };
 
@@ -30,13 +29,11 @@ LayerView::LayerView()
 	setFrameShape(QFrame::NoFrame);
 
 	QGraphicsScene* scene = new QGraphicsScene;
-
+	scene->setBackgroundBrush(QColor(49, 49, 49));
 	QGraphicsAnchorLayout* lay = new QGraphicsAnchorLayout;
 	lay->setSpacing(0);
-	lay->setContentsMargins(0, 0, 0, 0);
+	lay->setContentsMargins(0, 0, 0, 10);
 	LayerFactory::instance()->setLeftLayout(lay);	
-
-	scene->setBackgroundBrush(Qt::blue);//QColor(33, 33, 33));
 	
 	m_rootWidget = new RootWidget;
 
@@ -55,15 +52,15 @@ LayerView::~LayerView()
 void LayerView::resizeEvent(QResizeEvent *event)
 {
 	QGraphicsView::resizeEvent(event);
-	m_rootWidget->setGeometry(QRectF( QPointF(), event->size()));
-	if (m_rootWidget->rect().height() < viewport()->height())
-	{
-		scene()->setSceneRect(QRectF(QPointF(0, 0), QSizeF(viewport()->width(), viewport()->height())));
-	}
-	else
-	{
-		scene()->setSceneRect(QRectF(QPointF(0, 0), QSizeF(viewport()->width(), m_rootWidget->rect().height())));
-	}
+
+	qreal height = 0;
+	QGraphicsLayout* layout = m_rootWidget->layout();
+	if (layout->count() > 0)
+		height = layout->itemAt(layout->count() - 1)->geometry().bottom();
+	height = (height > event->size().height() ? height : event->size().height()) + 200;
+	QRectF rect(QPointF(), QSizeF(event->size().width(), height));
+	m_rootWidget->setGeometry(rect.adjusted(0, 0, -2, 0));
+	scene()->setSceneRect(rect);
 }
 
 void LayerView::paintEvent(QPaintEvent *event)

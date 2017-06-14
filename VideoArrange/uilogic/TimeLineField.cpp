@@ -88,7 +88,7 @@ TimeLineField::TimeLineField()
 	layout->addWidget(rightW);
 
 	//¹ö¶¯ÌõÉèÖÃ
-//	m_leftLayerView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	m_leftLayerView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	m_leftLayerView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
 // 	m_pViewEffectRight->setVerticalScrollBar(pViewEffectLeft->verticalScrollBar());
@@ -101,11 +101,10 @@ TimeLineField::TimeLineField()
 	setHorizontalScrollBar(m_timeBarView->horizontalScrollBar());
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	m_timeVideoView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
-	m_timeVideoView->verticalScrollBar()->setStyleSheet("QScrollBar:vertical { width: 11px; }");
-	setVerticalScrollBar(m_timeVideoView->verticalScrollBar());
+	m_leftLayerView->verticalScrollBar()->setStyleSheet("QScrollBar:vertical { width: 11px; }");
+	setVerticalScrollBar(m_leftLayerView->verticalScrollBar());
 	m_timeVideoView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
-	m_timeVideoView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	m_timeBarView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	m_timeBarView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 //	m_pViewEffectRight->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -114,7 +113,6 @@ TimeLineField::TimeLineField()
 
  	m_timePointerView = new TimePointerView;
  	m_timePointerView->setParent(this);
-	m_timePointerView->hide();
 
 	connect(timelineScrollBar, &TimeLineScrollBar::adjustWidth, m_timeVideoView, &TimeBarView::onAdjustWidth);
 	connect(timelineScrollBar, &TimeLineScrollBar::adjustWidth, m_timeBarView, &TimeBarView::onAdjustWidth);
@@ -123,7 +121,7 @@ TimeLineField::TimeLineField()
 	connect(m_timeBarView->horizontalScrollBar(), &QScrollBar::valueChanged, m_timeVideoView->horizontalScrollBar(), &QScrollBar::setValue);
 	connect(m_timeBarView->horizontalScrollBar(), &QScrollBar::valueChanged, m_timePointerView->horizontalScrollBar(), &QScrollBar::setValue);
 
-	connect(m_timeVideoView->verticalScrollBar(), &QScrollBar::valueChanged, m_leftLayerView->verticalScrollBar(), &QScrollBar::setValue);
+	connect(m_leftLayerView->verticalScrollBar(), &QScrollBar::valueChanged, m_timeVideoView->verticalScrollBar(), &QScrollBar::setValue);
 
 	connect(m_timeBarView, &TimeBarView::sigTimebarClicked, m_timePointerView, &TimePointerView::onClickTimeBar);
 	connect(m_timeBarView, &TimeBarView::sigTimebarClicked, this, &TimeLineField::onClickTimeBar);
@@ -159,7 +157,7 @@ void TimeLineField::resizeEvent(QResizeEvent * event)
 	QAbstractScrollArea::resizeEvent(event);
 	QTimer::singleShot(0, [this]() 
 	{
-//		m_timePointerView->setGeometry(114, 1, m_timeVideoView->viewport()->width(), viewport()->height());
+		m_timePointerView->setGeometry(mapFromGlobal(m_timeVideoView->mapToGlobal(QPoint())).x(), 10, m_timeVideoView->width(), viewport()->height());
 	});
 }
 

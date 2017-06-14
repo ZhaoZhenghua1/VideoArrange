@@ -39,7 +39,7 @@ void TimeVideoLine::initData(const QDomElement& elem)
 
 void TimeVideoLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 {
-	painter->fillRect(rect(), Qt::black);
+	painter->fillRect(rect(), QColor(32, 32, 32));
 }
 
 void TimeVideoLine::setGeometry(const QRectF &rect) 
@@ -110,11 +110,6 @@ void TimeVideoLine::dropEvent(QGraphicsSceneDragDropEvent *event)
 	mediaList.appendChild(media);
 
 	pItem->initData(media);
-
-	//i donot know if it is needed£¡ check later
-//	update();
-//	pItem->update();
-
 }
 
 TimeZone* TimeVideoLine::timeZone()

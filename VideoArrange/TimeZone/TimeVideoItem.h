@@ -1,10 +1,13 @@
 #pragma once
 #include <QGraphicsRectItem>
 #include <QDomElement>
+#include <QGraphicsWidget>
 
+#include "Controls/EffectEdit.h"
 //×ÊÔ´Ïî
 class SizeGripItem;
 class TimeZone;
+class EffectEdit;
 class TimeVideoItem : public QGraphicsRectItem
 {
 public:
@@ -15,6 +18,9 @@ public:
 	void updateTime();
 	bool initData(const QDomElement& elem);
 	QDomElement data();
+	void createEffectEdit();
+	void effectEditParentChanged();
+	void updateEffectEditPos();
 private:
 	TimeZone* timeZone();
 protected:
@@ -25,7 +31,6 @@ private:
 	unsigned int m_startTime = 0;
 	unsigned int m_timeLen = 0;
 	SizeGripItem* m_sizeGrip = nullptr;
-//	TimeZone* m_timezone = nullptr;
 	QDomElement m_dataElem;
+	QVector<EffectEdit*> m_effectEdits;
 };
-

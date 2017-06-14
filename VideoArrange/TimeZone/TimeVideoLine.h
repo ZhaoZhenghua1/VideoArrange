@@ -26,7 +26,6 @@ protected:
 private:
 	TimeZone* timeZone();
 private:
-//	TimeZone* m_timezone = nullptr;
 	QDomElement m_dataElem;
 };
 

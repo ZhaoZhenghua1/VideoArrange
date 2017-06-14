@@ -41,12 +41,6 @@
     <ClCompile Include="GeneratedFiles\qrc_videoarrange.cpp">
       <Filter>Generated Files</Filter>
     </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_SwitchButton.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_SwitchButton.cpp">
-      <Filter>Generated Files\Release</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_VideoEditor.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -71,9 +65,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_TimeBarView.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="TimeZone\TimeEffectView.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_TimeView.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -86,23 +77,11 @@
     <ClCompile Include="GeneratedFiles\Release\moc_TimePointerView.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Layer\SwitchButton.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Layer\GraphicsLayoutRectItem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Layer\GraphicsLayoutTextItem.cpp">
       <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Layer\LayerItem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Debug\moc_LayerItem.cpp">
-      <Filter>Generated Files\Debug</Filter>
-    </ClCompile>
-    <ClCompile Include="GeneratedFiles\Release\moc_LayerItem.cpp">
-      <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="Layer\LayerView.cpp">
       <Filter>Source Files</Filter>
@@ -206,6 +185,12 @@
     <ClCompile Include="Layer\LeftHandleLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Controls\EffectEdit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Layer\RightLayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Resources\videoarrange.qrc">
@@ -218,12 +203,6 @@
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="TimeZone\TimePointerView.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Layer\SwitchButton.h">
-      <Filter>Header Files</Filter>
-    </CustomBuild>
-    <CustomBuild Include="Layer\LayerItem.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
     <CustomBuild Include="Layer\LayerView.h">
@@ -261,9 +240,6 @@
     </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="TimeZone\TimeEffectView.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Layer\GraphicsLayoutRectItem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -295,6 +271,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="uilogic\LayerFactory.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\EffectEdit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Layer\RightLayer.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

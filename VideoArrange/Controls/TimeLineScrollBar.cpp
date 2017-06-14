@@ -135,6 +135,9 @@ protected:
 			painter->drawRoundedRect(rect, radius, radius);
 
 			QRect rectSlider = proxy()->subControlRect(CC_ScrollBar, option, SC_ScrollBarSlider, widget);
+			rectSlider.adjust(1, 1, -1, -1);
+
+			radius = flags & State_Horizontal ? rectSlider.height() / 2 : rectSlider.width() / 2;
 			painter->setPen(Qt::NoPen);
 			painter->setBrush(QColor(49, 49, 49));
 			painter->drawRoundedRect(rectSlider, radius, radius);

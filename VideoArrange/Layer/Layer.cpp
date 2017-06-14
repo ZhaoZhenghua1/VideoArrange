@@ -18,7 +18,7 @@ LayerBase::LayerBase()
 
 void LayerBase::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 {
-	painter->fillRect(rect(), Qt::yellow);
+	painter->fillRect(rect(), QColor(32, 32, 32));
 }
 
 QGraphicsAnchor* LayerLeader::anchor()
@@ -169,11 +169,12 @@ void HandleLayerLeader::hideFellows(bool hide /*= true*/)
 		m_partner->hideFellows(hide);
 	}
 	LayerLeader::hideFellows(hide);
+	update();
 }
 
 void HandleLayerLeader::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 {
-	painter->fillRect(rect(), Qt::gray);
+	painter->fillRect(rect(), QColor(38, 38, 38));
 }
 
 void HandleLayerFellow::addSpacing(const qreal spacing)
@@ -200,7 +201,7 @@ void HandleLayerFellow::wheelEvent(QGraphicsSceneWheelEvent *event)
 
 void HandleLayerFellow::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 {
-	painter->fillRect(rect(), Qt::darkGray);
+	painter->fillRect(rect(), QColor(38, 38, 38));
 }
 
 LayerHandle::LayerHandle()
@@ -213,6 +214,10 @@ void LayerHandle::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 	if (handleRect().contains(event->pos()))
 	{
 		setCursor(Qt::SizeVerCursor);
+	}
+	else
+	{
+		setCursor(Qt::ArrowCursor);
 	}
 }
 void LayerHandle::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)

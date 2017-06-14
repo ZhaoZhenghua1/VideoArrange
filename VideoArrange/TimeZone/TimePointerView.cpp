@@ -77,6 +77,7 @@ void TimePointer::paint(QPainter *painter, const QStyleOptionGraphicsItem *optio
 	QPointF pos(x, 20);
 	if (m_view->rect().contains(m_view->mapFromScene(pos)))
 	{
+		painter->setPen(QPen(QColor(45, 140, 235)));
 		painter->drawLine(QPointF(x, 0), QPointF(x, rect().height()));
 	}
 	
