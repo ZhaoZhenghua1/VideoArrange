@@ -14,6 +14,7 @@ public:
 protected:
 	virtual void resizeEvent(QResizeEvent *event)Q_DECL_OVERRIDE;
 	virtual void paintEvent(QPaintEvent *event)Q_DECL_OVERRIDE;
+	virtual void mouseMoveEvent(QMouseEvent *event);
 protected:
 	virtual void init() override;
 private:

@@ -6,14 +6,10 @@
 #include "../SizeGrib/SizeGripItem.h"
 #include "TimeView.h"
 #include "TimeVideoLine.h"
-#include "Controls/EffectEdit.h"
+#include "Controls/EffectEditor.h"
 #include <QGraphicsAnchorLayout>
 #include "Document/Document.h"
 
-enum EFFECT_TYPE
-{
-
-};
 namespace
 {
 	class RectResizer : public SizeGripItem::Resizer
@@ -39,14 +35,14 @@ namespace
 
 TimeVideoItem::TimeVideoItem()
 {
-	setFlags(ItemIsMovable | ItemSendsGeometryChanges | ItemSendsScenePositionChanges);
+	setFlags(ItemIsMovable | ItemSendsGeometryChanges | ItemSendsScenePositionChanges | ItemIsFocusable);
 	setBrush(Qt::darkCyan);
 }
 
 
 TimeVideoItem::~TimeVideoItem()
 {
-	for (EffectEdit* item : m_effectEdits)
+	for (EffectEditor* item : m_effectEdits)
 	{
 		delete item;
 	}
@@ -68,8 +64,10 @@ void TimeVideoItem::updatePos()
 	TimeZone* tz = timeZone();
 	if (!tz)
 		return;
-
-	QRectF resizeRect = QRectF(tz->timeToPosition(m_startTime) - pos().x(), 0, tz->timeToPosition(m_timeLen), 24);
+	
+	int startTime = this->startTime();
+	int timeLen = this->timeLen();
+	QRectF resizeRect = QRectF(tz->timeToPosition(startTime) - pos().x(), 0, tz->timeToPosition(timeLen), parentItem()->boundingRect().height() - 2);
 	setRect(resizeRect);
 
 	updateEffectEditPos();
@@ -82,27 +80,31 @@ void TimeVideoItem::updateTime()
 	if (!tz)
 		return;
 
-	m_startTime = tz->positionToTime(pos().x() + rect().left()) + 0.5;
-	m_timeLen = tz->positionToTime(rect().width()) + 0.5;
-	m_dataElem.setAttribute("timeStart", QString("%1").arg(m_startTime));
-	m_dataElem.setAttribute("timeLength", QString("%1").arg(m_timeLen));
+	int startTime = tz->positionToTime(pos().x() + rect().left()) + 0.5;
+	int timeLen = tz->positionToTime(rect().width()) + 0.5;
+	m_dataElem.setAttribute("timeStart", QString("%1").arg(startTime));
+	m_dataElem.setAttribute("timeLength", QString("%1").arg(timeLen));
+
+	//更新编辑器数据
+	if (TimeVideoLine* tvl = dynamic_cast<TimeVideoLine*>(parentItem()))
+	{
+		tvl->setOriginator(this);
+	}
 }
 
 bool TimeVideoItem::initData(const QDomElement& media)
 {
 	QString qsResId = media.attribute("resourceId");
 	bool okTimeStart, okTimeLength;
-	unsigned int timeStart = media.attribute("timeStart").toUInt(&okTimeStart);
-	unsigned int timeLen = media.attribute("timeLength").toUInt(&okTimeLength);
+	int timeStart = media.attribute("timeStart").toInt(&okTimeStart);
+	int timeLen = media.attribute("timeLength").toInt(&okTimeLength);
 	if (!okTimeStart || !okTimeLength && qsResId.isEmpty())
 	{
 		Q_ASSERT(false);
 		return false;
 	}
 	m_dataElem = media;
-	m_startTime = timeStart;
-	m_timeLen = timeLen;
-	m_qsRes = qsResId;
+
 	updatePos();
 	createEffectEdit();
 	effectEditParentChanged();
@@ -119,16 +121,23 @@ QDomElement TimeVideoItem::data()
 
 void TimeVideoItem::createEffectEdit()
 {
-	m_effectEdits.push_back(new TransparencyEdit(timeZone()));
-	if (m_dataElem.firstChildElement("adjustmentlist").isNull())
-	{
-		QDomElement elem = Document::instance()->document().createElement("adjustmentlist");
-		m_dataElem.appendChild(elem);
+	m_effectEdits.push_back(new TransparencyEditor(timeZone()));
+	m_effectEdits.push_back(new PositionEdiotr(timeZone()));
+	m_effectEdits.push_back(new RotateEdiotr(timeZone()));
+	m_effectEdits.push_back(new ScailEdiotr(timeZone()));
+	m_effectEdits.push_back(new VoiceEditor(timeZone()));
 
-		QDomElement elem2 = Document::instance()->document().createElement("adjustment");
-		elem.appendChild(elem2);
+	QDomElement parentElem = m_dataElem.firstChildElement("adjustmentlist");
+	if (parentElem.isNull())
+	{
+		parentElem = Document::instance()->document().createElement("adjustmentlist");
+		m_dataElem.appendChild(parentElem);
 	}
-	m_effectEdits[0]->initData(m_dataElem.firstChildElement("adjustmentlist").firstChildElement("adjustment"));
+
+	for (EffectEditor* editor : m_effectEdits)
+	{
+		editor->initDataFromParent(parentElem);
+	}
 }
 
 void TimeVideoItem::effectEditParentChanged()
@@ -170,9 +179,14 @@ void TimeVideoItem::updateEffectEditPos()
 
 void TimeVideoItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 {
-	painter->fillRect(rect(), Qt::gray);
+	bool selected = false;
+	if (TimeVideoLine* tvl = dynamic_cast<TimeVideoLine*>(parentItem()))
+	{
+		selected = tvl->originator() == this;
+	}
+	painter->fillRect(rect(), selected ? QColor(57,77,102) : QColor(114,154,204));
 	painter->setPen(Qt::white);
-	painter->drawText(rect(), m_qsRes);
+	painter->drawText(rect(), resID());
 }
 
 QVariant TimeVideoItem::itemChange(GraphicsItemChange change, const QVariant &value)
@@ -216,6 +230,43 @@ QVariant TimeVideoItem::itemChange(GraphicsItemChange change, const QVariant &va
 	return QGraphicsItem::itemChange(change, value);
 }
 
+
+void TimeVideoItem::keyPressEvent(QKeyEvent *event)
+{
+	if (event->key() == Qt::Key_Delete && event->modifiers() == Qt::NoModifier)
+	{
+		delete this;
+	}
+}
+
+void TimeVideoItem::setQsData(const QString& data)
+{
+	QStringList datas = data.split(';');
+	if (datas.size() != 3)
+	{
+		return;
+	}
+	m_dataElem.setAttribute("timeStart", datas.at(0));
+	m_dataElem.setAttribute("timeLength", datas.at(1));
+	m_dataElem.setAttribute("offset", datas[2]);
+	updatePos();
+}
+
+void TimeVideoItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+	QGraphicsRectItem::mousePressEvent(event);
+
+	if (TimeVideoLine* tvl = dynamic_cast<TimeVideoLine*>(parentItem()))
+	{
+		tvl->setOriginator(this);
+	}
+}
+
+QString TimeVideoItem::toQsData()
+{
+	return m_dataElem.attribute("timeStart") + ';' + m_dataElem.attribute("timeLength") + ';' + m_dataElem.attribute("offset");
+}
+
 TimeZone* TimeVideoItem::timeZone()
 {
 	for (QGraphicsItem * par = parentItem(); par; par = par->parentItem())
@@ -224,6 +275,30 @@ TimeZone* TimeVideoItem::timeZone()
 		{
 			return tz;
 		}
+	}
+	return nullptr;
+}
+
+int TimeVideoItem::startTime()
+{
+	return m_dataElem.attribute("timeStart").toInt();
+}
+
+int TimeVideoItem::timeLen()
+{
+	return m_dataElem.attribute("timeLength").toInt();
+}
+
+QString TimeVideoItem::resID() const
+{
+	return m_dataElem.attribute("resourceId");
+}
+
+IEditor* TimeVideoItem::editor()
+{
+	if (TimeVideoLine* tvl = dynamic_cast<TimeVideoLine*>(parentItem()))
+	{
+		return tvl->editor();
 	}
 	return nullptr;
 }

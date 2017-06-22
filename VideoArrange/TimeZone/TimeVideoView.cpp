@@ -1,7 +1,7 @@
 #include "TimeVideoView.h"
 #include "TimeVideoLine.h"
 #include "../Document/Document.h"
-#include "uilogic/LayerFactory.h"
+#include "uilogic/LayerBuilder.h"
 
 #include <QTime>
 #include <QPainter>
@@ -18,7 +18,7 @@ TimeVideo::TimeVideo(TimeVideoView* view):m_view(view)
 	m_anchorLayout->setSpacing(0);
 
 	setLayout(m_anchorLayout);
-	LayerFactory::instance()->setRightLayout(m_anchorLayout);
+	LayerBuilder::instance()->setRightLayout(m_anchorLayout);
 //	Document::instance()->addObserver(this);
 }
 

@@ -170,12 +170,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_StatusButton.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Layer\Layer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="uilogic\LayerFactory.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="GeneratedFiles\Debug\moc_LeftHandleLayer.cpp">
       <Filter>Generated Files\Debug</Filter>
     </ClCompile>
@@ -185,10 +179,31 @@
     <ClCompile Include="Layer\LeftHandleLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Controls\EffectEdit.cpp">
+    <ClCompile Include="Layer\RightLayer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Layer\RightLayer.cpp">
+    <ClCompile Include="Controls\EffectEditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_EffectEditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_EffectEditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\EffectValueEditor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_EffectValueEditor.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_EffectValueEditor.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="uilogic\LayerBuilder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Layer\Layer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -232,10 +247,13 @@
     <CustomBuild Include="Controls\StatusButton.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="Layer\Layer.h">
+    <CustomBuild Include="Layer\LeftHandleLayer.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
-    <CustomBuild Include="Layer\LeftHandleLayer.h">
+    <CustomBuild Include="Controls\EffectEditor.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Controls\EffectValueEditor.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
   </ItemGroup>
@@ -270,13 +288,16 @@
     <ClInclude Include="Controls\CustomStyle.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="uilogic\LayerFactory.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Controls\EffectEdit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Layer\RightLayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uilogic\LayerBuilder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Layer\Layer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\IOriginatorEditor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

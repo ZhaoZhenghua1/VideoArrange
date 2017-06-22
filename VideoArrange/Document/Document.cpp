@@ -109,31 +109,6 @@ QDomDocument Document::document()
 	return m_doc;
 }
 
-void Document::addMediaResFiles(const QStringList& files)
-{
-	QDomElement projectNode = m_doc.firstChildElement("project");
-	QDomElement resNode = projectNode.firstChildElement("resourcelist");
-
-	bool changed = false;
-	for (auto ite = files.cbegin(); ite != files.cend(); ++ite)
-	{
-		if (isValidMediaFile(*ite) && !exist(*ite))
-		{
-			QDomElement elem = Document::instance()->document().createElement("resource");
-			elem.setAttribute("filePath", *ite);
-			elem.setAttribute("id", createId());
-			elem.setAttribute("type", mediaType(*ite));
-			resNode.appendChild(elem);
-			changed = true;
-		}
-	}
-
-	if (changed)
-	{
-		save();
-	}
-}
-
 QString Document::createId()
 {
 	QDomElement projectNode = m_doc.firstChildElement("project");
@@ -197,3 +172,29 @@ void Document::addObserver(Observer * observer)
 {
 	m_lstObservers.push_back(observer);
 }
+
+
+// void Document::addMediaResFiles(const QStringList& files)
+// {
+// 	QDomElement projectNode = m_doc.firstChildElement("project");
+// 	QDomElement resNode = projectNode.firstChildElement("resourcelist");
+// 
+// 	bool changed = false;
+// 	for (auto ite = files.cbegin(); ite != files.cend(); ++ite)
+// 	{
+// 		if (isValidMediaFile(*ite) && !exist(*ite))
+// 		{
+// 			QDomElement elem = Document::instance()->document().createElement("resource");
+// 			elem.setAttribute("filePath", *ite);
+// 			elem.setAttribute("id", createId());
+// 			elem.setAttribute("type", mediaType(*ite));
+// 			resNode.appendChild(elem);
+// 			changed = true;
+// 		}
+// 	}
+// 
+// 	if (changed)
+// 	{
+// 		save();
+// 	}
+// }

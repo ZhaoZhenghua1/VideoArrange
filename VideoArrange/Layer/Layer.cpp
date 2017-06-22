@@ -7,21 +7,88 @@
 #include <QCursor>
 #include <QPainter>
 
-const unsigned int MIN_SPACE = 14;
-const unsigned int MAX_SPACE = 100;
-const int LEFT_SPACING = 40;
-const unsigned int SPACING = 2;
+const unsigned int SPACING = 0;//2;
 LayerBase::LayerBase()
 {
-	setMinimumHeight(24);
+	setMinimumHeight(26);
+}
+
+void LayerBase::addHeight(const qreal spacing)
+{
+	bool ret = false;
+	if (QGraphicsAnchor* pAnchor = bottomAnchor(ret))
+	{
+		int sig = ret ? 1 : -1;
+		qreal val = (pAnchor->spacing() - spacing * (-sig))*sig;
+		if (val < minimumHeight() + SPACING)
+			val = minimumHeight() + SPACING;
+		else if (val > maxHeight())
+			val = maxHeight();
+		pAnchor->setSpacing(val*(sig));
+	}
+}
+
+void LayerBase::addSpace(const qreal spacing)
+{
+	if (QGraphicsAnchor* pAnchor = topAnchor())
+	{
+		qreal val = pAnchor->spacing() + spacing;
+		// 		if (val < minimumHeight())
+		// 			val = minimumHeight();
+
+		pAnchor->setSpacing(val);
+	}
+	bool ret = false;
+	if (QGraphicsAnchor* pAnchor = bottomAnchor(ret))
+	{
+		int sig = ret ? 1 : -1;
+		qreal val = pAnchor->spacing() + spacing*sig;
+		// 		if (val < minimumHeight())
+		// 			val = minimumHeight();
+
+		pAnchor->setSpacing(val);
+	}
 }
 
 void LayerBase::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 {
 	painter->fillRect(rect(), QColor(32, 32, 32));
+	painter->fillRect(QRectF(0,rect().height()-2,rect().width(),2), QColor(49, 49, 49));
 }
 
-QGraphicsAnchor* LayerLeader::anchor()
+QGraphicsAnchor* LayerBase::bottomAnchor(bool& retIsFirst)
+{
+	QGraphicsWidget* par = parentWidget();
+	if (!par)
+		return nullptr;
+
+	QGraphicsAnchorLayout* layout = dynamic_cast<QGraphicsAnchorLayout*>(par->layout());
+	if (!layout)
+		return nullptr;
+
+	int index = 0;
+	for (; index < layout->count(); ++index)
+		if (layout->itemAt(index) == this)
+			break;
+
+	if (index == layout->count())
+		return nullptr;
+
+	if (0 == index)
+	{
+		retIsFirst = true;
+		return layout->anchor(this, Qt::AnchorBottom, layout, Qt::AnchorTop);
+	}
+	else
+	{
+		retIsFirst = false;
+		QGraphicsLayoutItem * secondItem = layout->itemAt(index - 1);
+
+		return layout->anchor(this, Qt::AnchorBottom, secondItem, Qt::AnchorBottom);
+	}
+}
+
+QGraphicsAnchor* LayerBase::topAnchor()
 {
 	QGraphicsWidget* par = parentWidget();
 	if (!par)
@@ -36,23 +103,37 @@ QGraphicsAnchor* LayerLeader::anchor()
 		if (layout->itemAt(index) == this)
 			break;
 
-	if (0 == index || index == layout->count())
+	if (index == layout->count())
 		return nullptr;
 
-	QGraphicsLayoutItem * secondItem = layout->itemAt(index - 1);
+	if (0 == index)
+	{
+		return layout->anchor(this, Qt::AnchorTop, layout, Qt::AnchorTop);
+	}
+	else
+	{
+		QGraphicsLayoutItem * secondItem = layout->itemAt(index - 1);
 
-	return layout->anchor(this, Qt::AnchorTop, secondItem, Qt::AnchorBottom);
+		return layout->anchor(this, Qt::AnchorTop, secondItem, Qt::AnchorBottom);
+	}
 }
 
-void LayerLeader::addGroupToLayout(const QVector<LayerFellow*>& fellows, QGraphicsAnchorLayout* anchorLayout)
+qreal LayerBase::maxHeight()
+{
+	return minimumHeight() + 200;
+}
+
+void LayerLeader::addGroupToLayout(const QVector<LayerBase*>& fellows, QGraphicsAnchorLayout* anchorLayout)
 {
 	QGraphicsLayoutItem* anchorTo = anchorLayout;
 	if (anchorLayout->count() > 0)
 		anchorTo = anchorLayout->itemAt(anchorLayout->count() - 1);
 
-	anchorLayout->addAnchor(this, Qt::AnchorTop, anchorTo, anchorLayout->count() > 0 ? Qt::AnchorBottom : Qt::AnchorTop)->setSpacing(SPACING);
+	bool top = anchorTo == anchorLayout;
+	anchorLayout->addAnchor(this, Qt::AnchorTop, anchorTo, top ? Qt::AnchorTop : Qt::AnchorBottom)->setSpacing(SPACING);
 	anchorLayout->addAnchor(this, Qt::AnchorLeft, anchorLayout, Qt::AnchorLeft);
 	anchorLayout->addAnchor(this, Qt::AnchorRight, anchorTo, Qt::AnchorRight);
+	anchorLayout->addAnchor(this, Qt::AnchorBottom, anchorTo, top ? Qt::AnchorTop : Qt::AnchorBottom)->setSpacing((minimumHeight() + SPACING)*(top ? 1 : -1));//*(top?1:-1)
 
 	anchorTo = this;
 
@@ -88,10 +169,10 @@ void LayerLeader::hideFellows(bool hide /*= true*/)
  		QGraphicsLayoutItem * fellowItem = layout->itemAt(index);
 		if (LayerLeader* leader = dynamic_cast<LayerLeader*>(fellowItem))
 		{
-			leader->LayerLeader::addSpacing(spacing * (hide ? -1 : 1));
+			leader->LayerLeader::addSpace(spacing * (hide ? -1 : 1));
 			break;
 		}
-		else if (LayerFellow* fellow = dynamic_cast<LayerFellow*>(fellowItem))
+		else if (LayerBase* fellow = dynamic_cast<LayerBase*>(fellowItem))
 		{
 			spacing += fellow->rect().height() + SPACING;
  			hide ? fellow->hide() : fellow->show();
@@ -99,66 +180,28 @@ void LayerLeader::hideFellows(bool hide /*= true*/)
  	}
 }
 
-void LayerLeader::addSpacing(const qreal spacing)
-{
-	if (QGraphicsAnchor* pAnchor = anchor())
-	{
- 		qreal val = pAnchor->spacing() + spacing;
-// 		if (val < minimumHeight())
-// 			val = minimumHeight();
-
-		pAnchor->setSpacing(val);
-	}
-}
-
-QGraphicsAnchor* LayerFellow::anchor()
-{
-	QGraphicsWidget* par = parentWidget();
-	if (!par)
-		return nullptr;
-
-	QGraphicsAnchorLayout* layout = dynamic_cast<QGraphicsAnchorLayout*>(par->layout());
-	if (!layout)
-		return nullptr;
-
-	int index = 0;
-	for (; index < layout->count(); ++index)
-		if (layout->itemAt(index) == this)
-			break;
-
-	if (0 == index || index == layout->count())
-		return nullptr;
-
-	QGraphicsLayoutItem * secondItem = layout->itemAt(index - 1);
-
-	return layout->anchor(this, Qt::AnchorBottom, secondItem, Qt::AnchorBottom);
-}
-
-void LayerFellow::addSpacing(const qreal spacing)
-{
-	if (QGraphicsAnchor* pAnchor = anchor())
-	{
-		qreal val = -(pAnchor->spacing() - spacing);
-		if (val < minimumHeight() + SPACING)
-			val = minimumHeight() + SPACING;
-		pAnchor->setSpacing(-val);
-	}
-}
-
-void HandleLayerLeader::addSpacing(const qreal spacing)
+void HandleLayerLeader::addHeight(const qreal spacing)
 {
 	if (m_partner)
 	{
-		m_partner->addSpacing(spacing);
+		m_partner->addHeight(spacing);
 	}
-	LayerLeader::addSpacing(spacing);
+	LayerLeader::addHeight(spacing);
+}
+
+void HandleLayerLeader::addSpace(const qreal spacing)
+{
+	if (m_partner)
+	{
+		m_partner->addSpace(spacing);
+	}
+	LayerLeader::addSpace(spacing);
 }
 
 QRectF HandleLayerLeader::handleRect()
 {
-	return QRectF();
 	QRectF rec = rect();
-	rec.adjust(0, 0, 0, -(rec.height() - 4));
+	rec.adjust(0, (rec.height() - 4), 0, 4);
 	return rec;
 }
 
@@ -174,16 +217,17 @@ void HandleLayerLeader::hideFellows(bool hide /*= true*/)
 
 void HandleLayerLeader::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 {
-	painter->fillRect(rect(), QColor(38, 38, 38));
+//	painter->fillRect(rect(), QColor(38, 38, 38));
+	LayerLeader::paint(painter, option, widget);
 }
 
-void HandleLayerFellow::addSpacing(const qreal spacing)
+void HandleLayerFellow::addHeight(const qreal spacing)
 {
 	if (m_partner)
 	{
-		m_partner->addSpacing(spacing);
+		m_partner->addHeight(spacing);
 	}
-	LayerFellow::addSpacing(spacing);
+	LayerBase::addHeight(spacing);
 }
 
 QRectF HandleLayerFellow::handleRect()
@@ -193,15 +237,10 @@ QRectF HandleLayerFellow::handleRect()
 	return rec;
 }
 
-void HandleLayerFellow::wheelEvent(QGraphicsSceneWheelEvent *event)
-{
-	int delt = event->delta();
-	addSpacing(delt > 0 ? -1 : 1);
-}
-
 void HandleLayerFellow::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 {
-	painter->fillRect(rect(), QColor(38, 38, 38));
+//	painter->fillRect(rect(), QColor(38, 38, 38));
+	LayerHandle::paint(painter, option, widget);
 }
 
 LayerHandle::LayerHandle()
@@ -229,7 +268,7 @@ void LayerHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 	if (!m_bPressHandle)
 		return;
 	int delt = event->pos().y() - event->lastPos().y();
-	addSpacing(delt);
+	addHeight(delt);
 }
 void LayerHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
@@ -241,4 +280,10 @@ void LayerHandle::mousePressEvent(QGraphicsSceneMouseEvent *event)
 void LayerHandle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
 	m_bPressHandle = false;
+}
+
+void LayerHandle::wheelEvent(QGraphicsSceneWheelEvent *event)
+{
+	int delt = event->delta();
+	addHeight(delt > 0 ? -2 : 2);
 }

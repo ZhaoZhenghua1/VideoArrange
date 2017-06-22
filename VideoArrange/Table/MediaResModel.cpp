@@ -66,7 +66,19 @@ Qt::DropActions MediaResModel::supportedDragActions() const
 
 void MediaResModel::addFiles(const QStringList& files)
 {
-	
+	QDomElement resNode = m_elem;
+
+	for (auto ite = files.cbegin(); ite != files.cend(); ++ite)
+	{
+		if (Document::instance()->isValidMediaFile(*ite) && !Document::instance()->exist(*ite))
+		{
+			QDomElement elem = Document::instance()->document().createElement("resource");
+			elem.setAttribute("filePath", *ite);
+			elem.setAttribute("id", Document::instance()->createId());
+			elem.setAttribute("type", Document::instance()->mediaType(*ite));
+			resNode.appendChild(elem);
+		}
+	}
 }
 
 //! [2]

@@ -210,7 +210,7 @@ TimeLineScrollBar::~TimeLineScrollBar()
 
 unsigned int TimeLineScrollBar::maxSceneLength()
 {
-	return m_timeLen / 200 * 80;
+	return m_timeLen ;
 }
 
 void TimeLineScrollBar::paintEvent(QPaintEvent *event)

@@ -96,7 +96,8 @@ void TableView::dropEvent(QDropEvent *event)
 			fileLst.push_back(file);
 		}
 	}
-	Document::instance()->addMediaResFiles(fileLst);
+	((MediaResModel*)model())->addFiles(fileLst);
+	
 	doItemsLayout();
 }
 

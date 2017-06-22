@@ -3,34 +3,64 @@
 #include <QGraphicsWidget>
 #include "Layer.h"
 
-//图层头，包含图层名，伸缩按钮，显示，声音，锁定等控制图层的按钮
 class QLabel;
-
-class HandleTitle : public HandleLayerLeader
+class QDomElement;
+class QGraphicsAnchorLayout;
+class IEditor;
+class EffectValueEditor;
+class LeftHandleFellow;
+class MediaItemWidgetEditor;
+//图片，视频，音频图层 ，包含图层名，伸缩按钮，显示，声音，锁定等控制图层的按钮
+class LeftMediaLeader : public HandleLayerLeader
 {
 public:
-	HandleTitle();
+	LeftMediaLeader();
+	//设置编辑窗口
+	void setWidget(MediaItemWidgetEditor* widget);
+	//获取编辑窗口
+	IEditor* editor();
+	QVector<LeftHandleFellow*> init(QGraphicsAnchorLayout* leftLayout);
 public:
-void onStatusChanged(int before, int after);
+void onHideFellows(int before, int after);
+private:
+	IEditor* m_editor = nullptr;
+};
+
+//控制器图层
+class LeftMarkerLeader : public HandleLayerLeader
+{
+public:
+	LeftMarkerLeader();
+	void init(const QDomElement& data);
+public:
+
 };
 
 class Helper : public QObject
 {
 	Q_OBJECT
 public:
-	Helper(HandleTitle* parent) :QObject(parent), m_help(parent) {}
-	public slots :
-		void onStatusChanged(int before, int after)
+	Helper(LeftMediaLeader* parent) :QObject(parent), m_help(parent) {}
+public slots :
+	void onStatusChanged(int before, int after)
 	{
-		m_help->onStatusChanged(before, after);
+		m_help->onHideFellows(before, after);
 	}
 private:
-	HandleTitle* m_help;
+	LeftMediaLeader* m_help;
 };
 
-class HandleFellow : public HandleLayerFellow
+//图层下面的操作项
+class LeftHandleFellow : public HandleLayerFellow
 {
 public:
-	HandleFellow();
-	void setWidget(QGraphicsWidget* widget);
+	LeftHandleFellow();
+	//设置编辑窗口
+	void setWidget(EffectValueEditor* widget);
+	//获取编辑窗口
+	IEditor* editor();
+protected:
+	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 };
+
+

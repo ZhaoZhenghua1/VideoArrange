@@ -17,7 +17,7 @@ public:
 	bool isValidMediaFile(const QString& path);
 	bool exist(const QString& path);
 	int mediaType(const QString& path);
-	void addMediaResFiles(const QStringList& files);
+//	void addMediaResFiles(const QStringList& files);
 	QString createId();
 	void save();
 	QDomDocument document();

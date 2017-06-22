@@ -7,14 +7,13 @@
 #include <QPainter>
 #include <QGraphicsSceneDragDropEvent>
 #include <QMimeData>
+#include "Layer/RightLayer.h"
 
 
 const char* const DOAG_DROP_TYPE = "LM-video-resource";
 TimeVideoLine::TimeVideoLine()
 {
 	setAcceptDrops(true);
-	setMinimumHeight(24);
-	setMaximumHeight(24);
 }
 
 
@@ -22,9 +21,30 @@ TimeVideoLine::~TimeVideoLine()
 {
 }
 
-void TimeVideoLine::initData(const QDomElement& elem)
+void TimeVideoLine::setOriginator(IOriginator* o)
 {
+	m_selectedOriginator = o;
+	if (editor())
+	{
+		editor()->setOriginator(o);
+	}
+	update();
+}
+
+QVector<RightLayer*> TimeVideoLine::initData(const QDomElement& elem, QGraphicsAnchorLayout* layout)
+{
+	//初始化图层下面的操作图层
+	QVector<RightLayer*> arrR({ new RightLayer ,new RightLayer ,new RightLayer ,new RightLayer ,new RightLayer});
+	QVector<LayerBase*> fellows(arrR.size());
+	for (int i = 0 ; i < arrR.size(); ++i)
+	{
+		fellows[i] = arrR[i];
+	}
+	//操作图层放入布局中
+	addGroupToLayout(fellows, layout);
+
 	m_dataElem = elem;
+	//创建图层子对象
 	QDomElement mediaList = elem.firstChildElement("medialist");
 	for (QDomElement media = mediaList.firstChildElement("media"); !media.isNull(); media = media.nextSiblingElement("media"))
 	{
@@ -35,11 +55,14 @@ void TimeVideoLine::initData(const QDomElement& elem)
 			delete pItem;
 		}
 	}
+
+	return arrR;
 }
 
 void TimeVideoLine::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
 {
-	painter->fillRect(rect(), QColor(32, 32, 32));
+//	painter->fillRect(rect(), QColor(32, 32, 32));
+	LayerLeader::paint(painter, option, widget);
 }
 
 void TimeVideoLine::setGeometry(const QRectF &rect) 

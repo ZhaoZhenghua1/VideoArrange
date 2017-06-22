@@ -67,8 +67,8 @@ class SizeGripItem : public QGraphicsItem
             private:
                 QPointF restrictPosition(const QPointF& newPos);
 
-                int positionFlags_;
-                SizeGripItem* parent_;
+                int m_positionFlags;
+                SizeGripItem* m_parent;
         };
 
     public:
@@ -99,9 +99,9 @@ class SizeGripItem : public QGraphicsItem
         void doResize();
         void updateHandleItemPositions();
 
-        QList<HandleItem*> handleItems_;
-        QRectF rect_;
-        Resizer* resizer_;
+        QList<HandleItem*> m_handleItems;
+        QRectF m_rect;
+        Resizer* m_resizer;
 };
 
 #endif // SIZEGRIPITEM_H

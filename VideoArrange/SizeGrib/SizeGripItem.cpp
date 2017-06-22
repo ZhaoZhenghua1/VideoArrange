@@ -23,14 +23,16 @@
  */
 
 #include <QBrush>
+#include <QPen>
 #include "SizeGripItem.h"
 
 SizeGripItem::HandleItem::HandleItem(int positionFlags, SizeGripItem* parent)
-    : QGraphicsRectItem(-4, 0, 8, 24, parent),
-      positionFlags_(positionFlags),
-      parent_(parent)
+    : QGraphicsRectItem(-4, -1, 8, 25, parent),
+      m_positionFlags(positionFlags),
+      m_parent(parent)
 {
     setBrush(QBrush(Qt::lightGray));
+	setPen(Qt::NoPen);
     setFlag(ItemIsMovable);
     setFlag(ItemSendsGeometryChanges);
 	setAcceptHoverEvents(true);
@@ -38,7 +40,7 @@ SizeGripItem::HandleItem::HandleItem(int positionFlags, SizeGripItem* parent)
 
 int SizeGripItem::HandleItem::positionFlags() const
 {
-    return positionFlags_;
+    return m_positionFlags;
 }
 
 QVariant SizeGripItem::HandleItem::itemChange(GraphicsItemChange change,
@@ -54,31 +56,31 @@ QVariant SizeGripItem::HandleItem::itemChange(GraphicsItemChange change,
     {
         QPointF pos = value.toPointF();
 
-        switch (positionFlags_)
+        switch (m_positionFlags)
         {
             case TopLeft:
-                parent_->setTopLeft(pos);
+                m_parent->setTopLeft(pos);
                 break;
             case Top:
-                parent_->setTop(pos.y());
+                m_parent->setTop(pos.y());
                 break;
             case TopRight:
-                parent_->setTopRight(pos);
+                m_parent->setTopRight(pos);
                 break;
             case Right:
-                parent_->setRight(pos.x());
+                m_parent->setRight(pos.x());
                 break;
             case BottomRight:
-                parent_->setBottomRight(pos);
+                m_parent->setBottomRight(pos);
                 break;
             case Bottom:
-                parent_->setBottom(pos.y());
+                m_parent->setBottom(pos.y());
                 break;
             case BottomLeft:
-                parent_->setBottomLeft(pos);
+                m_parent->setBottomLeft(pos);
                 break;
             case Left:
-                parent_->setLeft(pos.x());
+                m_parent->setLeft(pos.x());
                 break;
         }
     }
@@ -90,51 +92,51 @@ QPointF SizeGripItem::HandleItem::restrictPosition(const QPointF& newPos)
 {
     QPointF retVal = pos();
 
-    if (positionFlags_ & Top || positionFlags_ & Bottom)
+    if (m_positionFlags & Top || m_positionFlags & Bottom)
         retVal.setY(newPos.y());
 
-    if (positionFlags_ & Left || positionFlags_ & Right)
+    if (m_positionFlags & Left || m_positionFlags & Right)
         retVal.setX(newPos.x());
 
-    if (positionFlags_ & Top && retVal.y() > parent_->rect_.bottom())
-        retVal.setY(parent_->rect_.bottom());
-    else if (positionFlags_ & Bottom && retVal.y() < parent_->rect_.top())
-        retVal.setY(parent_->rect_.top());
+    if (m_positionFlags & Top && retVal.y() > m_parent->m_rect.bottom())
+        retVal.setY(m_parent->m_rect.bottom());
+    else if (m_positionFlags & Bottom && retVal.y() < m_parent->m_rect.top())
+        retVal.setY(m_parent->m_rect.top());
 
-    if (positionFlags_ & Left && retVal.x() > parent_->rect_.right())
-        retVal.setX(parent_->rect_.right());
-    else if (positionFlags_ & Right && retVal.x() < parent_->rect_.left())
-        retVal.setX(parent_->rect_.left());
+    if (m_positionFlags & Left && retVal.x() > m_parent->m_rect.right())
+        retVal.setX(m_parent->m_rect.right());
+    else if (m_positionFlags & Right && retVal.x() < m_parent->m_rect.left())
+        retVal.setX(m_parent->m_rect.left());
 
     return retVal;
 }
 
 SizeGripItem::SizeGripItem(Resizer* resizer, QGraphicsItem* parent)
     : QGraphicsItem(parent),
-      resizer_(resizer)
+      m_resizer(resizer)
 {
 
 
 //     handleItems_.append(new HandleItem(TopLeft, this));
 //     handleItems_.append(new HandleItem(Top, this));
 //     handleItems_.append(new HandleItem(TopRight, this));
-    handleItems_.append(new HandleItem(Right, this));
+    m_handleItems.append(new HandleItem(Right, this));
 //     handleItems_.append(new HandleItem(BottomRight, this));
 //     handleItems_.append(new HandleItem(Bottom, this));
 //     handleItems_.append(new HandleItem(BottomLeft, this));
-    handleItems_.append(new HandleItem(Left, this));
+    m_handleItems.append(new HandleItem(Left, this));
 	fixToParent();
 }
 
 SizeGripItem::~SizeGripItem()
 {
-    if (resizer_)
-        delete resizer_;
+    if (m_resizer)
+        delete m_resizer;
 }
 
 QRectF SizeGripItem::boundingRect() const
 {
-    return rect_;
+    return m_rect;
 }
 
 void SizeGripItem::paint(QPainter* painter,
@@ -147,14 +149,14 @@ void SizeGripItem::paint(QPainter* painter,
 void SizeGripItem::fixToParent()
 {
 	if (parentItem())
-		rect_ = ((QGraphicsRectItem*)parentItem())->rect();
+		m_rect = ((QGraphicsRectItem*)parentItem())->rect();
 	updateHandleItemPositions();
 }
 
 #define IMPL_SET_FN(TYPE, POS)                  \
     void SizeGripItem::set ## POS (TYPE v)      \
     {                                           \
-        rect_.set ## POS (v);                   \
+        m_rect.set ## POS (v);                   \
         doResize();                             \
     }
 
@@ -169,48 +171,57 @@ IMPL_SET_FN(const QPointF&, BottomLeft)
 
 void SizeGripItem::doResize()
 {
-    if (resizer_)
+    if (m_resizer)
     {
-        (*resizer_)(parentItem(), rect_);
+        (*m_resizer)(parentItem(), m_rect);
         updateHandleItemPositions();
     }
 }
 
 void SizeGripItem::updateHandleItemPositions()
 {
-    foreach (HandleItem* item, handleItems_)
+    foreach (HandleItem* item, m_handleItems)
     {
         item->setFlag(ItemSendsGeometryChanges, false);
 
         switch (item->positionFlags())
         {
             case TopLeft:
-                item->setPos(rect_.topLeft());
+                item->setPos(m_rect.topLeft());
                 break;
             case Top:
-                item->setPos(rect_.left() + rect_.width() / 2 - 1,
-                             rect_.top());
+                item->setPos(m_rect.left() + m_rect.width() / 2 - 1,
+                             m_rect.top());
                 break;
             case TopRight:
-                item->setPos(rect_.topRight());
+                item->setPos(m_rect.topRight());
                 break;
             case Right:
-                item->setPos(rect_.right(),
-                             rect_.top() /*+ rect_.height() / 2 - 1*/);
+			{
+
+				item->setPos(m_rect.right(), m_rect.top());
+				QRectF rect = item->rect();
+				rect.setHeight(m_rect.height());
+				item->setRect(rect);
+			}
                 break;
             case BottomRight:
-                item->setPos(rect_.bottomRight());
+                item->setPos(m_rect.bottomRight());
                 break;
             case Bottom:
-                item->setPos(rect_.left() + rect_.width() / 2 - 1,
-                             rect_.bottom());
+                item->setPos(m_rect.left() + m_rect.width() / 2 - 1,
+                             m_rect.bottom());
                 break;
             case BottomLeft:
-                item->setPos(rect_.bottomLeft());
+                item->setPos(m_rect.bottomLeft());
                 break;
             case Left:
-                item->setPos(rect_.left(),
-                             rect_.top() /*+ rect_.height() / 2 - 1*/);
+			{
+                item->setPos(m_rect.left(),m_rect.top());
+				QRectF rect = item->rect();
+				rect.setHeight(m_rect.height());
+				item->setRect(rect);
+			}
                 break;
         }
 

@@ -1,6 +1,6 @@
 #include "LayerView.h"
 #include "../Document/Document.h"
-#include "uilogic/LayerFactory.h"
+#include "uilogic/LayerBuilder.h"
 #include <QGraphicsWidget>
 #include <QGraphicsLinearLayout>
 #include <QGraphicsAnchorLayout>
@@ -33,7 +33,7 @@ LayerView::LayerView()
 	QGraphicsAnchorLayout* lay = new QGraphicsAnchorLayout;
 	lay->setSpacing(0);
 	lay->setContentsMargins(0, 0, 0, 10);
-	LayerFactory::instance()->setLeftLayout(lay);	
+	LayerBuilder::instance()->setLeftLayout(lay);	
 	
 	m_rootWidget = new RootWidget;
 
@@ -55,10 +55,12 @@ void LayerView::resizeEvent(QResizeEvent *event)
 
 	qreal height = 0;
 	QGraphicsLayout* layout = m_rootWidget->layout();
+	//计算视图高度
 	if (layout->count() > 0)
 		height = layout->itemAt(layout->count() - 1)->geometry().bottom();
 	height = (height > event->size().height() ? height : event->size().height()) + 200;
 	QRectF rect(QPointF(), QSizeF(event->size().width(), height));
+	//-2产生一个隔离边
 	m_rootWidget->setGeometry(rect.adjusted(0, 0, -2, 0));
 	scene()->setSceneRect(rect);
 }
@@ -66,6 +68,11 @@ void LayerView::resizeEvent(QResizeEvent *event)
 void LayerView::paintEvent(QPaintEvent *event)
 {
 	QGraphicsView::paintEvent(event);
+}
+
+void LayerView::mouseMoveEvent(QMouseEvent *event)
+{
+	QGraphicsView::mouseMoveEvent(event);
 }
 
 void LayerView::init()

@@ -2,15 +2,16 @@
 #include "../Document/Observer.h"
 
 class QGraphicsAnchorLayout;
-class LayerFactory : public Observer
+class LayerBuilder : public Observer
 {
 public:
-	LayerFactory();
-	~LayerFactory();
+	LayerBuilder();
+	~LayerBuilder();
 	void setLeftLayout(QGraphicsAnchorLayout* l);
 	void setRightLayout(QGraphicsAnchorLayout* r);
-	void createLayerToLayout(QDomElement data);
-	static LayerFactory* instance();
+	void createPlayItemLayer(const QDomElement& data);
+	void createMarkerItemLayer(const QDomElement& data);
+	static LayerBuilder* instance();
 protected:
 	virtual void init() override;
 private:
