@@ -8,7 +8,6 @@
 */
 
 class TimeZone;
-class EffectValueEditor;
 class RightLayer;
 class EffectEditor : public QGraphicsWidget, public IOriginator
 {
@@ -26,6 +25,7 @@ protected:
 		int selectIndex(const QPointF&);
 		bool isOnLine(const QPointF& pos);
 		void paint(QPainter *painter, int selectIndex);
+		void setPointTime(int index, unsigned int time);
 		QString pointValue(int index);
 	private:
 		EffectEditor* m_owner = nullptr;
@@ -70,6 +70,7 @@ private:
 protected:
 	QDomElement m_data;
 	TimeZone* m_timeZone = nullptr;
+	int m_pressIndex = -1;
 };
 
 class TransparencyEditor : public EffectEditor
@@ -116,3 +117,4 @@ protected:
 	virtual QString average(QDomElement before, QDomElement after, qreal curtime)  const;
 	virtual QString type() override { return "Voice"; };
 };
+

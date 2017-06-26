@@ -35,7 +35,7 @@ void LayerBuilder::createPlayItemLayer(const QDomElement& data)
 		return;
 	//×ó±ß
 	LeftMediaLeader* titleLeft = new LeftMediaLeader;
-	QVector<LeftHandleFellow*> leftFellows = titleLeft->init(m_leftLayout);
+	QVector<LeftHandleFellow*> leftFellows = titleLeft->init(data, m_leftLayout);
 	titleLeft->setWidget(new MediaItemWidgetEditor);
 
 	TimeVideoLine* titleR = new TimeVideoLine;

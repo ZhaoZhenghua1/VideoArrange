@@ -7,9 +7,69 @@
 #include <QLabel>
 #include <QPainter>
 #include <QGraphicsAnchorLayout>
+#include <QLineEdit>
+#include <QDomElement>
 enum EStatus
 {
 	eOff, eOn
+};
+
+template<class T>
+class ClickProxyWidget : public QGraphicsProxyWidget
+{
+public:
+	ClickProxyWidget(int width, QGraphicsItem* parent = nullptr) :QGraphicsProxyWidget(parent)
+	{
+		m_widget = new T;
+		setAcceptHoverEvents(true);
+		setGeometry(QRectF(0, 0, width, 20));
+	}
+	T* widget() { return m_widget; }
+
+	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+	{
+		if (QGraphicsProxyWidget::widget())
+		{
+			QGraphicsProxyWidget::paint(painter, option, widget);
+		}
+		else
+		{
+			//	painter->fillRect(rect(), Qt::yellow);
+			painter->setPen(QPen(QColor(45, 140, 235)));
+			painter->drawText(QPointF(0, 13), m_widget->text());
+		}
+	}
+	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+	{
+		setCursor(Qt::PointingHandCursor);
+		QGraphicsProxyWidget::hoverEnterEvent(event);
+	}
+	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+	{
+		setCursor(Qt::ArrowCursor);
+		QGraphicsProxyWidget::hoverLeaveEvent(event);
+	}
+	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)
+	{
+		QGraphicsProxyWidget::mousePressEvent(event);
+		setWidget(m_widget);
+		QGraphicsProxyWidget::setPos(m_pos);
+	}
+	virtual void focusOutEvent(QFocusEvent *event)
+	{
+		setWidget(nullptr);
+		QGraphicsProxyWidget::setPos(m_pos);
+		setAcceptHoverEvents(true);
+		QGraphicsProxyWidget::focusOutEvent(event);
+	}
+	void setPos(qreal x, qreal y)
+	{
+		m_pos = QPointF(x, y);
+		QGraphicsProxyWidget::setPos(m_pos);
+	}
+private:
+	T* m_widget = nullptr;
+	QPointF m_pos;
 };
 
 LeftMediaLeader::LeftMediaLeader()
@@ -24,14 +84,16 @@ LeftMediaLeader::LeftMediaLeader()
 	pS->setStatusPixmap(eOn, ":/unfold_normal.png", ":/unfold_hover.png");
 	pS->setStatusPixmap(eOff, ":/fold_normal.png", ":/fold_hover.png");
 
-	QGraphicsProxyWidget* labelName = new NoHoverProxyWidget(this);
-	QLabel* m_labelName = new QLabel(QString::fromLocal8Bit("Í¼²ã"));
-	m_labelName->setStyleSheet(R"(
-background-color: rgb(35, 35, 35);
-color: rgb(177, 177, 177);
-font: 10pt "Candara";)");
-	labelName->setWidget(m_labelName);
-	labelName->setPos(40, 5);
+	auto proxylabelName = new ClickProxyWidget<QLineEdit>(60, this);
+	m_editLayerName = proxylabelName->widget();//new QLabel(QString::fromLocal8Bit("Í¼²ã"));
+	m_editLayerName->setFixedSize(60, 20);
+	m_editLayerName->setText(QString::fromLocal8Bit("Í¼²ã"));
+	connect(m_editLayerName, &QLineEdit::editingFinished, pHelper, &Helper::onEditFinished);
+// 	editorlName->setStyleSheet(R"(
+// background-color: rgb(35, 35, 35);
+// color: rgb(177, 177, 177);
+// font: 10pt "Candara";)");
+	proxylabelName->setPos(40, 5);
 
 	QGraphicsProxyWidget* btnHide = new NoHoverProxyWidget(this);
 	pS = new StatusButton;
@@ -58,6 +120,12 @@ font: 10pt "Candara";)");
 	btnLock->setPos(160, 2);
 }
 
+//Îö¹¹Ê±É¾³ýËùÓÐÍ¼²ã
+LeftMediaLeader::~LeftMediaLeader()
+{
+
+}
+
 void LeftMediaLeader::setWidget(MediaItemWidgetEditor* widget)
 {
 	widget->setParentItem(this);
@@ -70,8 +138,15 @@ IEditor* LeftMediaLeader::editor()
 	return m_editor;
 }
 
-QVector<LeftHandleFellow*> LeftMediaLeader::init(QGraphicsAnchorLayout* leftLayout)
+QVector<LeftHandleFellow*> LeftMediaLeader::init(const QDomElement& data, QGraphicsAnchorLayout* leftLayout)
 {
+	QString name = data.attribute("layerName");
+	if (name.isEmpty())
+	{
+		name = QString::fromLocal8Bit("Í¼²ã");
+	}
+	m_data = data;
+	m_editLayerName->setText(name);
 	//×ó±ßÏÂÀ­Ïî
 	QVector<LeftHandleFellow*> arrLeft = { new LeftHandleFellow, new LeftHandleFellow , new LeftHandleFellow , new LeftHandleFellow, new LeftHandleFellow };
 
@@ -93,6 +168,22 @@ QVector<LeftHandleFellow*> LeftMediaLeader::init(QGraphicsAnchorLayout* leftLayo
 	addGroupToLayout(arrOrig, leftLayout);
 
 	return arrLeft;
+}
+
+void LeftMediaLeader::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+	HandleLayerLeader::paint(painter, option, widget);
+	painter->fillRect(rect().adjusted(0, 0, 0, -2), QColor(38, 38, 38));
+}
+
+void LeftMediaLeader::onEditFinished()
+{
+	QString name = m_editLayerName->text();
+	if (name.isEmpty())
+	{
+		name = QString::fromLocal8Bit("Í¼²ã");
+	}
+	m_data.setAttribute("layerName",name);
 }
 
 void LeftMediaLeader::onHideFellows(int before, int after)

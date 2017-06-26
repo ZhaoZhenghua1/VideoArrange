@@ -6,6 +6,7 @@
 #include <QGraphicsSceneWheelEvent>
 #include <QCursor>
 #include <QPainter>
+#include <QGraphicsScene>
 
 const unsigned int SPACING = 0;//2;
 LayerBase::LayerBase()
@@ -180,6 +181,11 @@ void LayerLeader::hideFellows(bool hide /*= true*/)
  	}
 }
 
+HandleLayerLeader::~HandleLayerLeader()
+{
+
+}
+
 void HandleLayerLeader::addHeight(const qreal spacing)
 {
 	if (m_partner)
@@ -248,6 +254,13 @@ LayerHandle::LayerHandle()
 	setAcceptHoverEvents(true);
 }
 
+
+void LayerHandle::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+{
+	//解决闪烁问题
+	scene()->update(scene()->itemsBoundingRect());
+}
+
 void LayerHandle::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 {
 	if (handleRect().contains(event->pos()))
@@ -258,10 +271,14 @@ void LayerHandle::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
 	{
 		setCursor(Qt::ArrowCursor);
 	}
+	//解决闪烁问题
+	scene()->update(scene()->itemsBoundingRect());
 }
 void LayerHandle::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 {
 	setCursor(Qt::ArrowCursor);
+	//解决闪烁问题
+	scene()->update(scene()->itemsBoundingRect());
 }
 void LayerHandle::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {

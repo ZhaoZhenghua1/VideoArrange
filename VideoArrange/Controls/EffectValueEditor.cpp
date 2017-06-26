@@ -11,9 +11,73 @@
 #include <QPainter>
 #include <QLineEdit>
 #include <QCheckBox>
+#include <QTimeEdit>
 
 const QPen PEN(QBrush(QColor(163, 163, 163)), 1);
 const QFont FONT("",12,50,false);
+const QString STYLE_SHEET(R"(color: rgb(163, 163, 163);background-color: rgb(38, 38, 38);)");
+
+template<class T>
+class ClickProxyWidget : public QGraphicsProxyWidget
+{
+public:
+	ClickProxyWidget(int width, QGraphicsItem* parent = nullptr) :QGraphicsProxyWidget(parent)
+	{
+		m_widget = new T;
+		setAcceptHoverEvents(true);
+		setGeometry(QRectF(0, 0, width, 20));
+	}
+	T* widget() { return m_widget; }
+
+	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+	{
+		if (QGraphicsProxyWidget::widget())
+		{
+			QGraphicsProxyWidget::paint(painter, option, widget);
+		}
+		else
+		{
+			painter->setPen(QPen(QColor(45, 140, 235)));
+			QString text = m_widget->text();
+			if (text.isEmpty())
+			{
+				text = '*';
+			}
+			painter->drawText(QPointF(0, 13), text);
+		}
+	}
+	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+	{
+		setCursor(Qt::PointingHandCursor);
+		QGraphicsProxyWidget::hoverEnterEvent(event);
+	}
+	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+	{
+		setCursor(Qt::ArrowCursor);
+		QGraphicsProxyWidget::hoverLeaveEvent(event);
+	}
+	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)
+	{
+		QGraphicsProxyWidget::mousePressEvent(event);
+		setWidget(m_widget);
+		QGraphicsProxyWidget::setPos(m_pos);
+	}
+	virtual void focusOutEvent(QFocusEvent *event)
+	{
+		QGraphicsProxyWidget::focusOutEvent(event);
+		setWidget(nullptr);
+		QGraphicsProxyWidget::setPos(m_pos);
+		setAcceptHoverEvents(true);
+	}
+	void setPos(qreal x, qreal y)
+	{
+		m_pos = QPointF(x, y);
+		QGraphicsProxyWidget::setPos(m_pos);
+	}
+private:
+	T* m_widget = nullptr;
+	QPointF m_pos;
+};
 
 void EffectValueEditor::setOriginator(IOriginator* orig)
 {
@@ -39,26 +103,29 @@ void EffectValueEditor::setOrigData(const QString& value)
 
 TransparencyWidgetEditor::TransparencyWidgetEditor()
 {
-	QGraphicsProxyWidget* pw = new NoHoverProxyWidget(this);
-	m_edit = new QLineEdit;
+	auto pw = new ClickProxyWidget<QLineEdit>(50, this);
+	m_edit = pw->widget();
 	m_edit->setFixedSize(50, 20);
-	pw->setWidget(m_edit);
 	QIntValidator* validator = new QIntValidator(0, 100);
 	m_edit->setValidator(validator);
-	connect(m_edit, &QLineEdit::textChanged, this, &TransparencyWidgetEditor::onTextChanged);
+	connect(m_edit, &QLineEdit::editingFinished, this, &TransparencyWidgetEditor::onTextChanged);
 	pw->setPos(65, 2);
 
-	QGraphicsProxyWidget* pwt = new NoHoverProxyWidget(this);
-	m_editTime = new QLineEdit;
-	connect(m_editTime, &QLineEdit::textChanged, this, &TransparencyWidgetEditor::onTextChanged);
-	pwt->setWidget(m_editTime);
+	auto pwt = new ClickProxyWidget<QTimeEdit>(100, this);
+	m_editTime = pwt->widget();
+
+	m_editTime->setDisplayFormat("hh:mm:ss:zzz");
+	connect(m_editTime, &QTimeEdit::editingFinished, this, &TransparencyWidgetEditor::onTextChanged);
 	m_editTime->setFixedSize(100, 20);
 	pwt->setPos(50, 26);
 }
 
 void TransparencyWidgetEditor::onTextChanged()
 {
-	setOrigData(m_edit->text() + (QString('%') + ';' + m_editTime->text()));
+	QString data = QString("%1%;%2").
+		arg(m_edit->text()).
+		arg(m_editTime->time().msecsSinceStartOfDay());
+	setOrigData(data);
 }
 
 void TransparencyWidgetEditor::setValue(const QString& value)
@@ -74,7 +141,8 @@ void TransparencyWidgetEditor::setValue(const QString& value)
 	m_edit->setText(valueSet);
 
 	const QSignalBlocker blocker2(m_editTime);
-	m_editTime->setText(datas[1]);
+	m_editTime->setTime(QTime::fromMSecsSinceStartOfDay(datas[1].toInt()));
+	update();
 }
 
 void TransparencyWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
@@ -86,31 +154,36 @@ void TransparencyWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphi
 
 PositionWidgetEditor::PositionWidgetEditor()
 {
-	QGraphicsProxyWidget* pwx = new NoHoverProxyWidget(this);
-	QGraphicsProxyWidget* pwy = new NoHoverProxyWidget(this);
-	m_editX = new QLineEdit;
+	auto pwx = new ClickProxyWidget<QLineEdit>(50, this);
+	auto pwy = new ClickProxyWidget<QLineEdit>(50, this);
+	m_editX = pwx->widget();
+	QIntValidator* validator = new QIntValidator(-999999, 999999);
+	m_editX->setValidator(validator);
 	m_editX->setFixedSize(50, 20);
-	pwx->setWidget(m_editX);
-	connect(m_editX, &QLineEdit::textChanged, this, &PositionWidgetEditor::onTextChanged);
-	m_editY = new QLineEdit;
+	connect(m_editX, &QLineEdit::editingFinished, this, &PositionWidgetEditor::onTextChanged);
+	m_editY = pwy->widget();
+	QIntValidator* validator2 = new QIntValidator(-999999, 999999);
+	m_editY->setValidator(validator2);
 	m_editY->setFixedSize(50, 20);
-	pwy->setWidget(m_editY);
-	connect(m_editY, &QLineEdit::textChanged, this, &PositionWidgetEditor::onTextChanged);
+	connect(m_editY, &QLineEdit::editingFinished, this, &PositionWidgetEditor::onTextChanged);
 	pwx->setPos(65, 2);
 	pwy->setPos(153, 2);
 
-	QGraphicsProxyWidget* pwt = new NoHoverProxyWidget(this);
-	m_editTime = new QLineEdit;
-	connect(m_editTime, &QLineEdit::textChanged, this, &PositionWidgetEditor::onTextChanged);
-	pwt->setWidget(m_editTime);
+	auto pwt = new ClickProxyWidget<QTimeEdit>(100, this);
+	m_editTime = pwt->widget();
+	m_editTime->setDisplayFormat("hh:mm:ss:zzz");
+	connect(m_editTime, &QTimeEdit::editingFinished, this, &PositionWidgetEditor::onTextChanged);
 	m_editTime->setFixedSize(100, 20);
 	pwt->setPos(50, 26);
 }
 
 void PositionWidgetEditor::onTextChanged()
 {
-	QString adjustValue = m_editX->text() + ',' + m_editY->text() + ';' + m_editTime->text();
-	setOrigData(adjustValue);
+	QString data = QString("%1,%2;%3").
+		arg(m_editX->text()).
+		arg(m_editY->text()).
+		arg(m_editTime->time().msecsSinceStartOfDay());
+	setOrigData(data);
 }
 
 void PositionWidgetEditor::setValue(const QString& value)
@@ -131,7 +204,8 @@ void PositionWidgetEditor::setValue(const QString& value)
 	m_editX->setText(strlst.at(0));
 	m_editY->setText(strlst.at(1));
 	const QSignalBlocker blocker3(m_editTime);
-	m_editTime->setText(datas[1]);
+	m_editTime->setTime(QTime::fromMSecsSinceStartOfDay(datas[1].toInt()));
+	update();
 }
 
 void PositionWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
@@ -143,24 +217,28 @@ void PositionWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphicsIt
 
 RotateWidgetEditor::RotateWidgetEditor()
 {
-	QGraphicsProxyWidget* pw = new NoHoverProxyWidget(this);
-	m_edit = new QLineEdit;
+	auto pw = new ClickProxyWidget<QLineEdit>(50, this);
+	m_edit = pw->widget();
+	QIntValidator* validator = new QIntValidator(-360, 360);
+	m_edit->setValidator(validator);
 	m_edit->setFixedSize(50, 20);
-	pw->setWidget(m_edit);
-	connect(m_edit, &QLineEdit::textChanged, this, &RotateWidgetEditor::onTextChanged);
+	connect(m_edit, &QLineEdit::editingFinished, this, &RotateWidgetEditor::onTextChanged);
 	pw->setPos(65, 2);
 
-	QGraphicsProxyWidget* pwt = new NoHoverProxyWidget(this);
-	m_editTime = new QLineEdit;
-	connect(m_editTime, &QLineEdit::textChanged, this, &RotateWidgetEditor::onTextChanged);
-	pwt->setWidget(m_editTime);
+	auto pwt = new ClickProxyWidget<QTimeEdit>(100, this);
+	m_editTime = pwt->widget();
+	m_editTime->setDisplayFormat("hh:mm:ss:zzz");
+	connect(m_editTime, &QTimeEdit::editingFinished, this, &RotateWidgetEditor::onTextChanged);
 	m_editTime->setFixedSize(100, 20);
 	pwt->setPos(50, 26);
 }
 
 void RotateWidgetEditor::onTextChanged()
 {
-	setOrigData(m_edit->text() + ';' + m_editTime->text());
+	QString data = QString("%1;%2").
+		arg(m_edit->text()).
+		arg(m_editTime->time().msecsSinceStartOfDay());
+	setOrigData(data);
 }
 
 void RotateWidgetEditor::setValue(const QString& value)
@@ -173,7 +251,8 @@ void RotateWidgetEditor::setValue(const QString& value)
 	const QSignalBlocker blocker0(m_edit);
 	m_edit->setText(datas[0]);
 	const QSignalBlocker blocker1(m_editTime);
-	m_editTime->setText(datas[1]);
+	m_editTime->setTime(QTime::fromMSecsSinceStartOfDay(datas[1].toInt()));
+	update();
 }
 
 void RotateWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
@@ -185,22 +264,24 @@ void RotateWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphicsItem
 
 ScailWidgetEditor::ScailWidgetEditor()
 {
-	QGraphicsProxyWidget* pwx = new NoHoverProxyWidget(this);
-	m_editX = new QLineEdit;
+	auto pwx = new ClickProxyWidget<QLineEdit>(35, this);
+	m_editX = pwx->widget();
+	QIntValidator* validator = new QIntValidator(0, 99999);
+	m_editX->setValidator(validator);
 	m_editX->setFixedSize(35, 20);
-	pwx->setWidget(m_editX);
-	connect(m_editX, &QLineEdit::textChanged, this, &ScailWidgetEditor::onTextChanged);
+	connect(m_editX, &QLineEdit::editingFinished, this, &ScailWidgetEditor::onTextChanged);
 
-	QGraphicsProxyWidget* pwy = new NoHoverProxyWidget(this);
-	m_editY = new QLineEdit;
+	auto pwy = new ClickProxyWidget<QLineEdit>(35, this);
+	m_editY = pwy->widget();
+	QIntValidator* validator2 = new QIntValidator(0, 99999);
+	m_editY->setValidator(validator2);
 	m_editY->setFixedSize(35, 20);
-	pwy->setWidget(m_editY);
-	connect(m_editY, &QLineEdit::textChanged, this, &ScailWidgetEditor::onTextChanged);
+	connect(m_editY, &QLineEdit::editingFinished, this, &ScailWidgetEditor::onTextChanged);
 
 	pwx->setPos(65, 2);
 	pwy->setPos(135, 2);
 
-	QGraphicsProxyWidget* pwc = new NoHoverProxyWidget(this);
+	auto pwc = new NoHoverProxyWidget(this);
 	m_checkBox = new QCheckBox;
 	m_checkBox->setChecked(true);
 	connect(m_checkBox, &QCheckBox::stateChanged, this, &ScailWidgetEditor::onStateChanged);
@@ -208,10 +289,10 @@ ScailWidgetEditor::ScailWidgetEditor()
 	pwc->setPos(185, 6);
 
 
-	QGraphicsProxyWidget* pwt = new NoHoverProxyWidget(this);
-	m_editTime = new QLineEdit;
-	connect(m_editTime, &QLineEdit::textChanged, this, &ScailWidgetEditor::onTextChanged);
-	pwt->setWidget(m_editTime);
+	auto pwt = new ClickProxyWidget<QTimeEdit>(100, this);
+	m_editTime = pwt->widget();
+	m_editTime->setDisplayFormat("hh:mm:ss:zzz");
+	connect(m_editTime, &QTimeEdit::editingFinished, this, &ScailWidgetEditor::onTextChanged);
 	m_editTime->setFixedSize(100, 20);
 	pwt->setPos(50, 26);
 }
@@ -226,8 +307,11 @@ void ScailWidgetEditor::onTextChanged()
 		m_editX->setText(value);
 		m_editY->setText(value);
 	}
-	QString adjustValue = m_editX->text() + ',' + m_editY->text() + ';' + m_editTime->text();
-	setOrigData(adjustValue);
+	QString data = QString("%1,%2;%3").
+		arg(m_editX->text()).
+		arg(m_editY->text()).
+		arg(m_editTime->time().msecsSinceStartOfDay());
+	setOrigData(data);
 }
 
 void ScailWidgetEditor::onStateChanged()
@@ -258,7 +342,8 @@ void ScailWidgetEditor::setValue(const QString& value)
 	m_editX->setText(strlst.at(0));
 	m_editY->setText(strlst.at(1));
 	const QSignalBlocker blocker3(m_editTime);
-	m_editTime->setText(datas[1]);
+	m_editTime->setTime(QTime::fromMSecsSinceStartOfDay(datas[1].toInt()));
+	update();
 }
 
 void ScailWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
@@ -270,25 +355,30 @@ void ScailWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 
 VoiceWidgetEditor::VoiceWidgetEditor()
 {
-	QGraphicsProxyWidget* pw = new NoHoverProxyWidget(this);
-	m_edit = new QLineEdit;
+	auto pw = new ClickProxyWidget<QLineEdit>(50, this);
+	m_edit = pw->widget();
+	QIntValidator* validator = new QIntValidator(0, 100);
+	m_edit->setValidator(validator);
 	m_edit->setFixedSize(50, 20);
-	pw->setWidget(m_edit);
-	connect(m_edit, &QLineEdit::textChanged, this, &VoiceWidgetEditor::onTextChanged);
+	connect(m_edit, &QLineEdit::editingFinished, this, &VoiceWidgetEditor::onTextChanged);
 
 	pw->setPos(50, 2);
 
-	QGraphicsProxyWidget* pwt = new NoHoverProxyWidget(this);
-	m_editTime = new QLineEdit;
-	connect(m_editTime, &QLineEdit::textChanged, this, &VoiceWidgetEditor::onTextChanged);
-	pwt->setWidget(m_editTime);
+	auto pwt = new ClickProxyWidget<QTimeEdit>(100, this);
+	m_editTime = pwt->widget();
+	m_editTime->setDisplayFormat("hh:mm:ss:zzz");
+	connect(m_editTime, &QTimeEdit::editingFinished, this, &VoiceWidgetEditor::onTextChanged);
 	m_editTime->setFixedSize(100, 20);
 	pwt->setPos(50, 26);
 }
 
 void VoiceWidgetEditor::onTextChanged()
 {
-	setOrigData(m_edit->text() + '%' + ';' + m_editTime->text());
+	QString data = QString("%1%;%2").
+		arg(m_edit->text()).
+		arg(m_editTime->time().msecsSinceStartOfDay());
+
+	setOrigData(data);
 }
 
 void VoiceWidgetEditor::setValue(const QString& value)
@@ -305,7 +395,8 @@ void VoiceWidgetEditor::setValue(const QString& value)
 	m_edit->setText(valueSet);
 
 	const QSignalBlocker blocker1(m_editTime);
-	m_editTime->setText(datas[1]);
+	m_editTime->setTime(QTime::fromMSecsSinceStartOfDay(datas[1].toInt()));
+	update();
 }
 
 void VoiceWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
@@ -317,33 +408,37 @@ void VoiceWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 
 MediaItemWidgetEditor::MediaItemWidgetEditor()
 {
-	QGraphicsProxyWidget* proxyWidgetTimeStart = new NoHoverProxyWidget(this);
-	QGraphicsProxyWidget* proxyWidgetTimeLen = new NoHoverProxyWidget(this);
-	m_editTimeLen = new QLineEdit;
-	connect(m_editTimeLen, &QLineEdit::textChanged, this, &MediaItemWidgetEditor::onValueChanged);
+	auto proxyWidgetTimeStart = new ClickProxyWidget<QTimeEdit>(100, this);
+	auto proxyWidgetTimeLen = new ClickProxyWidget<QTimeEdit>(100, this);
+	m_editTimeLen = proxyWidgetTimeLen->widget();
+	m_editTimeLen->setDisplayFormat("hh:mm:ss:zzz");
+	connect(m_editTimeLen, &QTimeEdit::editingFinished, this, &MediaItemWidgetEditor::onValueChanged);
 	m_editTimeLen->setFixedSize(100, 20);
-	m_editTimeStart = new QLineEdit;
-	connect(m_editTimeStart, &QLineEdit::textChanged, this, &MediaItemWidgetEditor::onValueChanged);
+	m_editTimeStart = proxyWidgetTimeStart->widget();
+	m_editTimeStart->setDisplayFormat("hh:mm:ss:zzz");
+	connect(m_editTimeStart, &QTimeEdit::editingFinished, this, &MediaItemWidgetEditor::onValueChanged);
 	m_editTimeStart->setFixedSize(100, 20);
-	proxyWidgetTimeStart->setWidget(m_editTimeStart);
-	proxyWidgetTimeLen->setWidget(m_editTimeLen);
 
-	QGraphicsProxyWidget* pwOffset = new NoHoverProxyWidget(this);
-	m_editOffset = new QLineEdit;
+	auto pwOffset = new ClickProxyWidget<QTimeEdit>(100, this);
+	m_editOffset = pwOffset->widget();
+	m_editOffset->setDisplayFormat("hh:mm:ss:zzz");
 	m_editOffset->setFixedSize(100, 20);
-	connect(m_editOffset, &QLineEdit::textChanged, this, &MediaItemWidgetEditor::onValueChanged);
-	pwOffset->setWidget(m_editOffset);
+	connect(m_editOffset, &QTimeEdit::editingFinished, this, &MediaItemWidgetEditor::onValueChanged);
 
 	proxyWidgetTimeStart->setPos(73, 3);
 	proxyWidgetTimeLen->setPos(73, 25);
 	pwOffset->setPos(73, 47);
 }
 
-void MediaItemWidgetEditor::onValueChanged(const QString& value)
+void MediaItemWidgetEditor::onValueChanged()
 {
 	if (m_orig)
 	{
-		m_orig->setQsData(m_editTimeStart->text() + ';' + m_editTimeLen->text() + ';' + m_editOffset->text());
+		QString data = QString("%1;%2;%3").
+			arg(m_editTimeStart->time().msecsSinceStartOfDay()).
+			arg(m_editTimeLen->time().msecsSinceStartOfDay()).
+			arg(m_editOffset->time().msecsSinceStartOfDay());
+		m_orig->setQsData(data);
 	}
 }
 
@@ -358,9 +453,13 @@ void MediaItemWidgetEditor::setValue(const QString& data)
 	const QSignalBlocker blocker1(m_editTimeStart);
 	const QSignalBlocker blocker2(m_editTimeLen);
 	const QSignalBlocker blocker3(m_editOffset);
-	m_editTimeStart->setText(datas[0]);
-	m_editTimeLen->setText(datas[1]);
-	m_editOffset->setText(datas[2]);
+	m_editTimeStart->setTime(QTime::fromMSecsSinceStartOfDay(datas[0].toInt()));
+	m_editTimeLen->setTime(QTime::fromMSecsSinceStartOfDay(datas[1].toInt()));
+	m_editOffset->setTime(QTime::fromMSecsSinceStartOfDay(datas[2].toInt()));
+	for (QGraphicsItem* item : childItems())
+	{
+		item->update();
+	}
 
 }
 
@@ -371,3 +470,55 @@ void MediaItemWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphicsI
 	painter->drawText(QPointF(0, 15 + 22), QString::fromLocal8Bit("   时间长度:                "));
 	painter->drawText(QPointF(0, 15 + 44), QString::fromLocal8Bit("   开始时间:                "));
 }
+ #include <QGraphicsScene>
+ void NoHoverProxyWidget::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+ {
+ 	QGraphicsProxyWidget::hoverEnterEvent(event);
+ 	//解决闪烁问题
+ 	scene()->update(scene()->itemsBoundingRect());
+ }
+ 
+ void NoHoverProxyWidget::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+ {
+ 	QGraphicsProxyWidget::hoverLeaveEvent(event);
+ 	//解决闪烁问题
+ 	scene()->update(scene()->itemsBoundingRect());
+ }
+ 
+ void NoHoverProxyWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+ {
+ 	QGraphicsProxyWidget::hoverMoveEvent(event);
+ 	//解决闪烁问题
+ 	scene()->update(scene()->itemsBoundingRect());
+ }
+ 
+ void NoHoverProxyWidget::mousePressEvent(QGraphicsSceneMouseEvent *event)
+ {
+ 	QGraphicsProxyWidget::mousePressEvent(event);
+ //	scene()->update();
+ }
+ 
+ void NoHoverProxyWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+ {
+ 	QGraphicsProxyWidget::mouseReleaseEvent(event);
+ //	scene()->update();
+ }
+ 
+ void NoHoverProxyWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+ {
+ 	QGraphicsProxyWidget::mouseMoveEvent(event);
+ //	scene()->update();
+ }
+ 
+ void NoHoverProxyWidget::focusInEvent(QFocusEvent *event)
+ {
+ 	QGraphicsProxyWidget::focusInEvent(event);
+ //	scene()->update();
+ }
+ 
+ void NoHoverProxyWidget::focusOutEvent(QFocusEvent *event)
+ {
+ 	QGraphicsProxyWidget::focusOutEvent(event);
+ //	scene()->update();
+ }
+ 

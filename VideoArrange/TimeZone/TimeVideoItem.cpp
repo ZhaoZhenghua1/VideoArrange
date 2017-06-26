@@ -235,6 +235,11 @@ void TimeVideoItem::keyPressEvent(QKeyEvent *event)
 {
 	if (event->key() == Qt::Key_Delete && event->modifiers() == Qt::NoModifier)
 	{
+		//删除时，清空编辑数据
+		if (TimeVideoLine* tvl = dynamic_cast<TimeVideoLine*>(parentItem()))
+		{
+			tvl->setOriginator(nullptr);
+		}
 		delete this;
 	}
 }
@@ -256,6 +261,7 @@ void TimeVideoItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 	QGraphicsRectItem::mousePressEvent(event);
 
+	//选中当前时，设置编辑数据
 	if (TimeVideoLine* tvl = dynamic_cast<TimeVideoLine*>(parentItem()))
 	{
 		tvl->setOriginator(this);

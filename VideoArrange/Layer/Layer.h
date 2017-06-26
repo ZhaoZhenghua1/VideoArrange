@@ -26,6 +26,7 @@ class LayerLeader : public virtual LayerBase
 {
 public:
 	LayerLeader(){}
+	~LayerLeader(){}
 	//通过图层头将图层头和图层操作项添加到对应的布局中
 	void addGroupToLayout(const QVector<LayerBase*>& fellows, QGraphicsAnchorLayout* anchorLayout);
 	//隐藏图层头项目的图层
@@ -39,6 +40,7 @@ public:
 	LayerHandle();
 protected:
 	//鼠标消息
+	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event)override;
 	virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *event)override;
 	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event)override;
 	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event)override;
@@ -56,6 +58,7 @@ private:
 class HandleLayerLeader : public LayerLeader , public LayerHandle
 {
 public:
+	~HandleLayerLeader();
 	//左边和右边为一个搭档，左边和右边位置共同变化
 	void setPartner(LayerLeader* partner) { m_partner = partner; }
 public:

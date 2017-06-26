@@ -7,7 +7,6 @@
 #include <QPainter>
 #include <QPolygon>
 #include <QGraphicsAnchorLayout>
-#include "Controls/EffectValueEditor.h"
 #include "Layer/RightLayer.h"
 
 EffectEditor::EffectEditor(TimeZone* timeZone) :m_timeZone(timeZone)
@@ -199,14 +198,22 @@ void EffectEditor::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
 
 void EffectEditor::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
 {
-	Line line = getLine();
-	int selectedPointIndex = line.selectIndex(event->pos());
-	if (selectedPointIndex >= 0)
+	qreal x = event->pos().x();
+	if (x < 0)
 	{
-		QString value = line.pointValue(selectedPointIndex);
-		line.deleteAdjustPoint(selectedPointIndex);
-		int index =line.addAdjustPoint(m_timeZone->positionToTime(event->pos().x()), value);
-		layer()->setSelected(this, index);
+		x = 0;
+	}
+	if (x > rect().width())
+	{
+		x = rect().width();
+	}
+
+	Line line = getLine();
+	if (m_pressIndex >= 0)
+	{
+		line.setPointTime(m_pressIndex, m_timeZone->positionToTime(x));
+
+		layer()->setSelected(this, m_pressIndex);
 		update();
 	}
 }
@@ -215,30 +222,49 @@ void EffectEditor::mousePressEvent(QGraphicsSceneMouseEvent *event)
 {
 	scene()->setFocusItem(this, Qt::ShortcutFocusReason);
 	int selectedPointIndex = -1; 
-
+	m_pressIndex = -1;
 	Line line = getLine();
 	if (line.isOnLine(event->pos()))
 	{
 		//select a point
-		if ((selectedPointIndex = line.selectIndex(event->pos())) >= 0)
+		if ((selectedPointIndex = line.selectIndex(event->pos())) < 0)
 		{
+			qreal x = event->pos().x();
 
-		}
-		else
-		{
 			//no point selected , so create one
-			selectedPointIndex = line.addAdjustPoint(m_timeZone->positionToTime(event->pos().x()), positionToValue(event->pos().y()));
+			selectedPointIndex = line.addAdjustPoint(m_timeZone->positionToTime(x), positionToValue(x));
 		}
+		m_pressIndex = selectedPointIndex;
 		layer()->setSelected(this, selectedPointIndex);
 		setCursor(Qt::PointingHandCursor);
 		update();
-		return;
 	}
 	
 }
 
 void EffectEditor::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 {
+	if (m_pressIndex < 0)
+	{
+		return;
+	}
+	qreal x = event->pos().x();
+	if (x < 0)
+	{
+		x = 0;
+	}
+	if (x > rect().width())
+	{
+		x = rect().width();
+	}
+
+	Line line = getLine();
+	QString value = line.pointValue(m_pressIndex);
+	line.deleteAdjustPoint(m_pressIndex);
+	m_pressIndex = -1;
+
+	int index = line.addAdjustPoint(m_timeZone->positionToTime(x), value);
+	layer()->setSelected(this, index);
 
 }
 
@@ -278,7 +304,8 @@ QVector<qreal> EffectEditor::Line::points()const
 	for (QDomElement elemTable = m_data.firstChildElement("adjustmentpos"); !elemTable.isNull(); elemTable = elemTable.nextSiblingElement("adjustmentpos"))
 	{
 		qreal time = elemTable.attribute("name").toDouble();
-		ret.push_back(m_owner->m_timeZone->timeToPosition(time));
+		qreal x = m_owner->m_timeZone->timeToPosition(time);
+		ret.push_back(x);
 	}
 	return ret;
 }
@@ -404,6 +431,19 @@ void EffectEditor::Line::paint(QPainter *painter, int selectIndex)
 	}
 }
 
+void EffectEditor::Line::setPointTime(int index, unsigned int time)
+{
+	if (index < 0)
+		return ;
+	QDomElement curData = m_data.firstChildElement("adjustmentpos");
+	for (int i = 0; i < index; curData = curData.nextSiblingElement("adjustmentpos"))
+	{
+		++i;
+	}
+
+	return curData.setAttribute("name", time);
+}
+
 QString EffectEditor::Line::pointValue(int index)
 {
 	if (index < 0)
@@ -427,18 +467,19 @@ QString TransparencyEditor::average(QDomElement before, QDomElement after, qreal
 	{
 		return after.attribute("value");
 	}
-	else if (after.isNull())
+	else //if (after.isNull())
 	{
 		return before.attribute("value");
 	}
-	else
-	{
-		unsigned int beforeTime = before.attribute("name").toUInt();
-		unsigned int afterTime = after.attribute("name").toUInt();
-		unsigned int beforeValue = before.attribute("value").remove("%").toUInt();
-		unsigned int afterValue = after.attribute("value").remove("%").toUInt();
-		return QString("%1%").arg(beforeValue + (curtime - beforeTime) / (afterTime - beforeTime)*(afterValue - beforeValue));
-	}
+// 	else
+// 	{
+// 		//求线性平均值
+// 		unsigned int beforeTime = before.attribute("name").toUInt();
+// 		unsigned int afterTime = after.attribute("name").toUInt();
+// 		unsigned int beforeValue = before.attribute("value").remove("%").toUInt();
+// 		unsigned int afterValue = after.attribute("value").remove("%").toUInt();
+// 		return QString("%1%").arg(beforeValue + (curtime - beforeTime) / (afterTime - beforeTime)*(afterValue - beforeValue));
+// 	}
 }
 
 QPoint stringToPoint(const QString& str)
@@ -471,19 +512,19 @@ QString PositionEdiotr::average(QDomElement before, QDomElement after, qreal cur
 	{
 		return after.attribute("value");
 	}
-	else if (after.isNull())
+	else //if (after.isNull())
 	{
 		return before.attribute("value");
 	}
-	else
-	{
-		unsigned int beforeTime = before.attribute("name").toUInt();
-		unsigned int afterTime = after.attribute("name").toUInt();
-		QPoint beforeValue = stringToPoint(before.attribute("value"));
-		QPoint afterValue = stringToPoint(after.attribute("value"));
-		return QString("%1,%2").arg(beforeValue.x() + (curtime - beforeTime) / (afterTime - beforeTime)*(afterValue.x() - beforeValue.x()))
-			.arg(beforeValue.y() + (curtime - beforeTime) / (afterTime - beforeTime)*(afterValue.y() - beforeValue.y()));
-	}
+// 	else
+// 	{//求线性平均值
+// 		unsigned int beforeTime = before.attribute("name").toUInt();
+// 		unsigned int afterTime = after.attribute("name").toUInt();
+// 		QPoint beforeValue = stringToPoint(before.attribute("value"));
+// 		QPoint afterValue = stringToPoint(after.attribute("value"));
+// 		return QString("%1,%2").arg(beforeValue.x() + (curtime - beforeTime) / (afterTime - beforeTime)*(afterValue.x() - beforeValue.x()))
+// 			.arg(beforeValue.y() + (curtime - beforeTime) / (afterTime - beforeTime)*(afterValue.y() - beforeValue.y()));
+// 	}
 }
 
 QString RotateEdiotr::average(QDomElement before, QDomElement after, qreal curtime) const
@@ -496,18 +537,18 @@ QString RotateEdiotr::average(QDomElement before, QDomElement after, qreal curti
 	{
 		return after.attribute("value");
 	}
-	else if (after.isNull())
+	else //if (after.isNull())
 	{
 		return before.attribute("value");
 	}
-	else
-	{
-		unsigned int beforeTime = before.attribute("name").toUInt();
-		unsigned int afterTime = after.attribute("name").toUInt();
-		qreal beforeValue = before.attribute("value").remove("%").toDouble();
-		qreal afterValue = after.attribute("value").remove("%").toDouble();
-		return QString("%1").arg(beforeValue + (curtime - beforeTime) / (afterTime - beforeTime)*(afterValue - beforeValue));
-	}
+// 	else
+// 	{//求线性平均值
+// 		unsigned int beforeTime = before.attribute("name").toUInt();
+// 		unsigned int afterTime = after.attribute("name").toUInt();
+// 		qreal beforeValue = before.attribute("value").remove("%").toDouble();
+// 		qreal afterValue = after.attribute("value").remove("%").toDouble();
+// 		return QString("%1").arg(beforeValue + (curtime - beforeTime) / (afterTime - beforeTime)*(afterValue - beforeValue));
+// 	}
 }
 
 QString ScailEdiotr::average(QDomElement before, QDomElement after, qreal curtime) const
@@ -520,19 +561,19 @@ QString ScailEdiotr::average(QDomElement before, QDomElement after, qreal curtim
 	{
 		return after.attribute("value");
 	}
-	else if (after.isNull())
+	else //if (after.isNull())
 	{
 		return before.attribute("value");
 	}
-	else
-	{
-		qreal beforeTime = before.attribute("name").toDouble();
-		qreal afterTime = after.attribute("name").toDouble();
-		QPointF beforeValue = stringToPointF(before.attribute("value"));
-		QPointF afterValue = stringToPointF(after.attribute("value"));
-		return QString("%1%,%2%").arg(beforeValue.x() + (curtime - beforeTime) / (afterTime - beforeTime)*(afterValue.x() - beforeValue.x()))
-			.arg(beforeValue.y() + (curtime - beforeTime) / (afterTime - beforeTime)*(afterValue.y() - beforeValue.y()));
-	}
+// 	else
+// 	{//求线性平均值
+// 		qreal beforeTime = before.attribute("name").toDouble();
+// 		qreal afterTime = after.attribute("name").toDouble();
+// 		QPointF beforeValue = stringToPointF(before.attribute("value"));
+// 		QPointF afterValue = stringToPointF(after.attribute("value"));
+// 		return QString("%1%,%2%").arg(beforeValue.x() + (curtime - beforeTime) / (afterTime - beforeTime)*(afterValue.x() - beforeValue.x()))
+// 			.arg(beforeValue.y() + (curtime - beforeTime) / (afterTime - beforeTime)*(afterValue.y() - beforeValue.y()));
+// 	}
 }
 
 QString VoiceEditor::average(QDomElement before, QDomElement after, qreal curtime) const

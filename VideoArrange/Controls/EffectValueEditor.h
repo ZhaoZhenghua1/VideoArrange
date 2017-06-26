@@ -33,15 +33,15 @@ class MediaItemWidgetEditor : public EffectValueEditor
 public:
 	MediaItemWidgetEditor();
 public slots:
-	void onValueChanged(const QString& value);
+	void onValueChanged();
 
 protected:
 	virtual void setValue(const QString&);
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */);
 private:
-	QLineEdit* m_editTimeStart = nullptr;
-	QLineEdit* m_editTimeLen = nullptr;
-	QLineEdit* m_editOffset = nullptr;
+	QTimeEdit* m_editTimeStart = nullptr;
+	QTimeEdit* m_editTimeLen = nullptr;
+	QTimeEdit* m_editOffset = nullptr;
 };
 
 //±à¼­Í¸Ã÷¶È
@@ -57,7 +57,7 @@ protected:
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */);
 private:
 	QLineEdit* m_edit = nullptr;
-	QLineEdit* m_editTime = nullptr;
+	QTimeEdit* m_editTime = nullptr;
 };
 
 //±à¼­Î»ÖÃ
@@ -74,7 +74,7 @@ protected:
 private:
 	QLineEdit* m_editX = nullptr;
 	QLineEdit* m_editY = nullptr;
-	QLineEdit* m_editTime = nullptr;
+	QTimeEdit* m_editTime = nullptr;
 };
 
 //±à¼­Ðý×ª
@@ -90,7 +90,7 @@ protected:
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */);
 private:
 	QLineEdit* m_edit = nullptr;
-	QLineEdit* m_editTime = nullptr;
+	QTimeEdit* m_editTime = nullptr;
 };
 
 //Ëõ·Å±à¼­
@@ -108,7 +108,7 @@ protected:
 private:
 	QLineEdit* m_editX = nullptr;
 	QLineEdit* m_editY = nullptr;
-	QLineEdit* m_editTime = nullptr;
+	QTimeEdit* m_editTime = nullptr;
 	QCheckBox* m_checkBox = nullptr;
 	bool m_bXequalY = true;
 };
@@ -126,7 +126,7 @@ protected:
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */);
 private:
 	QLineEdit* m_edit = nullptr;
-	QLineEdit* m_editTime = nullptr;
+	QTimeEdit* m_editTime = nullptr;
 };
 
 template<class T>
@@ -140,27 +140,12 @@ class NoHoverProxyWidget : public QGraphicsProxyWidget
 public:
 	using QGraphicsProxyWidget::QGraphicsProxyWidget;
 protected:
-	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-	{
-		//		QGraphicsProxyWidget::hoverEnterEvent(event);
-		//		parentItem()->parentItem()->update();
-	}
-	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-	{
-		//		parentItem()->parentItem()->update();
-	}
-	virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *event)
-	{
-		//		QGraphicsProxyWidget::hoverMoveEvent(event);
-		//		parentItem()->parentItem()->update();
-		//		scene()->update();
-	}
-	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)
-	{
-
-	}
-	// 	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)
-	// 	{
-	// 
-	// 	}
+	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
+	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
+	virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
+	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
+	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
+	virtual void focusInEvent(QFocusEvent *event);
+	virtual void focusOutEvent(QFocusEvent *event);
 };
