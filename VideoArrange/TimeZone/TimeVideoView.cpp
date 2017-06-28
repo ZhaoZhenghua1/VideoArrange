@@ -2,6 +2,7 @@
 #include "TimeVideoLine.h"
 #include "../Document/Document.h"
 #include "uilogic/LayerBuilder.h"
+#include "TimeVideoItem.h"
 
 #include <QTime>
 #include <QPainter>
@@ -107,4 +108,17 @@ qreal TimeVideoView::sceneHeight()
 		height = layout->itemAt(layout->count() - 1)->geometry().bottom();
 	height = (height > viewport()->height() ? height : viewport()->height()) + 200;
 	return height;
+}
+
+void TimeVideoView::setTimeLength(unsigned int time)
+{
+	TimeView::setTimeLength(time);
+	QList<QGraphicsItem*> items = scene()->items();
+	for (QGraphicsItem* item : items)
+	{
+		if (TimeVideoItem* videoItem = dynamic_cast<TimeVideoItem*>(item))
+		{
+			videoItem->updatePos();
+		}
+	}
 }

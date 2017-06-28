@@ -42,10 +42,10 @@ TimeVideoItem::TimeVideoItem()
 
 TimeVideoItem::~TimeVideoItem()
 {
-	for (EffectEditor* item : m_effectEdits)
-	{
-		delete item;
-	}
+// 	for (EffectEditor* item : m_effectEdits)
+// 	{
+// 		delete item;
+// 	}
 }
 
 void TimeVideoItem::setRect(const QRectF& rect)
@@ -94,15 +94,6 @@ void TimeVideoItem::updateTime()
 
 bool TimeVideoItem::initData(const QDomElement& media)
 {
-	QString qsResId = media.attribute("resourceId");
-	bool okTimeStart, okTimeLength;
-	int timeStart = media.attribute("timeStart").toInt(&okTimeStart);
-	int timeLen = media.attribute("timeLength").toInt(&okTimeLength);
-	if (!okTimeStart || !okTimeLength && qsResId.isEmpty())
-	{
-		Q_ASSERT(false);
-		return false;
-	}
 	m_dataElem = media;
 
 	updatePos();

@@ -208,6 +208,11 @@ TimeLineScrollBar::~TimeLineScrollBar()
 {
 }
 
+void TimeLineScrollBar::setTimeLength(unsigned int ms)
+{
+	m_timeLen = ms;
+}
+
 unsigned int TimeLineScrollBar::maxSceneLength()
 {
 	return m_timeLen ;

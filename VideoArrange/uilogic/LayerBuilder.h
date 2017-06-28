@@ -10,7 +10,9 @@ public:
 	void setLeftLayout(QGraphicsAnchorLayout* l);
 	void setRightLayout(QGraphicsAnchorLayout* r);
 	void createPlayItemLayer(const QDomElement& data);
+	void createPlayItemLayer();
 	void createMarkerItemLayer(const QDomElement& data);
+	void createMarkerItemLayer();
 	static LayerBuilder* instance();
 protected:
 	virtual void init() override;

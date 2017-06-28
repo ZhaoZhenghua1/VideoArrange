@@ -87,14 +87,14 @@ VideoEditor::VideoEditor(QWidget *parent)
 
 
 	{
-		QMenu * menu = new QMenu(QString::fromLocal8Bit("节目编排"));
-		menuBar()->addMenu(menu);
-		QAction* addlayer = menu->addAction(QString::fromLocal8Bit("添加图层"));
-		connect(addlayer, &QAction::triggered, this, &VideoEditor::onAddLayer);
-		QAction* delayer = menu->addAction(QString::fromLocal8Bit("删除图层"));
-		connect(delayer, &QAction::triggered, this, &VideoEditor::onDelLayer);
-		QAction* timelenset = menu->addAction(QString::fromLocal8Bit("设置时间长度"));
-		connect(timelenset, &QAction::triggered, this, &VideoEditor::onSetProjTimeLen);
+// 		QMenu * menu = new QMenu(QString::fromLocal8Bit("节目编排"));
+// 		menuBar()->addMenu(menu);
+// 		QAction* addlayer = menu->addAction(QString::fromLocal8Bit("添加图层"));
+// 		connect(addlayer, &QAction::triggered, this, &VideoEditor::onAddLayer);
+// 		QAction* delayer = menu->addAction(QString::fromLocal8Bit("删除图层"));
+// 		connect(delayer, &QAction::triggered, this, &VideoEditor::onDelLayer);
+// 		QAction* timelenset = menu->addAction(QString::fromLocal8Bit("设置时间长度"));
+// 		connect(timelenset, &QAction::triggered, this, &VideoEditor::onSetProjTimeLen);
 	}
 
 }

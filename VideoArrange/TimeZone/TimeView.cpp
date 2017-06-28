@@ -28,7 +28,7 @@ TimeView::~TimeView()
 std::tuple<int, qreal> timeBarRuleStrategy(const unsigned int timeLength, qreal distance)
 {
 	//时间轴绘制策略
-	qreal timeSpace = timeLength * 100 / distance;
+	qreal timeSpace = timeLength * 100.0 / distance;
 	unsigned int e = pow(10, (int)log10(timeSpace));
 	timeSpace /= e;
 	if (timeSpace > 1 && timeSpace <= 2)
@@ -146,6 +146,7 @@ void TimeView::setSceneRect(const QRectF& rect)
 
 	scene()->setSceneRect(rect);
 	timeZone()->setGeometry(rect);
+	update();
 }
 
 void TimeView::resizeEvent(QResizeEvent *event)

@@ -32,7 +32,7 @@ public:
 	TimeView();
 	~TimeView();
 	//设置时长
-	void setTimeLength(unsigned int time);
+	virtual void setTimeLength(unsigned int time);
 public slots:
 	void zoomIn();//放大
 	void zoomOut();//缩小

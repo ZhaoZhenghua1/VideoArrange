@@ -39,16 +39,22 @@ class LeftMarkerLeader : public HandleLayerLeader
 {
 public:
 	LeftMarkerLeader();
-	void init(const QDomElement& data);
+	void init(const QDomElement& data, QGraphicsAnchorLayout* leftLayout);
+	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 public:
-
+public:
+	void onEditFinished();
+private:
+	IEditor* m_editor = nullptr;
+	QLineEdit* m_editLayerName = nullptr;
+	QDomElement m_data;
 };
 
-class Helper : public QObject
+class MediaHelper : public QObject
 {
 	Q_OBJECT
 public:
-	Helper(LeftMediaLeader* parent) :QObject(parent), m_help(parent) {}
+	MediaHelper(LeftMediaLeader* parent) :QObject(parent), m_help(parent) {}
 public slots :
 	void onStatusChanged(int before, int after)
 	{
@@ -58,10 +64,28 @@ public slots :
 	{
 		m_help->onEditFinished();
 	}
+	void onDelete();
 private:
 	LeftMediaLeader* m_help;
 };
-
+class MarkerHelper : public QObject
+{
+	Q_OBJECT
+public:
+	MarkerHelper(LeftMarkerLeader* parent) :QObject(parent), m_help(parent) {}
+	public slots :
+		void onStatusChanged(int before, int after)
+	{
+		
+	}
+	void onEditFinished()
+	{
+		m_help->onEditFinished();
+	}
+	void onDelete();
+private:
+	LeftMarkerLeader* m_help;
+};
 //图层下面的操作项
 class LeftHandleFellow : public HandleLayerFellow
 {

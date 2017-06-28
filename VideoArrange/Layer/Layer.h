@@ -11,13 +11,14 @@ public:
 	//增加高度
 	virtual void addHeight(const qreal spacing);
 	//增加距离
-	virtual void addSpace(const qreal spacing);
+//	virtual void addSpace(const qreal spacing);
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)override;
 protected:
 	//底部锚点，用来改变高度 、、retIsFirst 判断是不是第一个锚点，第一个锚点相对于布局，与其他锚点不同
-	QGraphicsAnchor* bottomAnchor(bool& retIsFirst);
+//	QGraphicsAnchor* bottomAnchor(bool& retIsFirst);
 	//顶部锚点，用来改变和上一锚点的相对位置
-	QGraphicsAnchor* topAnchor();
+//	QGraphicsAnchor* topAnchor();
+	virtual QGraphicsAnchor* bottomAnchor();
 	virtual qreal maxHeight();
 };
 
@@ -26,11 +27,18 @@ class LayerLeader : public virtual LayerBase
 {
 public:
 	LayerLeader(){}
-	~LayerLeader(){}
+	~LayerLeader();
+	
 	//通过图层头将图层头和图层操作项添加到对应的布局中
 	void addGroupToLayout(const QVector<LayerBase*>& fellows, QGraphicsAnchorLayout* anchorLayout);
 	//隐藏图层头项目的图层
 	virtual void hideFellows(bool hide = true);
+	//调整布局
+	void adjustLayout();
+
+	void adjustScene();
+	virtual void addHeight(const qreal spacing);
+	virtual QGraphicsAnchor* bottomAnchor();
 };
 
 //可操作的图层，响应鼠标。
@@ -63,7 +71,7 @@ public:
 	void setPartner(LayerLeader* partner) { m_partner = partner; }
 public:
 	virtual void addHeight(const qreal spacing) override;
-	virtual void addSpace(const qreal spacing)override;
+//	virtual void addSpace(const qreal spacing)override;
 protected:
 	virtual QRectF handleRect() override;
 	virtual void hideFellows(bool hide = true)override;

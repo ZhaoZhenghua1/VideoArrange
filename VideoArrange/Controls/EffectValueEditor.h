@@ -134,7 +134,7 @@ EffectValueEditor* createValueEditor()
 {
 	return new T;
 }
-
+/*
 class NoHoverProxyWidget : public QGraphicsProxyWidget
 {
 public:
@@ -148,4 +148,4 @@ protected:
 	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
 	virtual void focusInEvent(QFocusEvent *event);
 	virtual void focusOutEvent(QFocusEvent *event);
-};
+};*/

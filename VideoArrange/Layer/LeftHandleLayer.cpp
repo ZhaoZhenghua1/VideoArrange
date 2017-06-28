@@ -1,6 +1,7 @@
 #include "LeftHandleLayer.h"
 #include "../Controls/StatusButton.h"
 #include "Controls/EffectValueEditor.h"
+#include "Controls/GraphicsButton.h"
 
 #include <QGraphicsProxyWidget>
 #include <QGraphicsLinearLayout>
@@ -9,11 +10,13 @@
 #include <QGraphicsAnchorLayout>
 #include <QLineEdit>
 #include <QDomElement>
+#include <QTimer>
 enum EStatus
 {
 	eOff, eOn
 };
 
+//编辑时才创建，显示时不创建控件
 template<class T>
 class ClickProxyWidget : public QGraphicsProxyWidget
 {
@@ -74,12 +77,11 @@ private:
 
 LeftMediaLeader::LeftMediaLeader()
 {
-	QGraphicsProxyWidget* btnUnfold = new NoHoverProxyWidget(this);
-	StatusButton* pS = new StatusButton;
-	Helper* pHelper = new Helper(this);
-	connect(pS, &StatusButton::statusChanged, pHelper, &Helper::onStatusChanged);
-	btnUnfold->setWidget(pS);
-	btnUnfold->setPos(0, 2);
+	GraphicsStatusButton* pS = new GraphicsStatusButton(this);
+	pS->setPreferredSize(33, 20);
+	MediaHelper* pHelper = new MediaHelper(this);
+	connect(pS, &GraphicsStatusButton::statusChanged, pHelper, &MediaHelper::onStatusChanged);
+	pS->setPos(0, 2);
 	pS->registerStatus({ eOn,eOff });
 	pS->setStatusPixmap(eOn, ":/unfold_normal.png", ":/unfold_hover.png");
 	pS->setStatusPixmap(eOff, ":/fold_normal.png", ":/fold_hover.png");
@@ -88,36 +90,39 @@ LeftMediaLeader::LeftMediaLeader()
 	m_editLayerName = proxylabelName->widget();//new QLabel(QString::fromLocal8Bit("图层"));
 	m_editLayerName->setFixedSize(60, 20);
 	m_editLayerName->setText(QString::fromLocal8Bit("图层"));
-	connect(m_editLayerName, &QLineEdit::editingFinished, pHelper, &Helper::onEditFinished);
+	connect(m_editLayerName, &QLineEdit::editingFinished, pHelper, &MediaHelper::onEditFinished);
 // 	editorlName->setStyleSheet(R"(
 // background-color: rgb(35, 35, 35);
 // color: rgb(177, 177, 177);
 // font: 10pt "Candara";)");
 	proxylabelName->setPos(40, 5);
 
-	QGraphicsProxyWidget* btnHide = new NoHoverProxyWidget(this);
-	pS = new StatusButton;
+	pS = new GraphicsStatusButton(this);
+	pS->setPreferredSize(33, 20);
 	pS->registerStatus({ eOn,eOff });
 	pS->setStatusPixmap(eOn, ":/visible_normal.png", ":/visible_hover.png");
 	pS->setStatusPixmap(eOff, ":/unvisible_normal.png", ":/unvisible_hover.png");
-	btnHide->setWidget(pS);
-	btnHide->setPos(100, 2);
+	pS->setPos(100, 2);
 
-	QGraphicsProxyWidget* btnVoice = new NoHoverProxyWidget(this);
-	pS = new StatusButton;
+	pS = new GraphicsStatusButton(this);
+	pS->setPreferredSize(33, 20);
 	pS->registerStatus({ eOn,eOff });
 	pS->setStatusPixmap(eOn, ":/onvoice_normal.png", ":/onvoice_hover.png");
 	pS->setStatusPixmap(eOff, ":/offvoice_normal.png", ":/offvoice_hover.png");
-	btnVoice->setWidget(pS);
-	btnVoice->setPos(130, 2);
+	pS->setPos(130, 2);
 
-	QGraphicsProxyWidget* btnLock = new NoHoverProxyWidget(this);
-	pS = new StatusButton;
+	pS = new GraphicsStatusButton(this);
+	pS->setPreferredSize(33, 20);
 	pS->registerStatus({ eOn,eOff });
 	pS->setStatusPixmap(eOn, ":/unlock_normal.png", ":/unlock_hover.png");
 	pS->setStatusPixmap(eOff, ":/lock_normal.png", ":/lock_hover.png");
-	btnLock->setWidget(pS);
-	btnLock->setPos(160, 2);
+	pS->setPos(160, 2);
+
+	GraphicsButton* btnDelete = new GraphicsButton(this);
+	btnDelete->setPreferredSize(33, 20);
+	btnDelete->setPixmap(":/delete.png");
+	btnDelete->setPos(190, 2);
+	connect(btnDelete, &GraphicsButton::clicked, pHelper, &MediaHelper::onDelete);
 }
 
 //析构时删除所有图层
@@ -215,4 +220,76 @@ void LeftHandleFellow::paint(QPainter *painter, const QStyleOptionGraphicsItem *
 {
 	HandleLayerFellow::paint(painter, option, widget);
 	painter->fillRect(rect().adjusted(0, 0, 0, -2), QColor(38, 38, 38));
+}
+
+void MediaHelper::onDelete()
+{
+	QTimer::singleShot(0, [this]() {
+		delete m_help;
+	});
+}
+
+LeftMarkerLeader::LeftMarkerLeader()
+{
+	MarkerHelper* pHelper = new MarkerHelper(this);
+
+	auto proxylabelName = new ClickProxyWidget<QLineEdit>(60, this);
+	m_editLayerName = proxylabelName->widget();
+	m_editLayerName->setFixedSize(60, 20);
+	m_editLayerName->setText(QString::fromLocal8Bit("控制"));
+	connect(m_editLayerName, &QLineEdit::editingFinished, pHelper, &MarkerHelper::onEditFinished);
+	proxylabelName->setPos(40, 5);
+
+	GraphicsStatusButton * pS = new GraphicsStatusButton(this);
+	pS->setPreferredSize(33, 20);
+	pS->registerStatus({ eOn,eOff });
+	pS->setStatusPixmap(eOn, ":/unlock_normal.png", ":/unlock_hover.png");
+	pS->setStatusPixmap(eOff, ":/lock_normal.png", ":/lock_hover.png");
+	pS->setPos(160, 2);
+
+	GraphicsButton* btnDelete = new GraphicsButton(this);
+	btnDelete->setPreferredSize(33, 20);
+	btnDelete->setPixmap(":/delete.png");
+	btnDelete->setPos(190, 2);
+	connect(btnDelete, &GraphicsButton::clicked, pHelper, &MarkerHelper::onDelete);
+}
+
+void LeftMarkerLeader::init(const QDomElement& data, QGraphicsAnchorLayout* leftLayout)
+{
+	QString name = data.attribute("layerName");
+	if (name.isEmpty())
+	{
+		name = QString::fromLocal8Bit("控制");
+	}
+	m_data = data;
+	m_editLayerName->setText(name);
+	//左边下拉项
+	
+
+	QVector<LayerBase*> arrOrig;
+	addGroupToLayout(arrOrig, leftLayout);
+
+}
+
+void LeftMarkerLeader::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+{
+	HandleLayerLeader::paint(painter, option, widget);
+	painter->fillRect(rect().adjusted(0, 0, 0, -2), QColor(38, 38, 38));
+}
+
+void LeftMarkerLeader::onEditFinished()
+{
+	QString name = m_editLayerName->text();
+	if (name.isEmpty())
+	{
+		name = QString::fromLocal8Bit("图层");
+	}
+	m_data.setAttribute("layerName", name);
+}
+
+void MarkerHelper::onDelete()
+{
+	QTimer::singleShot(0, [this]() {
+		delete m_help;
+	});
 }

@@ -1,19 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>map1.png</file>
-        <file>map2.png</file>
-        <file>map3.png</file>
-        <file>map4.png</file>
-        <file>map5.png</file>
-        <file>map6.png</file>
-        <file>map7.png</file>
-        <file>map8.png</file>
-        <file>map9.png</file>
-        <file>map10.png</file>
-        <file>map11.png</file>
-        <file>map12.png</file>
-        <file>map13.png</file>
-        <file>map14.png</file>
         <file>map15.png</file>
         <file>magnet_off_hover.png</file>
         <file>magnet_on_hover.png</file>
@@ -29,5 +15,7 @@
         <file>unlock_normal.png</file>
         <file>unvisible_normal.png</file>
         <file>visible_normal.png</file>
+        <file>add_layer.png</file>
+        <file>delete.png</file>
     </qresource>
 </RCC>

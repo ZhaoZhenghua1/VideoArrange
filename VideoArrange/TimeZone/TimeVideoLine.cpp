@@ -1,5 +1,6 @@
 #include "TimeVideoLine.h"
 #include "TimeVideoItem.h"
+#include "TimeMarkerItem.h"
 #include "TimeView.h"
 #include "../Document/Document.h"
 
@@ -7,6 +8,7 @@
 #include <QPainter>
 #include <QGraphicsSceneDragDropEvent>
 #include <QMimeData>
+#include <QMenu>
 #include "Layer/RightLayer.h"
 
 
@@ -125,7 +127,7 @@ void TimeVideoLine::dropEvent(QGraphicsSceneDragDropEvent *event)
 
 	QDomElement media = Document::instance()->document().createElement("media");
 	media.setAttribute("resourceId", qsResId);
-	media.setAttribute("timeStart", QString("%1").arg(timeZ->positionToTime(event->pos().x())));
+	media.setAttribute("timeStart", QString("%1").arg((int)(timeZ->positionToTime(event->pos().x()))));
 	//todo:通过接口获取时长
 	media.setAttribute("timeLength", "60000");
 
@@ -145,4 +147,102 @@ TimeZone* TimeVideoLine::timeZone()
 		}
 	}
 	return nullptr;
+}
+
+TimeMarkerLine::TimeMarkerLine()
+{
+	m_helper = new TimeMarkerLineHelper(this);
+}
+
+void TimeMarkerLine::initData(const QDomElement& elem, QGraphicsAnchorLayout* layout)
+{
+
+	QVector<LayerBase*> fellows;
+
+	//操作图层放入布局中
+	addGroupToLayout(fellows, layout);
+
+	m_dataElem = elem;
+	//创建图层子对象
+	QDomElement mediaList = elem.firstChildElement("marklist");
+	for (QDomElement media = mediaList.firstChildElement("marker"); !media.isNull(); media = media.nextSiblingElement("marker"))
+	{
+		TimeMarkerItem* pItem = new TimeMarkerItem();
+		pItem->setParentItem(this);
+		pItem->initData(media);
+	}
+}
+
+void TimeMarkerLine::setOriginator(IOriginator* o)
+{
+
+}
+
+void TimeMarkerLine::onAction()
+{
+	TimeMarkerItem* pItem = new TimeMarkerItem();
+	pItem->setParentItem(this);
+
+	QDomElement media = Document::instance()->document().createElement("marker");
+	media.setAttribute("timeStart", QString("%1").arg((int)(timeZone()->positionToTime(m_createPos.x()))));
+
+	QDomElement mediaList = m_dataElem.firstChildElement("marklist");
+	mediaList.appendChild(media);
+
+	pItem->initData(media);
+}
+
+void TimeMarkerLine::mousePressEvent(QGraphicsSceneMouseEvent *event)
+{
+	if (event->button() == Qt::RightButton)
+	{
+		QMenu menu;
+		QAction* pAction1 = menu.addAction("1");
+		connect(pAction1, &QAction::triggered, m_helper, &TimeMarkerLineHelper::onAction);
+		QAction* pAction2 = menu.addAction("2");
+		connect(pAction2, &QAction::triggered, m_helper, &TimeMarkerLineHelper::onAction);
+		m_createPos = event->pos();
+		menu.exec(QCursor::pos());
+	}
+	LayerLeader::mousePressEvent(event);
+}
+
+TimeZone* TimeMarkerLine::timeZone()
+{
+	for (QGraphicsItem * par = parentItem(); par; par = par->parentItem())
+	{
+		if (TimeZone* tz = dynamic_cast<TimeZone*>(par))
+		{
+			return tz;
+		}
+	}
+	return nullptr;
+}
+
+void TimeMarkerLine::setGeometry(const QRectF &rect)
+{
+	QGraphicsWidget::setGeometry(rect);
+	QList<QGraphicsItem*> children = childItems();
+	for (QGraphicsItem* item : children)
+	{
+		if (TimeMarkerItem* pItem = dynamic_cast<TimeMarkerItem*>(item))
+		{
+			pItem->updatePos();
+		}
+	}
+}
+
+QVariant TimeMarkerLine::itemChange(GraphicsItemChange change, const QVariant& value)
+{
+	if (ItemChildAddedChange == change)
+	{
+		QGraphicsItem* item = qvariant_cast<QGraphicsItem*>(value);
+		QDomElement mediaList = m_dataElem.firstChildElement("marklist");
+		if (TimeMarkerItem* pItem = dynamic_cast<TimeMarkerItem*>(item))
+		{
+			mediaList.appendChild(pItem->data());
+		}
+
+	}
+	return QGraphicsWidget::itemChange(change, value);
 }

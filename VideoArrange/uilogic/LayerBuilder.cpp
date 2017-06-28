@@ -60,9 +60,68 @@ void LayerBuilder::createPlayItemLayer(const QDomElement& data)
 	}
 }
 
+void LayerBuilder::createPlayItemLayer()
+{
+	QDomElement d = Observer::data({ "project","track","layerlist" });
+	if (d.isNull())
+	{
+		Q_ASSERT(false);
+		return;
+	}
+	QDomElement createElem = Document::instance()->document().createElement("layer");
+	createElem.setAttribute("layerName", QString::fromLocal8Bit("图层"));
+	d.appendChild(createElem);
+	QDomElement createElemMedialst = Document::instance()->document().createElement("medialist");
+	createElem.appendChild(createElemMedialst);
+	createPlayItemLayer(createElem);
+}
+
 void LayerBuilder::createMarkerItemLayer(const QDomElement& data)
 {
+	if (!m_leftLayout || !m_rightLayout)
+		return;
+// 	//左边
+ 	LeftMarkerLeader* titleLeft = new LeftMarkerLeader;
+	titleLeft->init(data, m_leftLayout);
+// 	titleLeft->setWidget(new MediaItemWidgetEditor);
+// 
+ 	TimeMarkerLine* titleR = new TimeMarkerLine;
+	titleR->initData(data, m_rightLayout);
+// //	titleR->setEditor(titleLeft->editor());
+// 
+// 	//初始化数据，并创建子项和控件
+// 	QVector<RightLayer*> rightLayers = titleR->initData(data, m_rightLayout);
+// 	//设置头的对应关系
+ 	titleLeft->setPartner(titleR);
+// 
+// 	if (leftFellows.size() != rightLayers.size())
+// 	{
+// 		return;
+// 	}
+// 
+// 	for (int i = 0; i < leftFellows.size(); ++i)
+// 	{
+// 		//设置子项的对应关系
+// 		leftFellows[i]->setPartner(rightLayers[i]);
+// 		//设置编辑
+// 		rightLayers[i]->setEditor(leftFellows[i]->editor());
+// 	}
+}
 
+void LayerBuilder::createMarkerItemLayer()
+{
+	QDomElement d = Observer::data({ "project","track","layerlist" });
+	if (d.isNull())
+	{
+		Q_ASSERT(false);
+		return;
+	}
+	QDomElement createElem = Document::instance()->document().createElement("layer");
+	createElem.setAttribute("layerName", QString::fromLocal8Bit("控制"));
+	d.appendChild(createElem);
+	QDomElement createElemMedialst = Document::instance()->document().createElement("marklist");
+	createElem.appendChild(createElemMedialst);
+	createMarkerItemLayer(createElem);
 }
 
 LayerBuilder* LayerBuilder::instance()
@@ -87,6 +146,13 @@ void LayerBuilder::init()
 	QDomElement d = Observer::data({ "project","track","layerlist" });
 	for (QDomElement elem = d.firstChildElement("layer");!elem.isNull(); elem = elem.nextSiblingElement("layer"))
 	{
-		createPlayItemLayer(elem);
+		if (elem.firstChildElement().nodeName() == "medialist")
+		{
+			createPlayItemLayer(elem);
+		}
+		else if (elem.firstChildElement().nodeName() == "marklist")
+		{
+			createMarkerItemLayer(elem);
+		}
 	}
 }

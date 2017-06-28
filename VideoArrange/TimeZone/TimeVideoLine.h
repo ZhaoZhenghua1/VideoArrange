@@ -40,7 +40,40 @@ private:
 };
 
 //Ö¸Áî¹ìµÀ
+class TimeMarkerLineHelper;
 class TimeMarkerLine : public LayerLeader
 {
+public:
+	TimeMarkerLine();
+	void initData(const QDomElement& elem, QGraphicsAnchorLayout* layout);
+	void setOriginator(IOriginator* o);
+public:
+	void onAction();
+protected:
+	virtual void setGeometry(const QRectF &rect)override;
+	virtual QVariant itemChange(GraphicsItemChange change, const QVariant& value)override;
 
+	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
+private:
+	TimeZone* timeZone();
+private:
+	QPointF m_createPos;
+	QDomElement m_dataElem;
+	IEditor* m_editor = nullptr;
+	IOriginator* m_selectedOriginator = nullptr;
+	TimeMarkerLineHelper* m_helper = nullptr;
+};
+
+class TimeMarkerLineHelper : public QObject
+{
+	Q_OBJECT
+public:
+	TimeMarkerLineHelper(TimeMarkerLine* marker) :QObject(marker), m_markerLine(marker){}
+public slots:
+	void onAction()
+	{
+	m_markerLine->onAction();
+	}
+private:
+	TimeMarkerLine* m_markerLine = nullptr;
 };

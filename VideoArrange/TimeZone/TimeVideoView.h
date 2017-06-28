@@ -27,6 +27,7 @@ class TimeVideoView : public TimeView
 public:
 	TimeVideoView();
 	~TimeVideoView();
+	virtual void setTimeLength(unsigned int time)override;
 protected:
 	virtual void paintEvent(QPaintEvent *event)Q_DECL_OVERRIDE;
 	virtual void wheelEvent(QWheelEvent *event)override;

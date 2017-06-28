@@ -8,6 +8,7 @@
 #include <qdebug>
 #include <QTime>
 #include <math.h>
+#include "Controls/TimeLineScrollBar.h"
 
 TimeBarView::TimeBarView()
 {
@@ -19,6 +20,15 @@ TimeBarView::TimeBarView()
 
 TimeBarView::~TimeBarView()
 {
+}
+
+void TimeBarView::setTimeLength(unsigned int time)
+{
+	TimeView::setTimeLength(time);
+	if (TimeLineScrollBar* tb = qobject_cast<TimeLineScrollBar*>(horizontalScrollBar()))
+	{
+		tb->setTimeLength(time);
+	}
 }
 
 TimeZone* TimeBarView::timeZone()

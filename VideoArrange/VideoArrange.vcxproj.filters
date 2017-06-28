@@ -206,6 +206,24 @@
     <ClCompile Include="Layer\Layer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Controls\GraphicsButton.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_GraphicsButton.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_GraphicsButton.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="TimeZone\TimeMarkerItem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_TimeVideoLine.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_TimeVideoLine.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Resources\videoarrange.qrc">
@@ -256,6 +274,12 @@
     <CustomBuild Include="Controls\EffectValueEditor.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="Controls\GraphicsButton.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="TimeZone\TimeVideoLine.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Layer\GraphicsLayoutRectItem.h">
@@ -271,9 +295,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TimeZone\ResourceInterface.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="TimeZone\TimeVideoLine.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SizeGrib\SizeGripItem.h">
@@ -298,6 +319,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Controls\IOriginatorEditor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="TimeZone\TimeMarkerItem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

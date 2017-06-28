@@ -7,6 +7,7 @@
 #include <QCursor>
 #include <QPainter>
 #include <QGraphicsScene>
+#include <QGraphicsView>
 
 const unsigned int SPACING = 0;//2;
 LayerBase::LayerBase()
@@ -16,38 +17,45 @@ LayerBase::LayerBase()
 
 void LayerBase::addHeight(const qreal spacing)
 {
-	bool ret = false;
-	if (QGraphicsAnchor* pAnchor = bottomAnchor(ret))
-	{
-		int sig = ret ? 1 : -1;
-		qreal val = (pAnchor->spacing() - spacing * (-sig))*sig;
-		if (val < minimumHeight() + SPACING)
-			val = minimumHeight() + SPACING;
-		else if (val > maxHeight())
-			val = maxHeight();
-		pAnchor->setSpacing(val*(sig));
-	}
-}
+	QGraphicsAnchor* pAnchor = bottomAnchor();
 
-void LayerBase::addSpace(const qreal spacing)
-{
-	if (QGraphicsAnchor* pAnchor = topAnchor())
+	if (pAnchor)
 	{
-		qreal val = pAnchor->spacing() + spacing;
-		// 		if (val < minimumHeight())
-		// 			val = minimumHeight();
+		qreal val = pAnchor->spacing() - spacing;
+		Q_ASSERT(val < 0);
+		if (-val <  minimumHeight() + SPACING)
+		{
+			val = -(minimumHeight() + SPACING);
+		}
+		if (-val > maxHeight())
+		{
+			val = -maxHeight();
+		}
 
 		pAnchor->setSpacing(val);
 	}
-	bool ret = false;
-	if (QGraphicsAnchor* pAnchor = bottomAnchor(ret))
-	{
-		int sig = ret ? 1 : -1;
-		qreal val = pAnchor->spacing() + spacing*sig;
-		// 		if (val < minimumHeight())
-		// 			val = minimumHeight();
 
-		pAnchor->setSpacing(val);
+	QGraphicsWidget* par = parentWidget();
+	if (!par)
+		return;
+
+	QGraphicsAnchorLayout* layout = dynamic_cast<QGraphicsAnchorLayout*>(par->layout());
+	if (!layout)
+		return;
+
+	int index = 0;
+	for (; index < layout->count(); ++index)
+		if (layout->itemAt(index) == this)
+			break;
+
+	for (--index; index >= 0; --index)
+	{
+		QGraphicsLayoutItem * fellowItem = layout->itemAt(index);
+		if (LayerLeader* leader = dynamic_cast<LayerLeader*>(fellowItem))
+		{
+			leader->adjustLayout();
+			break;
+		}
 	}
 }
 
@@ -57,7 +65,8 @@ void LayerBase::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 	painter->fillRect(QRectF(0,rect().height()-2,rect().width(),2), QColor(49, 49, 49));
 }
 
-QGraphicsAnchor* LayerBase::bottomAnchor(bool& retIsFirst)
+
+QGraphicsAnchor* LayerBase::bottomAnchor()
 {
 	QGraphicsWidget* par = parentWidget();
 	if (!par)
@@ -75,48 +84,17 @@ QGraphicsAnchor* LayerBase::bottomAnchor(bool& retIsFirst)
 	if (index == layout->count())
 		return nullptr;
 
+	QGraphicsAnchor* pAnchor = nullptr;
 	if (0 == index)
 	{
-		retIsFirst = true;
-		return layout->anchor(this, Qt::AnchorBottom, layout, Qt::AnchorTop);
-	}
-	else
-	{
-		retIsFirst = false;
-		QGraphicsLayoutItem * secondItem = layout->itemAt(index - 1);
-
-		return layout->anchor(this, Qt::AnchorBottom, secondItem, Qt::AnchorBottom);
-	}
-}
-
-QGraphicsAnchor* LayerBase::topAnchor()
-{
-	QGraphicsWidget* par = parentWidget();
-	if (!par)
-		return  nullptr;
-
-	QGraphicsAnchorLayout* layout = dynamic_cast<QGraphicsAnchorLayout*>(par->layout());
-	if (!layout)
-		return nullptr;
-
-	int index = 0;
-	for (; index < layout->count(); ++index)
-		if (layout->itemAt(index) == this)
-			break;
-
-	if (index == layout->count())
-		return nullptr;
-
-	if (0 == index)
-	{
-		return layout->anchor(this, Qt::AnchorTop, layout, Qt::AnchorTop);
+		pAnchor = layout->anchor(this, Qt::AnchorBottom, layout, Qt::AnchorTop);
 	}
 	else
 	{
 		QGraphicsLayoutItem * secondItem = layout->itemAt(index - 1);
-
-		return layout->anchor(this, Qt::AnchorTop, secondItem, Qt::AnchorBottom);
+		pAnchor = layout->anchor(this, Qt::AnchorBottom, secondItem, Qt::AnchorBottom);
 	}
+	return pAnchor;
 }
 
 qreal LayerBase::maxHeight()
@@ -124,29 +102,103 @@ qreal LayerBase::maxHeight()
 	return minimumHeight() + 200;
 }
 
+LayerLeader::~LayerLeader()
+{
+	QGraphicsWidget* par = parentWidget();
+	if (!par)
+		return ;
+
+	QGraphicsAnchorLayout* layout = dynamic_cast<QGraphicsAnchorLayout*>(par->layout());
+	if (!layout)
+		return ;
+
+	int index = 0;
+	for (; index < layout->count(); ++index)
+		if (layout->itemAt(index) == this)
+			break;
+
+	QVector<QGraphicsLayoutItem*> subItems;
+	QGraphicsLayoutItem* nextLeaderItem = nullptr;
+	for (int ind = index + 1; ind < layout->count(); ++ind)
+	{
+		if (dynamic_cast<LayerLeader*>(layout->itemAt(ind)))
+		{
+			nextLeaderItem = layout->itemAt(ind);
+			break;
+		}
+		subItems.push_back(layout->itemAt(ind));
+	}
+
+	QGraphicsLayoutItem* beforeLeaderItem = layout;
+	qreal spacing = 0;
+	for (int ind = index - 1; ind >= 0; --ind)
+	{
+		if (dynamic_cast<LayerLeader*>(layout->itemAt(ind)))
+		{
+			beforeLeaderItem = layout->itemAt(ind);
+			spacing = layout->anchor(this, Qt::AnchorTop, beforeLeaderItem, beforeLeaderItem == layout ? Qt::AnchorTop : Qt::AnchorBottom)->spacing();
+			break;
+		}
+	}
+	for (QGraphicsLayoutItem* item : subItems)
+	{
+		delete item;
+	}
+	if (nextLeaderItem)
+	{
+		int sig = beforeLeaderItem == layout ? -1 : 1;
+		layout->addAnchor(nextLeaderItem, Qt::AnchorTop, beforeLeaderItem, beforeLeaderItem == layout ? Qt::AnchorTop : Qt::AnchorBottom)->setSpacing(spacing*sig);
+		qreal height = dynamic_cast<QGraphicsWidget*>(nextLeaderItem)->rect().height();
+		layout->addAnchor(nextLeaderItem, Qt::AnchorBottom, beforeLeaderItem, beforeLeaderItem == layout ? Qt::AnchorTop : Qt::AnchorBottom)->setSpacing((-spacing - height)*sig);
+		layout->addAnchor(nextLeaderItem, Qt::AnchorLeft, beforeLeaderItem, Qt::AnchorLeft);
+		layout->addAnchor(nextLeaderItem, Qt::AnchorRight, beforeLeaderItem, Qt::AnchorRight);
+	}
+	adjustScene();
+}
+
 void LayerLeader::addGroupToLayout(const QVector<LayerBase*>& fellows, QGraphicsAnchorLayout* anchorLayout)
 {
 	QGraphicsLayoutItem* anchorTo = anchorLayout;
-	if (anchorLayout->count() > 0)
-		anchorTo = anchorLayout->itemAt(anchorLayout->count() - 1);
+
+	qreal spacing = 0;
+	for (int i = anchorLayout->count() - 1; i >= 0; --i )
+	{
+		QGraphicsLayoutItem* item = anchorLayout->itemAt(i);
+		if (LayerLeader* leader = dynamic_cast<LayerLeader*>(item))
+		{
+			anchorTo = leader;
+			break;
+		}
+		else if (LayerBase* fellow = dynamic_cast<LayerBase*>(item))
+		{
+			if (fellow->isVisible())
+			{
+				spacing += fellow->rect().height() + SPACING;
+			}
+		}
+	}
+
 
 	bool top = anchorTo == anchorLayout;
-	anchorLayout->addAnchor(this, Qt::AnchorTop, anchorTo, top ? Qt::AnchorTop : Qt::AnchorBottom)->setSpacing(SPACING);
+	anchorLayout->addAnchor(this, Qt::AnchorTop, anchorTo, top ? Qt::AnchorTop : Qt::AnchorBottom)->setSpacing(spacing);
 	anchorLayout->addAnchor(this, Qt::AnchorLeft, anchorLayout, Qt::AnchorLeft);
 	anchorLayout->addAnchor(this, Qt::AnchorRight, anchorTo, Qt::AnchorRight);
-	anchorLayout->addAnchor(this, Qt::AnchorBottom, anchorTo, top ? Qt::AnchorTop : Qt::AnchorBottom)->setSpacing((minimumHeight() + SPACING)*(top ? 1 : -1));//*(top?1:-1)
+	anchorLayout->addAnchor(this, Qt::AnchorBottom, anchorTo, top ? Qt::AnchorTop : Qt::AnchorBottom)->setSpacing((minimumHeight() + spacing)*(top ? 1 : -1));//*(top?1:-1)
 
 	anchorTo = this;
 
-	for (auto ite = fellows.begin(); ite != fellows.end(); ++ite)
-	{
-		anchorLayout->addAnchor(*ite, Qt::AnchorTop, anchorTo, Qt::AnchorBottom)->setSpacing(SPACING);
-		anchorLayout->addAnchor(*ite, Qt::AnchorLeft, anchorLayout, Qt::AnchorLeft);
-		anchorLayout->addAnchor(*ite, Qt::AnchorRight, anchorLayout, Qt::AnchorRight);
-		QGraphicsAnchor* anchorBottom = anchorLayout->addAnchor(*ite, Qt::AnchorBottom, anchorTo, Qt::AnchorBottom);
-		anchorBottom->setSpacing(-minimumHeight() - SPACING);
-		anchorTo = *ite;
-	}
+ 	for (auto ite = fellows.begin(); ite != fellows.end(); ++ite)
+ 	{
+ 		anchorLayout->addAnchor(*ite, Qt::AnchorTop, anchorTo, Qt::AnchorBottom)->setSpacing(SPACING);
+ 		anchorLayout->addAnchor(*ite, Qt::AnchorLeft, anchorLayout, Qt::AnchorLeft);
+ 		anchorLayout->addAnchor(*ite, Qt::AnchorRight, anchorLayout, Qt::AnchorRight);
+ 		QGraphicsAnchor* anchorBottom = anchorLayout->addAnchor(*ite, Qt::AnchorBottom, anchorTo, Qt::AnchorBottom);
+ 		anchorBottom->setSpacing(-minimumHeight() - SPACING);
+ 		anchorTo = *ite;
+ 	}
+
+	//更新场景高度
+	adjustScene();
 }
 
 void LayerLeader::hideFellows(bool hide /*= true*/)
@@ -170,20 +222,188 @@ void LayerLeader::hideFellows(bool hide /*= true*/)
  		QGraphicsLayoutItem * fellowItem = layout->itemAt(index);
 		if (LayerLeader* leader = dynamic_cast<LayerLeader*>(fellowItem))
 		{
-			leader->LayerLeader::addSpace(spacing * (hide ? -1 : 1));
 			break;
 		}
 		else if (LayerBase* fellow = dynamic_cast<LayerBase*>(fellowItem))
 		{
-			spacing += fellow->rect().height() + SPACING;
  			hide ? fellow->hide() : fellow->show();
 		}
  	}
+	adjustLayout();
+}
+
+void LayerLeader::adjustLayout()
+{
+	adjustScene();
+	QGraphicsWidget* par = parentWidget();
+	if (!par)
+		return;
+
+	QGraphicsAnchorLayout* layout = dynamic_cast<QGraphicsAnchorLayout*>(par->layout());
+	if (!layout)
+		return;
+
+	int index = 0;
+	for (; index < layout->count(); ++index)
+		if (layout->itemAt(index) == this)
+			break;
+
+	qreal spacing = 0;
+	QGraphicsLayoutItem* pAnchorTo = this;
+	for (++index; index < layout->count(); ++index)
+	{
+		QGraphicsLayoutItem * fellowItem = layout->itemAt(index);
+		if (LayerLeader* leader = dynamic_cast<LayerLeader*>(fellowItem))
+		{
+			if(QGraphicsAnchor* anchorTop = layout->anchor(fellowItem, Qt::AnchorTop, this, Qt::AnchorBottom))
+				anchorTop->setSpacing(-spacing);
+			if(QGraphicsAnchor* anchorBottom = layout->anchor(fellowItem, Qt::AnchorBottom, this, Qt::AnchorBottom))
+				anchorBottom->setSpacing(spacing - leader->rect().height());
+			break;
+		}
+		else if (LayerBase* fellow = dynamic_cast<LayerBase*>(fellowItem))
+		{
+			if (fellow->isVisible())
+			{
+				if (QGraphicsAnchor* anchor = layout->anchor(fellow, Qt::AnchorBottom, pAnchorTo, Qt::AnchorBottom))
+				{
+					spacing += anchor->spacing();
+				}
+			}
+		}
+		pAnchorTo = layout->itemAt(index);
+	}
+
+	adjustScene();
+}
+
+void LayerLeader::adjustScene()
+{
+	//场景超出视图时
+	int viewHeight = scene()->views().at(0)->viewport()->rect().height();
+
+	QGraphicsWidget* par = parentWidget();
+	if (!par)
+		return;
+
+	QGraphicsAnchorLayout* layout = dynamic_cast<QGraphicsAnchorLayout*>(par->layout());
+	if (!layout)
+		return;
+
+	layout->updateGeometry();
+	qreal height = 0;
+	for (int index = layout->count() - 1; index >= 0; --index)
+	{
+		if (QGraphicsWidget * pW = dynamic_cast<QGraphicsWidget*>(layout->itemAt(index)))
+		{
+			if (pW->isVisible())
+			{
+				height = pW->geometry().bottom();
+				break;
+			}
+		}
+	}
+	height = (height > viewHeight ? height : viewHeight);
+	height += 200;
+	
+	QRectF sceneRect = scene()->sceneRect();
+	sceneRect.setHeight(height);
+	scene()->setSceneRect(sceneRect);
+}
+
+QGraphicsAnchor* LayerLeader::bottomAnchor()
+{
+	QGraphicsWidget* par = parentWidget();
+	if (!par)
+		return nullptr;
+
+	QGraphicsAnchorLayout* layout = dynamic_cast<QGraphicsAnchorLayout*>(par->layout());
+	if (!layout)
+		return nullptr;
+
+	int index = 0;
+	for (; index < layout->count(); ++index)
+		if (layout->itemAt(index) == this)
+			break;
+
+	if (index == layout->count())
+		return nullptr;
+
+	if (0 == index)
+	{
+		return layout->anchor(this, Qt::AnchorBottom, layout, Qt::AnchorTop);
+	}
+	else
+	{
+		for (--index;index >= 0;--index)
+		{
+			QGraphicsLayoutItem * secondItem = layout->itemAt(index);
+			if (dynamic_cast<LayerLeader*>(secondItem))
+			{
+				return layout->anchor(this, Qt::AnchorBottom, secondItem, Qt::AnchorBottom);
+			}
+		}
+	}
+	return nullptr;
+}
+
+void LayerLeader::addHeight(const qreal spacing)
+{
+	qreal baseHeight = 0;
+	QGraphicsWidget* par = parentWidget();
+	if (!par)
+		return ;
+
+	QGraphicsAnchorLayout* layout = dynamic_cast<QGraphicsAnchorLayout*>(par->layout());
+	if (!layout)
+		return ;
+
+	int index = 0;
+	for (; index < layout->count(); ++index)
+		if (layout->itemAt(index) == this)
+			break;
+
+	if (index == layout->count())
+		return ;
+	bool bTop = index == 0;
+	for (--index;index >= 0;--index)
+	{
+		QGraphicsLayoutItem * secondItem = layout->itemAt(index);
+		if (dynamic_cast<LayerLeader*>(secondItem))
+		{
+			break;
+		}
+		else if (LayerBase* b = dynamic_cast<LayerBase*>(secondItem))
+		{
+			if (b->isVisible())
+			{
+				baseHeight += b->rect().height();
+			}
+		}
+	}
+
+	QGraphicsAnchor* pAnchor = bottomAnchor();
+	if (pAnchor)
+	{
+		int sig = bTop ? 1 : -1;
+		qreal val = (pAnchor->spacing() + spacing*(sig))*sig;
+		if (val < baseHeight + minimumHeight() + SPACING)
+		{
+			val = (baseHeight + minimumHeight() + SPACING);
+		}
+		if (val > maxHeight() + baseHeight)
+		{
+			val = maxHeight() + baseHeight;
+		}
+
+		pAnchor->setSpacing(val*sig);
+	}
+	adjustScene();
 }
 
 HandleLayerLeader::~HandleLayerLeader()
 {
-
+	delete m_partner;
 }
 
 void HandleLayerLeader::addHeight(const qreal spacing)
@@ -193,15 +413,6 @@ void HandleLayerLeader::addHeight(const qreal spacing)
 		m_partner->addHeight(spacing);
 	}
 	LayerLeader::addHeight(spacing);
-}
-
-void HandleLayerLeader::addSpace(const qreal spacing)
-{
-	if (m_partner)
-	{
-		m_partner->addSpace(spacing);
-	}
-	LayerLeader::addSpace(spacing);
 }
 
 QRectF HandleLayerLeader::handleRect()

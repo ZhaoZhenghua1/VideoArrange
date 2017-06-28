@@ -281,7 +281,7 @@ ScailWidgetEditor::ScailWidgetEditor()
 	pwx->setPos(65, 2);
 	pwy->setPos(135, 2);
 
-	auto pwc = new NoHoverProxyWidget(this);
+	auto pwc = new QGraphicsProxyWidget(this);
 	m_checkBox = new QCheckBox;
 	m_checkBox->setChecked(true);
 	connect(m_checkBox, &QCheckBox::stateChanged, this, &ScailWidgetEditor::onStateChanged);
@@ -470,55 +470,57 @@ void MediaItemWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphicsI
 	painter->drawText(QPointF(0, 15 + 22), QString::fromLocal8Bit("   时间长度:                "));
 	painter->drawText(QPointF(0, 15 + 44), QString::fromLocal8Bit("   开始时间:                "));
 }
- #include <QGraphicsScene>
- void NoHoverProxyWidget::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
- {
- 	QGraphicsProxyWidget::hoverEnterEvent(event);
- 	//解决闪烁问题
- 	scene()->update(scene()->itemsBoundingRect());
- }
- 
- void NoHoverProxyWidget::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
- {
- 	QGraphicsProxyWidget::hoverLeaveEvent(event);
- 	//解决闪烁问题
- 	scene()->update(scene()->itemsBoundingRect());
- }
- 
- void NoHoverProxyWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
- {
- 	QGraphicsProxyWidget::hoverMoveEvent(event);
- 	//解决闪烁问题
- 	scene()->update(scene()->itemsBoundingRect());
- }
- 
- void NoHoverProxyWidget::mousePressEvent(QGraphicsSceneMouseEvent *event)
- {
- 	QGraphicsProxyWidget::mousePressEvent(event);
- //	scene()->update();
- }
- 
- void NoHoverProxyWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
- {
- 	QGraphicsProxyWidget::mouseReleaseEvent(event);
- //	scene()->update();
- }
- 
- void NoHoverProxyWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
- {
- 	QGraphicsProxyWidget::mouseMoveEvent(event);
- //	scene()->update();
- }
- 
- void NoHoverProxyWidget::focusInEvent(QFocusEvent *event)
- {
- 	QGraphicsProxyWidget::focusInEvent(event);
- //	scene()->update();
- }
- 
- void NoHoverProxyWidget::focusOutEvent(QFocusEvent *event)
- {
- 	QGraphicsProxyWidget::focusOutEvent(event);
- //	scene()->update();
- }
- 
+
+
+//  #include <QGraphicsScene>
+//  void NoHoverProxyWidget::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+//  {
+//  	QGraphicsProxyWidget::hoverEnterEvent(event);
+//  	//解决闪烁问题
+//  	scene()->update(scene()->itemsBoundingRect());
+//  }
+//  
+//  void NoHoverProxyWidget::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+//  {
+//  	QGraphicsProxyWidget::hoverLeaveEvent(event);
+//  	//解决闪烁问题
+//  	scene()->update(scene()->itemsBoundingRect());
+//  }
+//  
+//  void NoHoverProxyWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
+//  {
+//  	QGraphicsProxyWidget::hoverMoveEvent(event);
+//  	//解决闪烁问题
+//  	scene()->update(scene()->itemsBoundingRect());
+//  }
+//  
+//  void NoHoverProxyWidget::mousePressEvent(QGraphicsSceneMouseEvent *event)
+//  {
+//  	QGraphicsProxyWidget::mousePressEvent(event);
+//  //	scene()->update();
+//  }
+//  
+//  void NoHoverProxyWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
+//  {
+//  	QGraphicsProxyWidget::mouseReleaseEvent(event);
+//  //	scene()->update();
+//  }
+//  
+//  void NoHoverProxyWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
+//  {
+//  	QGraphicsProxyWidget::mouseMoveEvent(event);
+//  //	scene()->update();
+//  }
+//  
+//  void NoHoverProxyWidget::focusInEvent(QFocusEvent *event)
+//  {
+//  	QGraphicsProxyWidget::focusInEvent(event);
+//  //	scene()->update();
+//  }
+//  
+//  void NoHoverProxyWidget::focusOutEvent(QFocusEvent *event)
+//  {
+//  	QGraphicsProxyWidget::focusOutEvent(event);
+//  //	scene()->update();
+//  }
+//  
