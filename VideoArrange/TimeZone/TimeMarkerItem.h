@@ -5,9 +5,10 @@
 #include <QGraphicsWidget>
 
 #include "Controls/IOriginatorEditor.h"
+#include "Controls/IMagnet.h"
 
 class TimeZone;
-class TimeMarkerItem : public QGraphicsRectItem, public IOriginator
+class TimeMarkerItem : public QGraphicsRectItem, public IOriginator, public IMagnet
 {
 public:
 	TimeMarkerItem();
@@ -24,11 +25,28 @@ protected:
 	virtual void setQsData(const QString& data) override;
 	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)override;
 	virtual QString toQsData()override;
+	//Îü¸½ÅÐ¶Ï
+	virtual bool attached(QPointF& scenePos);
 private:
 	TimeZone* timeZone();
 	int startTime();
 private:
 	//Êý¾Ý
 	QDomElement m_dataElem;
+	QPixmap m_markerMask;
 };
 
+class PositionMarker
+{
+
+};
+
+class PauseMarker
+{
+
+};
+
+class JumpMarker
+{
+
+};

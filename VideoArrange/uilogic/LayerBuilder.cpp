@@ -58,6 +58,8 @@ void LayerBuilder::createPlayItemLayer(const QDomElement& data)
 		//设置编辑
 		rightLayers[i]->setEditor(leftFellows[i]->editor());
 	}
+
+	coverLeftWhiteWidget();
 }
 
 void LayerBuilder::createPlayItemLayer()
@@ -83,29 +85,15 @@ void LayerBuilder::createMarkerItemLayer(const QDomElement& data)
 // 	//左边
  	LeftMarkerLeader* titleLeft = new LeftMarkerLeader;
 	titleLeft->init(data, m_leftLayout);
-// 	titleLeft->setWidget(new MediaItemWidgetEditor);
+ 	titleLeft->setWidget(new MarkerWidetEditor);
 // 
  	TimeMarkerLine* titleR = new TimeMarkerLine;
 	titleR->initData(data, m_rightLayout);
-// //	titleR->setEditor(titleLeft->editor());
-// 
-// 	//初始化数据，并创建子项和控件
-// 	QVector<RightLayer*> rightLayers = titleR->initData(data, m_rightLayout);
-// 	//设置头的对应关系
- 	titleLeft->setPartner(titleR);
-// 
-// 	if (leftFellows.size() != rightLayers.size())
-// 	{
-// 		return;
-// 	}
-// 
-// 	for (int i = 0; i < leftFellows.size(); ++i)
-// 	{
-// 		//设置子项的对应关系
-// 		leftFellows[i]->setPartner(rightLayers[i]);
-// 		//设置编辑
-// 		rightLayers[i]->setEditor(leftFellows[i]->editor());
-// 	}
+	titleR->setEditor(titleLeft->editor());
+	//设置头的对应关系
+	titleLeft->setPartner(titleR);
+
+	coverLeftWhiteWidget();
 }
 
 void LayerBuilder::createMarkerItemLayer()
@@ -122,6 +110,15 @@ void LayerBuilder::createMarkerItemLayer()
 	QDomElement createElemMedialst = Document::instance()->document().createElement("marklist");
 	createElem.appendChild(createElemMedialst);
 	createMarkerItemLayer(createElem);
+}
+
+void LayerBuilder::coverLeftWhiteWidget()
+{
+	delete m_leftWhiteWidget;
+	
+	m_leftWhiteWidget = new LeftWhiteWidget;
+
+	m_leftWhiteWidget->init(m_leftLayout);
 }
 
 LayerBuilder* LayerBuilder::instance()

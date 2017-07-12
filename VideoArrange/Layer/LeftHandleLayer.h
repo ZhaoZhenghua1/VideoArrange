@@ -11,6 +11,7 @@ class IEditor;
 class EffectValueEditor;
 class LeftHandleFellow;
 class MediaItemWidgetEditor;
+class MarkerWidetEditor;
 class QLineEdit;
 //图片，视频，音频图层 ，包含图层名，伸缩按钮，显示，声音，锁定等控制图层的按钮
 class LeftMediaLeader : public HandleLayerLeader
@@ -39,8 +40,12 @@ class LeftMarkerLeader : public HandleLayerLeader
 {
 public:
 	LeftMarkerLeader();
+	//设置编辑窗口
+	void setWidget(MarkerWidetEditor* widget);
 	void init(const QDomElement& data, QGraphicsAnchorLayout* leftLayout);
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+	//获取编辑窗口
+	IEditor* editor() { return m_editor; }
 public:
 public:
 	void onEditFinished();
@@ -99,4 +104,11 @@ protected:
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
 };
 
-
+//左边为了盖住超出窗口的部分的空白窗口
+class LeftWhiteWidget : public LayerLeader
+{
+public:
+	void init(QGraphicsAnchorLayout* layout);
+protected:
+	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget);
+};

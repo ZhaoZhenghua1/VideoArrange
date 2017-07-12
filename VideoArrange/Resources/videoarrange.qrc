@@ -17,5 +17,6 @@
         <file>visible_normal.png</file>
         <file>add_layer.png</file>
         <file>delete.png</file>
+        <file>markers.png</file>
     </qresource>
 </RCC>

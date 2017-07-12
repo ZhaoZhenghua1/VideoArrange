@@ -9,6 +9,7 @@
 #include "Controls/EffectEditor.h"
 #include <QGraphicsAnchorLayout>
 #include "Document/Document.h"
+#include "Controls/MagnetManager.h"
 
 namespace
 {
@@ -42,10 +43,10 @@ TimeVideoItem::TimeVideoItem()
 
 TimeVideoItem::~TimeVideoItem()
 {
-// 	for (EffectEditor* item : m_effectEdits)
-// 	{
-// 		delete item;
-// 	}
+	for (EffectEditor* item : m_effectEdits)
+	{
+		delete item;
+	}
 }
 
 void TimeVideoItem::setRect(const QRectF& rect)
@@ -175,6 +176,7 @@ void TimeVideoItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *opt
 	{
 		selected = tvl->originator() == this;
 	}
+	QRectF rects = rect();
 	painter->fillRect(rect(), selected ? QColor(57,77,102) : QColor(114,154,204));
 	painter->setPen(Qt::white);
 	painter->drawText(rect(), resID());
@@ -188,7 +190,7 @@ QVariant TimeVideoItem::itemChange(GraphicsItemChange change, const QVariant &va
 		QList<QGraphicsItem *> items = parentItem()->parentItem()->childItems();
 
 		QPoint cursorPos(QCursor::pos());
-		QPoint viewPos = scene()->views().first()->mapFromGlobal(QCursor::pos());
+		QPoint viewPos = scene()->views().first()->mapFromGlobal(cursorPos);
 		QPointF scenePos = scene()->views().first()->mapToScene(viewPos);
 		for (auto ite = items.begin() ; ite != items.end(); ++ite)
 		{
@@ -203,13 +205,22 @@ QVariant TimeVideoItem::itemChange(GraphicsItemChange change, const QVariant &va
 
 			if (rect.contains(localItemPos))
 			{
+				//选中当前时，设置编辑数据
+				if (TimeVideoLine* tvl = dynamic_cast<TimeVideoLine*>(parentItem()))
+				{
+					tvl->setOriginator(nullptr);
+				}
+
 				setParentItem(localItem);
 				effectEditParentChanged();
 				break;
 			}
 		}
 		
-		QPointF newPos = value.toPointF();
+		QPointF newPos = value.toPointF() + rect().topLeft();
+		QPointF scenepos = parentItem()->mapToScene(newPos);
+		MagnetManager::instance()->attached(scenepos, this);
+		newPos = parentItem()->mapFromScene(scenepos) - rect().topLeft();
 		newPos.setY(0);
 		return newPos;
 	}
@@ -231,6 +242,7 @@ void TimeVideoItem::keyPressEvent(QKeyEvent *event)
 		{
 			tvl->setOriginator(nullptr);
 		}
+		m_dataElem.parentNode().removeChild(m_dataElem);
 		delete this;
 	}
 }
@@ -262,6 +274,26 @@ void TimeVideoItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 QString TimeVideoItem::toQsData()
 {
 	return m_dataElem.attribute("timeStart") + ';' + m_dataElem.attribute("timeLength") + ';' + m_dataElem.attribute("offset");
+}
+
+//吸附判断
+bool TimeVideoItem::attached(QPointF& scenePos)
+{
+	QPointF tpos = pos();
+	QRectF trect = rect();
+	qreal left = parentItem()->mapToScene(pos() + rect().topLeft()).x();
+	qreal right = left + rect().width();
+	if (qAbs(scenePos.x() - left) <= 10)
+	{
+		scenePos.setX(left);
+		return true;
+	}
+	else if (qAbs(scenePos.x() - right) <= 10)
+	{
+		scenePos.setX(right);
+		return true;
+	}
+	return false;
 }
 
 TimeZone* TimeVideoItem::timeZone()

@@ -5,6 +5,7 @@ class QString;
 class IOriginator
 {
 public:
+	virtual ~IOriginator() = 0 {};
 	//设置数据
 	virtual void setQsData(const QString& data) = 0;
 	//获取数据

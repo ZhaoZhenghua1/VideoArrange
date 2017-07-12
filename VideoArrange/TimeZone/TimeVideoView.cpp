@@ -10,6 +10,8 @@
 #include <QMimeData>
 #include <QGraphicsWidget>
 #include <QGraphicsAnchorLayout>
+#include <QCoreApplication>
+#include <QScrollBar>
 
 const char* const DOAG_DROP_TYPE = "LM-video-resource";
 TimeVideo::TimeVideo(TimeVideoView* view):m_view(view)
@@ -38,40 +40,7 @@ void TimeVideo::setGeometry(const QRectF &rect)
 
 void TimeVideo::init()
 {
-// 	for (TimeVideoLine* item : m_layerLines)
-// 	{
-// 		delete item;
-// 	}
-// 	m_layerLines.clear();
-// 
-// 
-// 	QDomElement d = Observer::data({ "project","track","layerlist"});
-// 	QDomElement elem = d.firstChildElement("layer");
-// 	if (elem.isNull())
-// 	{
-// 		return;
-// 	}
-// 	TimeVideoLine* first = new TimeVideoLine();
-// 	m_layerLines.push_back(first);
-// 	m_anchorLayout->addAnchor(m_layerLines[0], Qt::AnchorTop, m_anchorLayout, Qt::AnchorTop);
-// 	m_anchorLayout->addAnchor(m_layerLines[0], Qt::AnchorLeft, m_anchorLayout, Qt::AnchorLeft);
-// 	m_anchorLayout->addAnchor(m_layerLines[0], Qt::AnchorRight, m_anchorLayout, Qt::AnchorRight);
-// 	QGraphicsAnchor* anchor = m_anchorLayout->addAnchor(m_layerLines[0], Qt::AnchorBottom, m_anchorLayout, Qt::AnchorTop);
-// 	anchor->setSpacing(46);
-// 	first->initData(elem);
-// 
-// 	elem = elem.nextSiblingElement("layer");
-// 	for (int i = 1; !elem.isNull() ; elem = elem.nextSiblingElement("layer"), ++i)
-// 	{
-// 		TimeVideoLine* pLine = new TimeVideoLine();
-// 		m_layerLines.push_back(pLine);
-// 		pLine->initData(elem);
-// 		m_anchorLayout->addAnchor(m_layerLines[i], Qt::AnchorTop, m_layerLines[i - 1], Qt::AnchorBottom);
-// 		m_anchorLayout->addAnchor(m_layerLines[i], Qt::AnchorLeft, m_anchorLayout, Qt::AnchorLeft);
-// 		m_anchorLayout->addAnchor(m_layerLines[i], Qt::AnchorRight, m_anchorLayout, Qt::AnchorRight);
-// 		QGraphicsAnchor* anchor = m_anchorLayout->addAnchor(m_layerLines[i], Qt::AnchorBottom, m_layerLines[i - 1], Qt::AnchorBottom);
-// 		anchor->setSpacing(-46);
-// 	}
+
 }
 
 TimeVideoView::TimeVideoView()
@@ -90,9 +59,10 @@ void TimeVideoView::paintEvent(QPaintEvent *event)
 	TimeView::paintEvent(event);
 }
 
+//Ë®Æ½¹ö¶¯
 void TimeVideoView::wheelEvent(QWheelEvent *event)
 {
-
+	QCoreApplication::sendEvent(m_horScrollBar, event);
 }
 
 TimeZone* TimeVideoView::timeZone()

@@ -28,6 +28,8 @@ public:
 	TimeVideoView();
 	~TimeVideoView();
 	virtual void setTimeLength(unsigned int time)override;
+
+	void setHorScrollBar(QScrollBar* horScrollBar) { m_horScrollBar = horScrollBar; }
 protected:
 	virtual void paintEvent(QPaintEvent *event)Q_DECL_OVERRIDE;
 	virtual void wheelEvent(QWheelEvent *event)override;
@@ -39,5 +41,6 @@ protected:
 
 private:
 	TimeVideo* m_timeVideo = nullptr;
+	QScrollBar* m_horScrollBar = nullptr;
 };
 

@@ -224,6 +224,12 @@
     <ClCompile Include="GeneratedFiles\Release\moc_TimeVideoLine.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
+    <ClCompile Include="Controls\IMagnet.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Controls\MagnetManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Resources\videoarrange.qrc">
@@ -322,6 +328,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TimeZone\TimeMarkerItem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\IMagnet.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Controls\MagnetManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

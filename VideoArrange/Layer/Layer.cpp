@@ -136,7 +136,11 @@ LayerLeader::~LayerLeader()
 		if (dynamic_cast<LayerLeader*>(layout->itemAt(ind)))
 		{
 			beforeLeaderItem = layout->itemAt(ind);
-			spacing = layout->anchor(this, Qt::AnchorTop, beforeLeaderItem, beforeLeaderItem == layout ? Qt::AnchorTop : Qt::AnchorBottom)->spacing();
+			//当前项到上一项的距离，当前项被删除后，将这个距离设置到下一项上
+			if (QGraphicsAnchor* anchor = layout->anchor(this, Qt::AnchorTop, beforeLeaderItem, beforeLeaderItem == layout ? Qt::AnchorTop : Qt::AnchorBottom))
+			{
+				spacing = anchor->spacing();
+			}
 			break;
 		}
 	}
@@ -229,12 +233,12 @@ void LayerLeader::hideFellows(bool hide /*= true*/)
  			hide ? fellow->hide() : fellow->show();
 		}
  	}
+	//隐藏当前下拉项后，调整其他项的位置
 	adjustLayout();
 }
 
 void LayerLeader::adjustLayout()
 {
-	adjustScene();
 	QGraphicsWidget* par = parentWidget();
 	if (!par)
 		return;
@@ -243,16 +247,19 @@ void LayerLeader::adjustLayout()
 	if (!layout)
 		return;
 
+	//当前项的位置
 	int index = 0;
 	for (; index < layout->count(); ++index)
 		if (layout->itemAt(index) == this)
 			break;
 
+	//从当前项开始，一行一行计算
 	qreal spacing = 0;
 	QGraphicsLayoutItem* pAnchorTo = this;
 	for (++index; index < layout->count(); ++index)
 	{
 		QGraphicsLayoutItem * fellowItem = layout->itemAt(index);
+		//找到下一行的头，直接调整
 		if (LayerLeader* leader = dynamic_cast<LayerLeader*>(fellowItem))
 		{
 			if(QGraphicsAnchor* anchorTop = layout->anchor(fellowItem, Qt::AnchorTop, this, Qt::AnchorBottom))
@@ -261,6 +268,7 @@ void LayerLeader::adjustLayout()
 				anchorBottom->setSpacing(spacing - leader->rect().height());
 			break;
 		}
+		//是当前项的下拉项，则计算高度
 		else if (LayerBase* fellow = dynamic_cast<LayerBase*>(fellowItem))
 		{
 			if (fellow->isVisible())
@@ -274,6 +282,7 @@ void LayerLeader::adjustLayout()
 		pAnchorTo = layout->itemAt(index);
 	}
 
+	//调整场景大小
 	adjustScene();
 }
 
@@ -510,6 +519,7 @@ void LayerHandle::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
 	m_bPressHandle = false;
 }
 
+//鼠标滚动，调整大小
 void LayerHandle::wheelEvent(QGraphicsSceneWheelEvent *event)
 {
 	int delt = event->delta();

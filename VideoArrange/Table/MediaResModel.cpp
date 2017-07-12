@@ -128,10 +128,14 @@ QVariant MediaResModel::data(const QModelIndex &index, int role) const
 	{
 		return elem.attribute("id");
 	}
-// 	else if (Qt::TextColorRole == role)
-// 	{
-// 		return QVariant(QColor(Qt::white));
-// 	}
+	else if (Qt::BackgroundRole == role)
+	{
+		return QVariant(QColor(29, 29, 29));
+	}
+	else if (Qt::TextColorRole == role)
+	{
+		return QVariant(QColor(138, 138, 138));
+	}
 // 	else if (Qt::FontRole == role)
 // 	{
 // 		return QVariant(QFont("Î¢ÈíÑÅºÚ", 10));
@@ -189,9 +193,9 @@ QVariant MediaResModel::headerData(int section, Qt::Orientation orientation,
 				return QVariant();
 			}
 		}
-		else if (role == Qt::BackgroundColorRole || role == Qt::BackgroundRole || role == Qt::ForegroundRole || role == Qt::TextColorRole)
+		else if (role == Qt::ForegroundRole)
 		{
-			return QVariant(QColor(50, 50, 50));
+			return QVariant(QColor(189, 189, 189));
 		}
 		//BackgroundColorRole = 8,
 			//BackgroundRole = 8,

@@ -84,7 +84,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;Qt5Xmld.lib;Qt5Qmld.lib;Qt5Quickd.lib;Qt5QuickWidgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;Qt5Xmld.lib;Qt5Qmld.lib;Qt5Quickd.lib;Qt5QuickWidgetsd.lib;D:\developer\VideoArrange\Win32\Debug\MediaPlayControl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -101,7 +101,7 @@
       <OutputFile>$(OutDir)\$(ProjectName).exe</OutputFile>
       <AdditionalLibraryDirectories>$(QTDIR)\lib;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;Qt5Xmld.lib;Qt5Qmld.lib;Qt5Quickd.lib;Qt5QuickWidgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>qtmaind.lib;Qt5Cored.lib;Qt5Guid.lib;Qt5Widgetsd.lib;Qt5Xmld.lib;Qt5Qmld.lib;Qt5Quickd.lib;Qt5QuickWidgetsd.lib;D:\developer\VideoArrange\Win32\Debug\MediaPlayControl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -141,6 +141,7 @@
     <ClCompile Include="Controls\CustomStyle.cpp" />
     <ClCompile Include="Controls\EffectEditor.cpp" />
     <ClCompile Include="Controls\EffectValueEditor.cpp" />
+    <ClCompile Include="Controls\IMagnet.cpp" />
     <ClCompile Include="GeneratedFiles\Debug\moc_EffectEditor.cpp">
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">true</ExcludedFromBuild>
       <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">true</ExcludedFromBuild>
@@ -264,6 +265,7 @@
     <ClCompile Include="Controls\GraphicsButton.cpp" />
     <ClCompile Include="Layer\Layer.cpp" />
     <ClCompile Include="Layer\RightLayer.cpp" />
+    <ClCompile Include="Controls\MagnetManager.cpp" />
     <ClCompile Include="TimeZone\TimeMarkerItem.cpp" />
     <ClCompile Include="uilogic\LayerBuilder.cpp" />
     <ClCompile Include="Layer\LeftHandleLayer.cpp" />
@@ -385,6 +387,7 @@
       <Command Condition="'$(Configuration)|$(Platform)'=='Release|x64'">"$(QTDIR)\bin\moc.exe"  "%(FullPath)" -o ".\GeneratedFiles\$(ConfigurationName)\moc_%(Filename).cpp"  -DUNICODE -DWIN32 -DQT_DLL -DQT_NO_DEBUG -DNDEBUG -DQT_CORE_LIB -DQT_GUI_LIB -DQT_WIDGETS_LIB -DQT_XML_LIB -DQT_QML_LIB -DQT_QUICK_LIB -DQT_QUICKWIDGETS_LIB  "-I.\GeneratedFiles" "-I." "-I$(QTDIR)\include" "-I.\GeneratedFiles\$(ConfigurationName)\." "-I$(QTDIR)\include\QtCore" "-I$(QTDIR)\include\QtGui" "-I$(QTDIR)\include\QtWidgets" "-I$(QTDIR)\include\QtXml" "-I$(QTDIR)\include\QtQml" "-I$(QTDIR)\include\QtQuick" "-I$(QTDIR)\include\QtQuickWidgets"</Command>
     </CustomBuild>
     <ClInclude Include="Controls\CustomStyle.h" />
+    <ClInclude Include="Controls\IMagnet.h" />
     <ClInclude Include="Controls\IOriginatorEditor.h" />
     <ClInclude Include="Document\Document.h" />
     <ClInclude Include="Document\Observer.h" />
@@ -498,6 +501,7 @@
     </CustomBuild>
     <ClInclude Include="Layer\Layer.h" />
     <ClInclude Include="Layer\RightLayer.h" />
+    <ClInclude Include="Controls\MagnetManager.h" />
     <ClInclude Include="TimeZone\TimeMarkerItem.h" />
     <ClInclude Include="uilogic\LayerBuilder.h" />
     <ClInclude Include="SizeGrib\SizeGripItem.h" />

@@ -2,6 +2,7 @@
 #include "../Document/Observer.h"
 
 class QGraphicsAnchorLayout;
+class LeftWhiteWidget;
 class LayerBuilder : public Observer
 {
 public:
@@ -13,12 +14,13 @@ public:
 	void createPlayItemLayer();
 	void createMarkerItemLayer(const QDomElement& data);
 	void createMarkerItemLayer();
+	void coverLeftWhiteWidget();
 	static LayerBuilder* instance();
 protected:
 	virtual void init() override;
 private:
 	QGraphicsAnchorLayout* m_leftLayout = nullptr;
 	QGraphicsAnchorLayout* m_rightLayout = nullptr;
-
+	LeftWhiteWidget* m_leftWhiteWidget = nullptr;
 };
 

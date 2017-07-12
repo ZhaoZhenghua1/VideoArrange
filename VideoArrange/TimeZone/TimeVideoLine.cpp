@@ -175,16 +175,35 @@ void TimeMarkerLine::initData(const QDomElement& elem, QGraphicsAnchorLayout* la
 
 void TimeMarkerLine::setOriginator(IOriginator* o)
 {
-
+	m_selectedOriginator = o;
+	if (editor())
+	{
+		editor()->setOriginator(o);
+	}
+	update();
 }
 
-void TimeMarkerLine::onAction()
+void TimeMarkerLine::onAction(QObject* sender)
 {
+	QAction* pAction = qobject_cast<QAction*>(sender);
+	if (!pAction)
+	{
+		return;
+	}
+
+	QString text = pAction->text();
+	text.remove("Insert ");
+	text.remove(" Marker");
+	if (text.isEmpty())
+	{
+		return;
+	}
 	TimeMarkerItem* pItem = new TimeMarkerItem();
 	pItem->setParentItem(this);
 
 	QDomElement media = Document::instance()->document().createElement("marker");
 	media.setAttribute("timeStart", QString("%1").arg((int)(timeZone()->positionToTime(m_createPos.x()))));
+	media.setAttribute("type", text);
 
 	QDomElement mediaList = m_dataElem.firstChildElement("marklist");
 	mediaList.appendChild(media);
@@ -197,10 +216,16 @@ void TimeMarkerLine::mousePressEvent(QGraphicsSceneMouseEvent *event)
 	if (event->button() == Qt::RightButton)
 	{
 		QMenu menu;
-		QAction* pAction1 = menu.addAction("1");
+		QAction* pAction1 = menu.addAction("Insert Position Marker");
 		connect(pAction1, &QAction::triggered, m_helper, &TimeMarkerLineHelper::onAction);
-		QAction* pAction2 = menu.addAction("2");
+		QAction* pAction2 = menu.addAction("Insert Pause Marker");
 		connect(pAction2, &QAction::triggered, m_helper, &TimeMarkerLineHelper::onAction);
+// 		QAction* pAction3 = menu.addAction("Insert Stop Marker");
+// 		connect(pAction3, &QAction::triggered, m_helper, &TimeMarkerLineHelper::onAction);
+		QAction* pAction4 = menu.addAction("Insert Jump Marker");
+		connect(pAction4, &QAction::triggered, m_helper, &TimeMarkerLineHelper::onAction);
+		QAction* pAction5 = menu.addAction("Insert Trigger Marker");
+		connect(pAction5, &QAction::triggered, m_helper, &TimeMarkerLineHelper::onAction);
 		m_createPos = event->pos();
 		menu.exec(QCursor::pos());
 	}

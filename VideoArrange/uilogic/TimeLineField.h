@@ -3,6 +3,7 @@
 #include <QLabel>
 #include <QTimeEdit>
 #include "Document/Observer.h"
+#include "..\MediaPlayControl\mediaplaycontrol.h"
 
 class QGraphicsScene;
 class StatusButton;
@@ -28,6 +29,8 @@ public slots:
 	void onAddCtrlLayer();
 	void onTimeSetted(unsigned int time);
 	void onTimeLengthSetted(unsigned int time);
+	void onMagnetChanged(int before, int after);
+	void onPlayChanged(int before, int after);
 protected:
 	virtual void resizeEvent(QResizeEvent *)Q_DECL_OVERRIDE;
 	virtual void init()override;
@@ -43,8 +46,11 @@ private:
 
 	QLabel* m_labelTime = nullptr;
 	QLabel* m_labelTimeLen = nullptr;
+
+	MediaPlayControl * m_playControl = nullptr;
 };
 
+//点击后编辑
 class ClickTimeEdit : public QLabel
 {
 	Q_OBJECT
@@ -62,6 +68,7 @@ private:
 	QTimeEdit* m_timeEdit = nullptr;
 };
 
+//点击后编辑辅助控件，失去焦点后隐藏控件
 class FocusSignalTimeEdit : public QTimeEdit
 {
 	Q_OBJECT

@@ -31,7 +31,7 @@ SizeGripItem::HandleItem::HandleItem(int positionFlags, SizeGripItem* parent)
       m_positionFlags(positionFlags),
       m_parent(parent)
 {
-    setBrush(QBrush(Qt::lightGray));
+ //   setBrush(QBrush(Qt::lightGray));
 	setPen(Qt::NoPen);
     setFlag(ItemIsMovable);
     setFlag(ItemSendsGeometryChanges);

@@ -5,12 +5,13 @@
 
 #include "Controls/EffectEditor.h"
 #include "Controls/IOriginatorEditor.h"
+#include "Controls/IMagnet.h"
 //资源项
 class SizeGripItem;
 class TimeZone;
 class EffectEditor;
 class IEditor;
-class TimeVideoItem : public QGraphicsRectItem, public IOriginator
+class TimeVideoItem : public QGraphicsRectItem, public IOriginator, public IMagnet
 {
 public:
 	TimeVideoItem();
@@ -33,9 +34,12 @@ protected:
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)Q_DECL_OVERRIDE;
 	virtual  QVariant itemChange(GraphicsItemChange change, const QVariant &value)Q_DECL_OVERRIDE;
 	virtual void keyPressEvent(QKeyEvent *event)override;
-	virtual void setQsData(const QString& data) override;
 	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)override;
+	//数据编辑交互
+	virtual void setQsData(const QString& data) override;
 	virtual QString toQsData()override;
+	//吸附判断
+	virtual bool attached(QPointF& scenePos);
 private:
 	//改变大小工具
 	SizeGripItem* m_sizeGrip = nullptr;

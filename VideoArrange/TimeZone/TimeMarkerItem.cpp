@@ -4,9 +4,11 @@
 #include "TimeMarkerItem.h"
 #include "TimeView.h"
 #include "TimeVideoLine.h"
+#include "Controls/MagnetManager.h"
 
 TimeMarkerItem::TimeMarkerItem()
 {
+	m_markerMask = QPixmap(":/markers.png");
 	setFlags(ItemIsMovable | ItemSendsGeometryChanges | ItemSendsScenePositionChanges | ItemIsFocusable);
 }
 
@@ -50,7 +52,23 @@ void TimeMarkerItem::initData(const QDomElement& media)
 
 void TimeMarkerItem::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */) 
 {
-	painter->fillRect(rect(), Qt::black);
+	painter->fillRect(rect(), QColor(146,146,146));
+	painter->setPen(QColor(255,232,72));
+	painter->drawLine(rect().left(),0, rect().left(),rect().height());
+	QSizeF pixSize(24, 22);
+	QString type = m_dataElem.attribute("type");
+	static QStringList pixmapTypes = QStringList({ "Position", "Pause", "Stop","Reset", "Jump","PPT", "Trigger" });
+	int top = 2;
+	for (const QString& pixmapType : pixmapTypes)
+	{
+		if (pixmapType == type)
+		{
+			break;
+		}
+		top += pixSize.height();
+	}
+	QRectF pixRect(QPointF(0, top), pixSize);
+	painter->drawPixmap(QPointF(rect().left(), (rect().height() - pixSize.height()) / 2), m_markerMask, pixRect);
 }
 
 QVariant TimeMarkerItem::itemChange(GraphicsItemChange change, const QVariant &value) 
@@ -76,13 +94,21 @@ QVariant TimeMarkerItem::itemChange(GraphicsItemChange change, const QVariant &v
 
 			if (rect.contains(localItemPos))
 			{
+				if (TimeMarkerLine* tvl = dynamic_cast<TimeMarkerLine*>(parentItem()))
+				{
+					tvl->setOriginator(nullptr);
+				}
 				setParentItem(localItem);
 				break;
 			}
 		}
 
-		QPointF newPos = value.toPointF();
+		QPointF newPos = value.toPointF() + rect().topLeft();
+		QPointF scenepos = parentItem()->mapToScene(newPos);
+		MagnetManager::instance()->attached(scenepos, this);
+		newPos = parentItem()->mapFromScene(scenepos) - rect().topLeft();
 		newPos.setY(0);
+
 		return newPos;
 	}
 	else if (change == ItemPositionHasChanged && scene())
@@ -97,7 +123,7 @@ void TimeMarkerItem::keyPressEvent(QKeyEvent *event)
 	if (event->key() == Qt::Key_Delete && event->modifiers() == Qt::NoModifier)
 	{
 		//删除时，清空编辑数据
-		if (TimeVideoLine* tvl = dynamic_cast<TimeVideoLine*>(parentItem()))
+		if (TimeMarkerLine* tvl = dynamic_cast<TimeMarkerLine*>(parentItem()))
 		{
 			tvl->setOriginator(nullptr);
 		}
@@ -107,7 +133,16 @@ void TimeMarkerItem::keyPressEvent(QKeyEvent *event)
 
 void TimeMarkerItem::setQsData(const QString& data)
 {
-
+	QStringList datas = data.split(';');
+	if (datas.size() != 3)
+	{
+		return;
+	}
+	m_dataElem.setAttribute("timeStart", datas[0]);
+	m_dataElem.setAttribute("type", datas[1]);
+	m_dataElem.setAttribute("param", datas[2]);
+	updatePos();
+	update();
 }
 
 void TimeMarkerItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
@@ -115,7 +150,7 @@ void TimeMarkerItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 	QGraphicsRectItem::mousePressEvent(event);
 
 	//选中当前时，设置编辑数据
-	if (TimeVideoLine* tvl = dynamic_cast<TimeVideoLine*>(parentItem()))
+	if (TimeMarkerLine* tvl = dynamic_cast<TimeMarkerLine*>(parentItem()))
 	{
 		tvl->setOriginator(this);
 	}
@@ -123,7 +158,18 @@ void TimeMarkerItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 
 QString TimeMarkerItem::toQsData()
 {
-	return QString();
+	return m_dataElem.attribute("timeStart") + ';' + m_dataElem.attribute("type") + ';' + m_dataElem.attribute("param");
+}
+
+bool TimeMarkerItem::attached(QPointF& scenePos)
+{
+	qreal left = parentItem()->mapToScene(pos() + rect().topLeft()).x();
+	if (qAbs(scenePos.x() - left) <= 10)
+	{
+		scenePos.setX(left);
+		return true;
+	}
+	return false;
 }
 
 TimeZone* TimeMarkerItem::timeZone()

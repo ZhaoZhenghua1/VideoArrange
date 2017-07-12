@@ -12,11 +12,15 @@
 #include <QLineEdit>
 #include <QCheckBox>
 #include <QTimeEdit>
+#include <QComboBox>
+#include <QAbstractItemView>
+#include <QTimer>
 
 const QPen PEN(QBrush(QColor(163, 163, 163)), 1);
 const QFont FONT("",12,50,false);
 const QString STYLE_SHEET(R"(color: rgb(163, 163, 163);background-color: rgb(38, 38, 38);)");
 
+//点击后创建控件，正常状态时不显示控件
 template<class T>
 class ClickProxyWidget : public QGraphicsProxyWidget
 {
@@ -27,7 +31,7 @@ public:
 		setAcceptHoverEvents(true);
 		setGeometry(QRectF(0, 0, width, 20));
 	}
-	T* widget() { return m_widget; }
+	T* proxyWidget() { return m_widget; }
 
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 	{
@@ -79,6 +83,106 @@ private:
 	QPointF m_pos;
 };
 
+//下拉框隐藏后同时隐藏控件
+class ProxyComboBox : public QComboBox
+{
+public:
+	typedef std::function<void(void)> ComboBoxCallBack;
+	ProxyComboBox(const ComboBoxCallBack& callback):m_callBack(callback){}
+protected:
+	virtual void hidePopup() override
+	{
+		QComboBox::hidePopup();
+		if (m_callBack)
+		{
+			m_callBack();
+		}
+	}
+private:
+	ComboBoxCallBack m_callBack;
+};
+
+//ClickProxyWidget 针对ProxyComboBox的偏特化
+template<>
+class ClickProxyWidget<ProxyComboBox> : public QGraphicsProxyWidget
+{
+
+public:
+	ClickProxyWidget(int width, QGraphicsItem* parent = nullptr) :QGraphicsProxyWidget(parent)
+	{
+		m_widget = new ProxyComboBox([this]() {onCurrentChanged();});
+//		Helper* pHelper = new Helper(m_widget, [this]() {onCurrentChanged();});
+		setAcceptHoverEvents(true);
+		setGeometry(QRectF(0, 0, width, 20));
+	}
+	QComboBox* proxyWidget() { return m_widget; }
+
+	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+	{
+		if (QGraphicsProxyWidget::widget())
+		{
+			QGraphicsProxyWidget::paint(painter, option, widget);
+		}
+		else
+		{
+			painter->setPen(QPen(QColor(45, 140, 235)));
+			QString text = m_widget->currentText();
+			if (text.isEmpty())
+			{
+				text = '*';
+			}
+			painter->drawText(QPointF(0, 13), text);
+		}
+	}
+	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event)
+	{
+		setCursor(Qt::PointingHandCursor);
+		QGraphicsProxyWidget::hoverEnterEvent(event);
+	}
+	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
+	{
+		setCursor(Qt::ArrowCursor);
+		QGraphicsProxyWidget::hoverLeaveEvent(event);
+	}
+	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event)
+	{
+		QGraphicsProxyWidget::mousePressEvent(event);
+		if (!QGraphicsProxyWidget::widget())
+		{
+			setWidget(m_widget);
+			QGraphicsProxyWidget::setPos(m_pos);
+		}
+	}
+	
+	virtual void focusOutEvent(QFocusEvent *event)
+	{
+		QGraphicsProxyWidget::focusOutEvent(event);
+		if (!m_widget->view()->isVisible())
+		{
+			setWidget(nullptr);
+			QGraphicsProxyWidget::setPos(m_pos);
+			setAcceptHoverEvents(true);
+		}
+	}
+	void setPos(qreal x, qreal y)
+	{
+		m_pos = QPointF(x, y);
+		QGraphicsProxyWidget::setPos(m_pos);
+	}
+	void onCurrentChanged()
+	{
+		QTimer::singleShot(0, [this]() 
+		{
+			setWidget(nullptr);
+			QGraphicsProxyWidget::setPos(m_pos);
+			setAcceptHoverEvents(true);
+		});
+	}
+private:
+	QComboBox* m_widget = nullptr;
+	QPointF m_pos;
+};
+
 void EffectValueEditor::setOriginator(IOriginator* orig)
 {
 	IEditor::setOriginator(orig);
@@ -104,7 +208,7 @@ void EffectValueEditor::setOrigData(const QString& value)
 TransparencyWidgetEditor::TransparencyWidgetEditor()
 {
 	auto pw = new ClickProxyWidget<QLineEdit>(50, this);
-	m_edit = pw->widget();
+	m_edit = pw->proxyWidget();
 	m_edit->setFixedSize(50, 20);
 	QIntValidator* validator = new QIntValidator(0, 100);
 	m_edit->setValidator(validator);
@@ -112,9 +216,9 @@ TransparencyWidgetEditor::TransparencyWidgetEditor()
 	pw->setPos(65, 2);
 
 	auto pwt = new ClickProxyWidget<QTimeEdit>(100, this);
-	m_editTime = pwt->widget();
+	m_editTime = pwt->proxyWidget();
 
-	m_editTime->setDisplayFormat("hh:mm:ss:zzz");
+	m_editTime->setDisplayFormat("hh:mm:s.zzz");
 	connect(m_editTime, &QTimeEdit::editingFinished, this, &TransparencyWidgetEditor::onTextChanged);
 	m_editTime->setFixedSize(100, 20);
 	pwt->setPos(50, 26);
@@ -156,12 +260,12 @@ PositionWidgetEditor::PositionWidgetEditor()
 {
 	auto pwx = new ClickProxyWidget<QLineEdit>(50, this);
 	auto pwy = new ClickProxyWidget<QLineEdit>(50, this);
-	m_editX = pwx->widget();
+	m_editX = pwx->proxyWidget();
 	QIntValidator* validator = new QIntValidator(-999999, 999999);
 	m_editX->setValidator(validator);
 	m_editX->setFixedSize(50, 20);
 	connect(m_editX, &QLineEdit::editingFinished, this, &PositionWidgetEditor::onTextChanged);
-	m_editY = pwy->widget();
+	m_editY = pwy->proxyWidget();
 	QIntValidator* validator2 = new QIntValidator(-999999, 999999);
 	m_editY->setValidator(validator2);
 	m_editY->setFixedSize(50, 20);
@@ -170,8 +274,8 @@ PositionWidgetEditor::PositionWidgetEditor()
 	pwy->setPos(153, 2);
 
 	auto pwt = new ClickProxyWidget<QTimeEdit>(100, this);
-	m_editTime = pwt->widget();
-	m_editTime->setDisplayFormat("hh:mm:ss:zzz");
+	m_editTime = pwt->proxyWidget();
+	m_editTime->setDisplayFormat("hh:mm:ss.zzz");
 	connect(m_editTime, &QTimeEdit::editingFinished, this, &PositionWidgetEditor::onTextChanged);
 	m_editTime->setFixedSize(100, 20);
 	pwt->setPos(50, 26);
@@ -218,7 +322,7 @@ void PositionWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphicsIt
 RotateWidgetEditor::RotateWidgetEditor()
 {
 	auto pw = new ClickProxyWidget<QLineEdit>(50, this);
-	m_edit = pw->widget();
+	m_edit = pw->proxyWidget();
 	QIntValidator* validator = new QIntValidator(-360, 360);
 	m_edit->setValidator(validator);
 	m_edit->setFixedSize(50, 20);
@@ -226,8 +330,8 @@ RotateWidgetEditor::RotateWidgetEditor()
 	pw->setPos(65, 2);
 
 	auto pwt = new ClickProxyWidget<QTimeEdit>(100, this);
-	m_editTime = pwt->widget();
-	m_editTime->setDisplayFormat("hh:mm:ss:zzz");
+	m_editTime = pwt->proxyWidget();
+	m_editTime->setDisplayFormat("hh:mm:ss.zzz");
 	connect(m_editTime, &QTimeEdit::editingFinished, this, &RotateWidgetEditor::onTextChanged);
 	m_editTime->setFixedSize(100, 20);
 	pwt->setPos(50, 26);
@@ -265,14 +369,14 @@ void RotateWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphicsItem
 ScailWidgetEditor::ScailWidgetEditor()
 {
 	auto pwx = new ClickProxyWidget<QLineEdit>(35, this);
-	m_editX = pwx->widget();
+	m_editX = pwx->proxyWidget();
 	QIntValidator* validator = new QIntValidator(0, 99999);
 	m_editX->setValidator(validator);
 	m_editX->setFixedSize(35, 20);
 	connect(m_editX, &QLineEdit::editingFinished, this, &ScailWidgetEditor::onTextChanged);
 
 	auto pwy = new ClickProxyWidget<QLineEdit>(35, this);
-	m_editY = pwy->widget();
+	m_editY = pwy->proxyWidget();
 	QIntValidator* validator2 = new QIntValidator(0, 99999);
 	m_editY->setValidator(validator2);
 	m_editY->setFixedSize(35, 20);
@@ -290,8 +394,8 @@ ScailWidgetEditor::ScailWidgetEditor()
 
 
 	auto pwt = new ClickProxyWidget<QTimeEdit>(100, this);
-	m_editTime = pwt->widget();
-	m_editTime->setDisplayFormat("hh:mm:ss:zzz");
+	m_editTime = pwt->proxyWidget();
+	m_editTime->setDisplayFormat("hh:mm:ss.zzz");
 	connect(m_editTime, &QTimeEdit::editingFinished, this, &ScailWidgetEditor::onTextChanged);
 	m_editTime->setFixedSize(100, 20);
 	pwt->setPos(50, 26);
@@ -356,7 +460,7 @@ void ScailWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphicsItem 
 VoiceWidgetEditor::VoiceWidgetEditor()
 {
 	auto pw = new ClickProxyWidget<QLineEdit>(50, this);
-	m_edit = pw->widget();
+	m_edit = pw->proxyWidget();
 	QIntValidator* validator = new QIntValidator(0, 100);
 	m_edit->setValidator(validator);
 	m_edit->setFixedSize(50, 20);
@@ -365,8 +469,8 @@ VoiceWidgetEditor::VoiceWidgetEditor()
 	pw->setPos(50, 2);
 
 	auto pwt = new ClickProxyWidget<QTimeEdit>(100, this);
-	m_editTime = pwt->widget();
-	m_editTime->setDisplayFormat("hh:mm:ss:zzz");
+	m_editTime = pwt->proxyWidget();
+	m_editTime->setDisplayFormat("hh:mm:ss.zzz");
 	connect(m_editTime, &QTimeEdit::editingFinished, this, &VoiceWidgetEditor::onTextChanged);
 	m_editTime->setFixedSize(100, 20);
 	pwt->setPos(50, 26);
@@ -410,18 +514,18 @@ MediaItemWidgetEditor::MediaItemWidgetEditor()
 {
 	auto proxyWidgetTimeStart = new ClickProxyWidget<QTimeEdit>(100, this);
 	auto proxyWidgetTimeLen = new ClickProxyWidget<QTimeEdit>(100, this);
-	m_editTimeLen = proxyWidgetTimeLen->widget();
-	m_editTimeLen->setDisplayFormat("hh:mm:ss:zzz");
+	m_editTimeLen = proxyWidgetTimeLen->proxyWidget();
+	m_editTimeLen->setDisplayFormat("hh:mm:ss.zzz");
 	connect(m_editTimeLen, &QTimeEdit::editingFinished, this, &MediaItemWidgetEditor::onValueChanged);
 	m_editTimeLen->setFixedSize(100, 20);
-	m_editTimeStart = proxyWidgetTimeStart->widget();
-	m_editTimeStart->setDisplayFormat("hh:mm:ss:zzz");
+	m_editTimeStart = proxyWidgetTimeStart->proxyWidget();
+	m_editTimeStart->setDisplayFormat("hh:mm:ss.zzz");
 	connect(m_editTimeStart, &QTimeEdit::editingFinished, this, &MediaItemWidgetEditor::onValueChanged);
 	m_editTimeStart->setFixedSize(100, 20);
 
 	auto pwOffset = new ClickProxyWidget<QTimeEdit>(100, this);
-	m_editOffset = pwOffset->widget();
-	m_editOffset->setDisplayFormat("hh:mm:ss:zzz");
+	m_editOffset = pwOffset->proxyWidget();
+	m_editOffset->setDisplayFormat("hh:mm:ss.zzz");
 	m_editOffset->setFixedSize(100, 20);
 	connect(m_editOffset, &QTimeEdit::editingFinished, this, &MediaItemWidgetEditor::onValueChanged);
 
@@ -471,56 +575,205 @@ void MediaItemWidgetEditor::paint(QPainter *painter, const QStyleOptionGraphicsI
 	painter->drawText(QPointF(0, 15 + 44), QString::fromLocal8Bit("   开始时间:                "));
 }
 
+MarkerWidetEditor::MarkerWidetEditor()
+{
+	//创建时间设置
+	auto proxyWidgetTimeStart = new ClickProxyWidget<QTimeEdit>(100, this);
+	m_editTime = proxyWidgetTimeStart->proxyWidget();
+	m_editTime->setDisplayFormat("hh:mm:ss.zzz");
+	connect(m_editTime, &QTimeEdit::editingFinished, this, &MarkerWidetEditor::onTextChanged);
+	m_editTime->setFixedSize(100, 20);
+	proxyWidgetTimeStart->setPos(55, 2);
 
-//  #include <QGraphicsScene>
-//  void NoHoverProxyWidget::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
-//  {
-//  	QGraphicsProxyWidget::hoverEnterEvent(event);
-//  	//解决闪烁问题
-//  	scene()->update(scene()->itemsBoundingRect());
-//  }
-//  
-//  void NoHoverProxyWidget::hoverLeaveEvent(QGraphicsSceneHoverEvent *event)
-//  {
-//  	QGraphicsProxyWidget::hoverLeaveEvent(event);
-//  	//解决闪烁问题
-//  	scene()->update(scene()->itemsBoundingRect());
-//  }
-//  
-//  void NoHoverProxyWidget::hoverMoveEvent(QGraphicsSceneHoverEvent *event)
-//  {
-//  	QGraphicsProxyWidget::hoverMoveEvent(event);
-//  	//解决闪烁问题
-//  	scene()->update(scene()->itemsBoundingRect());
-//  }
-//  
-//  void NoHoverProxyWidget::mousePressEvent(QGraphicsSceneMouseEvent *event)
-//  {
-//  	QGraphicsProxyWidget::mousePressEvent(event);
-//  //	scene()->update();
-//  }
-//  
-//  void NoHoverProxyWidget::mouseReleaseEvent(QGraphicsSceneMouseEvent *event)
-//  {
-//  	QGraphicsProxyWidget::mouseReleaseEvent(event);
-//  //	scene()->update();
-//  }
-//  
-//  void NoHoverProxyWidget::mouseMoveEvent(QGraphicsSceneMouseEvent *event)
-//  {
-//  	QGraphicsProxyWidget::mouseMoveEvent(event);
-//  //	scene()->update();
-//  }
-//  
-//  void NoHoverProxyWidget::focusInEvent(QFocusEvent *event)
-//  {
-//  	QGraphicsProxyWidget::focusInEvent(event);
-//  //	scene()->update();
-//  }
-//  
-//  void NoHoverProxyWidget::focusOutEvent(QFocusEvent *event)
-//  {
-//  	QGraphicsProxyWidget::focusOutEvent(event);
-//  //	scene()->update();
-//  }
-//  
+
+	//创建下拉类型选择
+	auto pw = new ClickProxyWidget<ProxyComboBox>(50, this);
+	m_comboType = pw->proxyWidget();
+	m_comboType->addItems({ "Position","Pause", "Jump", "Trigger" });
+	m_comboType->setFixedSize(100, 20);
+	connect(m_comboType, SIGNAL(currentIndexChanged(int)), this, SLOT(onChangeEditor()));
+	connect(m_comboType, SIGNAL(currentIndexChanged(int)), this, SLOT(onTextChanged()));
+	pw->setPos(55, 26);
+
+	//创建参数输入
+//	auto pwt = new ClickProxyWidget<QLineEdit>(100, this);
+//	m_editParam = pwt->proxyWidget();
+//	connect(m_editParam, &QLineEdit::editingFinished, this, &MarkerWidetEditor::onTextChanged);
+//	m_editParam->setFixedSize(100, 20);
+//	pwt->setPos(55, 50);
+}
+
+void MarkerWidetEditor::onChangeEditor()
+{
+	createMarkerEditor(m_comboType->currentText());
+	dynamic_cast<QGraphicsItem*>(m_paraEditor)->update();
+	update();
+}
+
+void MarkerWidetEditor::onTextChanged()
+{
+	QString data = QString("%1;%2;%3").
+		arg(m_editTime->time().msecsSinceStartOfDay()).
+		arg(m_comboType->currentText()).
+		arg(m_paraEditor ? m_paraEditor->toQsData() : "");
+
+	setOrigData(data);
+}
+
+void MarkerWidetEditor::setValue(const QString& value)
+{
+	QStringList datas = value.split(';');
+	if (datas.size() != 3)
+	{
+		datas = QStringList({ "","", ""});
+	}
+
+	const QSignalBlocker blocker1(m_editTime);
+	const QSignalBlocker blocker2(m_comboType);
+	m_editTime->setTime(QTime::fromMSecsSinceStartOfDay(datas[0].toInt()));
+	m_comboType->setCurrentText(datas[1]);
+	createMarkerEditor(datas[1]);
+	if (m_paraEditor)
+	{
+		m_paraEditor->setQsData(datas[2]);
+	}
+	for (QGraphicsItem* item : childItems())
+	{
+		item->update();
+	}
+}
+
+void MarkerWidetEditor::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
+{
+	painter->setPen(PEN);
+	painter->drawText(QPointF(0, 15), QString::fromLocal8Bit(     "    时间:"));
+	painter->drawText(QPointF(0, 15 + 22), QString::fromLocal8Bit(     "控制类型:"));
+//	painter->drawText(QPointF(0, 15 + 22 + 24), QString::fromLocal8Bit("    参数: "));
+}
+
+void MarkerWidetEditor::createMarkerEditor(const QString& type)
+{
+	delete m_paraEditor;
+	m_paraEditor = nullptr;
+	// "Position","Pause", "Jump", "Trigger"
+	if (type == "Position")
+	{
+		PostionMarkerEditor* pe = new PostionMarkerEditor(this);
+		connect(pe, &PostionMarkerEditor::sigChanged, this, &MarkerWidetEditor::onTextChanged);
+		pe->setPos(0, 60);
+		m_paraEditor = pe;
+	}
+	else if (type == "Pause")
+	{
+		PauseMarkerEditor* pe = new PauseMarkerEditor(this);
+		connect(pe, &PauseMarkerEditor::sigChanged, this, &MarkerWidetEditor::onTextChanged);
+		pe->setPos(0, 60);
+		m_paraEditor = pe;
+	}
+	else if (type =="Jump")
+	{
+		JumpMarkerEditor* pe = new JumpMarkerEditor(this);
+		connect(pe, &JumpMarkerEditor::sigChanged, this, &MarkerWidetEditor::onTextChanged);
+		pe->setPos(0, 60);
+		m_paraEditor = pe;
+	}
+	else if (type == "Trigger")
+	{
+		TriggerMarkerEditor* pe = new TriggerMarkerEditor(this);
+		connect(pe, &TriggerMarkerEditor::sigChanged, this, &MarkerWidetEditor::onTextChanged);
+		pe->setPos(0, 60);
+		m_paraEditor = pe;
+	}
+}
+
+PauseMarkerEditor::PauseMarkerEditor(QGraphicsWidget* parent /*= nullptr*/) :QGraphicsWidget(parent)
+{
+	setPreferredSize(100, 40);
+}
+
+PostionMarkerEditor::PostionMarkerEditor(QGraphicsWidget* parent /*= nullptr*/) : QGraphicsWidget(parent)
+{
+	//创建参数输入
+	auto pwt = new ClickProxyWidget<QLineEdit>(100, this);
+	m_editParam = pwt->proxyWidget();
+	connect(m_editParam, &QLineEdit::editingFinished, this, &PostionMarkerEditor::sigChanged);
+	m_editParam->setFixedSize(100, 20);
+	pwt->setPos(55, -13);
+
+	setPreferredSize(100, 40);
+}
+
+void PostionMarkerEditor::setQsData(const QString& data)
+{
+	const QSignalBlocker blocker3(m_editParam);
+	m_editParam->setText(data);
+}
+
+QString PostionMarkerEditor::toQsData()
+{
+	return m_editParam->text();
+}
+
+void PostionMarkerEditor::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
+{
+	painter->setPen(PEN);
+	painter->drawText(QPointF(0, 0), QString::fromLocal8Bit("    名称: "));
+}
+
+JumpMarkerEditor::JumpMarkerEditor(QGraphicsWidget* parent /*= nullptr*/) : QGraphicsWidget(parent)
+{
+	//创建参数输入
+	auto pwt = new ClickProxyWidget<QLineEdit>(100, this);
+	m_editParam = pwt->proxyWidget();
+	connect(m_editParam, &QLineEdit::editingFinished, this, &JumpMarkerEditor::sigChanged);
+	m_editParam->setFixedSize(100, 20);
+	pwt->setPos(55, -13);
+
+	setPreferredSize(100, 40);
+}
+
+void JumpMarkerEditor::setQsData(const QString& data)
+{
+	const QSignalBlocker blocker3(m_editParam);
+	m_editParam->setText(data);
+}
+
+QString JumpMarkerEditor::toQsData()
+{
+	return m_editParam->text();
+}
+
+void JumpMarkerEditor::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
+{
+	painter->setPen(PEN);                                 //"    名称: "
+	painter->drawText(QPointF(0, 0), QString::fromLocal8Bit("  位置名:"));
+}
+
+TriggerMarkerEditor::TriggerMarkerEditor(QGraphicsWidget* parent /*= nullptr*/) : QGraphicsWidget(parent)
+{
+	//创建参数输入
+	auto pwt = new ClickProxyWidget<QLineEdit>(100, this);
+	m_editParam = pwt->proxyWidget();
+	connect(m_editParam, &QLineEdit::editingFinished, this, &TriggerMarkerEditor::sigChanged);
+	m_editParam->setFixedSize(100, 20);
+	pwt->setPos(55, -13);
+
+	setPreferredSize(100, 40);
+}
+
+void TriggerMarkerEditor::setQsData(const QString& data)
+{
+	const QSignalBlocker blocker3(m_editParam);
+	m_editParam->setText(data);
+}
+
+QString TriggerMarkerEditor::toQsData()
+{
+	return m_editParam->text();
+}
+
+void TriggerMarkerEditor::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)
+{
+	painter->setPen(PEN);                                 //"    名称: "
+	painter->drawText(QPointF(0, 0), QString::fromLocal8Bit("触发器名:"));
+}

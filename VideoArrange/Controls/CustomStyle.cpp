@@ -1,6 +1,8 @@
 #include "CustomStyle.h"
 #include <QStyleOptionSlider>
 #include <QPainter>
+#include <QStyleOptionButton>
+#include <QStyleOptionComboBox>
 
 
 CustomStyle::CustomStyle()
@@ -142,6 +144,67 @@ void CustomStyle::drawComplexControl(ComplexControl control, const QStyleOptionC
 		painter->setBrush(QColor(49, 49, 49));
 		painter->drawRoundedRect(rectSlider, radius, radius);
 		painter->restore();
+	}
+	else if (control == QStyle::CC_ComboBox)
+	{
+		if (const QStyleOptionComboBox *cmb = qstyleoption_cast<const QStyleOptionComboBox *>(option))
+		{
+			SubControls sub = option->subControls;
+			int partId = 0;
+			int stateId = 0;
+			State flags = option->state;
+			if (widget && widget->testAttribute(Qt::WA_UnderMouse) && widget->isActiveWindow())
+				flags |= State_MouseOver;
+			if (cmb->editable) {
+// 				if (sub & SC_ComboBoxEditField) {
+// 					partId = EP_EDITBORDER_NOSCROLL;
+// 					if (!(flags & State_Enabled))
+// 						stateId = ETS_DISABLED;
+// 					else if (flags & State_MouseOver)
+// 						stateId = ETS_HOT;
+// 					else if (flags & State_HasFocus)
+// 						stateId = ETS_FOCUSED;
+// 					else
+// 						stateId = ETS_NORMAL;
+// 
+// 					XPThemeData theme(widget, painter,
+// 						QWindowsXPStylePrivate::EditTheme,
+// 						partId, stateId, r);
+// 
+// 					d->drawBackground(theme);
+// 				}
+// 				if (sub & SC_ComboBoxArrow) {
+// 					QRect subRect = proxy()->subControlRect(CC_ComboBox, option, SC_ComboBoxArrow, widget);
+// 					XPThemeData theme(widget, painter, QWindowsXPStylePrivate::ComboboxTheme);
+// 					theme.rect = subRect;
+// 					partId = option->direction == Qt::RightToLeft ? CP_DROPDOWNBUTTONLEFT : CP_DROPDOWNBUTTONRIGHT;
+// 
+// 					if (!(cmb->state & State_Enabled))
+// 						stateId = CBXS_DISABLED;
+// 					else if (cmb->state & State_Sunken || cmb->state & State_On)
+// 						stateId = CBXS_PRESSED;
+// 					else if (cmb->state & State_MouseOver && option->activeSubControls & SC_ComboBoxArrow)
+// 						stateId = CBXS_HOT;
+// 					else
+// 						stateId = CBXS_NORMAL;
+// 
+// 					theme.partId = partId;
+// 					theme.stateId = stateId;
+// 					d->drawBackground(theme);
+// 				}
+
+			}
+			else {
+				if (sub & SC_ComboBoxFrame) {
+					QStyleOptionButton btn;
+					btn.QStyleOption::operator=(*option);
+					btn.rect = option->rect.adjusted(-1, -1, 1, 1);
+					if (sub & SC_ComboBoxArrow)
+						btn.features = QStyleOptionButton::HasMenu;
+					proxy()->drawControl(QStyle::CE_PushButton, &btn, painter, widget);
+				}
+			}
+		}
 	}
 	else
 	{

@@ -21,6 +21,7 @@
 
 #include "LayerBuilder.h"
 #include "Document/Document.h"
+#include "Controls/MagnetManager.h"
 
 const int LEFT_WIDTH = 112;
 unsigned int MIN_TIME_LEN = 10 * 1000;
@@ -63,7 +64,10 @@ TimeLineField::TimeLineField()
 	m_btnPlay->registerStatus({ 1,2 });
 	m_btnPlay->setStatusPixmap(1, ":/play_off_hover.png", ":/play_off_hover.png");
 	m_btnPlay->setStatusPixmap(2, ":/play_on_hover.png", ":/play_on_hover.png");
+	connect(m_btnPlay, &StatusButton::statusChanged, this, &TimeLineField::onPlayChanged);
+	
 	m_btnMagnet = new StatusButton(controls);
+	connect(m_btnMagnet, &StatusButton::statusChanged, this, &TimeLineField::onMagnetChanged);
 	m_btnMagnet->registerStatus({ 1,2 });
 	m_btnMagnet->setStatusPixmap(1, ":/magnet_off_normal.png", ":/magnet_off_hover.png");
 	m_btnMagnet->setStatusPixmap(2, ":/magnet_on_normal.png", ":/magnet_on_hover.png");
@@ -118,6 +122,7 @@ QPushButton:pressed{border-image:url(:/add_layer.png);}
 	setHorizontalScrollBar(m_timeBarView->horizontalScrollBar());
 	setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 	m_timeVideoView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+	m_timeVideoView->setHorScrollBar(timelineScrollBar);
 	m_leftLayerView->verticalScrollBar()->setStyleSheet("QScrollBar:vertical { width: 11px; }");
 	setVerticalScrollBar(m_leftLayerView->verticalScrollBar());
 	m_timeVideoView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -126,6 +131,8 @@ QPushButton:pressed{border-image:url(:/add_layer.png);}
 	m_timeBarView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
  	m_timePointerView = new TimePointerView;
+	m_playControl = new MediaPlayControl;
+	connect(m_playControl, SIGNAL(updateTimePointer(unsigned int)), this, SLOT(onTimeSetted(unsigned int)));
  	m_timePointerView->setParent(this);
 
 	connect(timelineScrollBar, &TimeLineScrollBar::adjustWidth, m_timeVideoView, &TimeBarView::onAdjustWidth);
@@ -207,6 +214,26 @@ void TimeLineField::onTimeLengthSetted(unsigned int time)
 	m_timePointerView->setTimeLength(time);
 }
 
+void TimeLineField::onMagnetChanged(int before, int after)
+{
+	Q_UNUSED(before);
+	MagnetManager::instance()->setMagnet(after == 2);
+}
+
+void TimeLineField::onPlayChanged(int before, int after)
+{
+	if (after == 2)
+	{
+		m_playControl->locateTo(m_timePointerView->currentTime());
+		m_playControl->setData(Document::instance()->document());
+		m_playControl->play();
+	}
+	else
+	{
+		m_playControl->pause();
+	}
+}
+
 void TimeLineField::resizeEvent(QResizeEvent * event)
 {
 	QAbstractScrollArea::resizeEvent(event);
@@ -235,7 +262,7 @@ ClickTimeEdit::ClickTimeEdit(QWidget* parent /*= nullptr*/) :QLabel(parent)
 	setLayout(layout);
 	FocusSignalTimeEdit * timeEdit = new FocusSignalTimeEdit;
 	timeEdit->setButtonSymbols(QAbstractSpinBox::NoButtons);
-	timeEdit->setDisplayFormat("hh:mm:ss:zzz");
+	timeEdit->setDisplayFormat("hh:mm:ss.zzz");
 	m_timeEdit = timeEdit;
 	connect(timeEdit, &QTimeEdit::editingFinished, this, &ClickTimeEdit::onEditFinished);
 	connect(timeEdit, &FocusSignalTimeEdit::focusOut, this, &ClickTimeEdit::onFocusOut);

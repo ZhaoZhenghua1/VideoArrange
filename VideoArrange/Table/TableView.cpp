@@ -5,17 +5,20 @@
 #include <QApplication>
 #include <QDrag>
 #include <QMimeData>
+#include <QScrollBar>
 #include "../Document/Document.h"
 
 TableView::TableView()
 {
-	QString styles = "background-color: rgb(50, 50, 50); color:rgb(0,255,255);";
-	header()->setStyleSheet(styles);
+	header()->setStyleSheet("QHeaderView::section{background-color: rgb(29, 29, 29); color:rgb(189, 189, 189);padding-left: 4px;border: 1px solid #6c6c6c}");
 
-	setStyleSheet("background-color: rgb(28, 58, 255);color: rgb(255, 255, 255);QHeaderView{background-color: rgb(50, 50, 50);}");
+	setStyleSheet("QTreeView{background-color: rgb(29, 29, 29);}");
 	setAcceptDrops(true);
 	setDragEnabled(true);
 	setModel(new MediaResModel());
+
+	horizontalScrollBar()->setStyleSheet("QScrollBar:horizontal { height: 11px; }");
+	verticalScrollBar()->setStyleSheet("QScrollBar:vertical { width: 11px; }");
 
 	Document::instance()->addObserver(this);
 }

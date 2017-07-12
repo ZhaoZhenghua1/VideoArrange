@@ -47,8 +47,10 @@ public:
 	TimeMarkerLine();
 	void initData(const QDomElement& elem, QGraphicsAnchorLayout* layout);
 	void setOriginator(IOriginator* o);
+	IEditor* editor() { return m_editor; }
+	void setEditor(IEditor* editor) { m_editor = editor; }
 public:
-	void onAction();
+	void onAction(QObject* sender);
 protected:
 	virtual void setGeometry(const QRectF &rect)override;
 	virtual QVariant itemChange(GraphicsItemChange change, const QVariant& value)override;
@@ -72,7 +74,7 @@ public:
 public slots:
 	void onAction()
 	{
-	m_markerLine->onAction();
+	m_markerLine->onAction(sender());
 	}
 private:
 	TimeMarkerLine* m_markerLine = nullptr;

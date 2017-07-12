@@ -2,7 +2,8 @@
 #include <QGraphicsProxyWidget>
 #include <QWidget>
 #include "Controls/IOriginatorEditor.h"
-
+#include <functional>
+#include <QComboBox>
 /*
 左边的值编辑工具
 */
@@ -11,6 +12,7 @@ class QGraphicsTextItem;
 class EffectEditor;
 class QLineEdit;
 class QTimeEdit;
+class QComboBox;
 class QCheckBox;
 
 //值编辑器
@@ -19,10 +21,12 @@ class EffectValueEditor : public QGraphicsWidget, public IEditor
 public:
 	using QGraphicsWidget::QGraphicsWidget;
 
+	//设置当前编辑值
 	virtual void setValue(const QString&) = 0;
-
+	//链接原发器
 	virtual void setOriginator(IOriginator* orig)override;
 public:
+	//设置原发器的值
 	void setOrigData(const QString& value);
 };
 
@@ -129,23 +133,94 @@ private:
 	QTimeEdit* m_editTime = nullptr;
 };
 
-template<class T>
-EffectValueEditor* createValueEditor()
+//编辑Marker
+class MarkerWidetEditor : public EffectValueEditor
 {
-	return new T;
-}
-/*
-class NoHoverProxyWidget : public QGraphicsProxyWidget
-{
+	Q_OBJECT
 public:
-	using QGraphicsProxyWidget::QGraphicsProxyWidget;
+	MarkerWidetEditor();
+public slots:
+	//值改变后，提交改变后的值
+	void onTextChanged();
+	//选中类型后，改变子编辑控件类型
+	void onChangeEditor();
 protected:
-	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *event);
-	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *event);
-	virtual void hoverMoveEvent(QGraphicsSceneHoverEvent *event);
-	virtual void mousePressEvent(QGraphicsSceneMouseEvent *event);
-	virtual void mouseReleaseEvent(QGraphicsSceneMouseEvent *event);
-	virtual void mouseMoveEvent(QGraphicsSceneMouseEvent *event);
-	virtual void focusInEvent(QFocusEvent *event);
-	virtual void focusOutEvent(QFocusEvent *event);
-};*/
+	virtual void setValue(const QString& value)override;
+	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */);
+private:
+	void createMarkerEditor(const QString& type);
+private:
+	QTimeEdit* m_editTime = nullptr;
+	QComboBox* m_comboType = nullptr;
+	//QLineEdit* m_editParam = nullptr;
+	IOriginator* m_paraEditor = nullptr;
+
+};
+
+class PauseMarkerEditor : public QGraphicsWidget, public IOriginator
+{
+	Q_OBJECT
+		signals :
+	void sigChanged();
+public:
+	PauseMarkerEditor(QGraphicsWidget* parent = nullptr);
+protected:
+	//设置数据
+	virtual void setQsData(const QString& data) 
+	{
+		
+	}
+	//获取数据
+	virtual QString toQsData() { return ""; }
+};
+
+class PostionMarkerEditor : public QGraphicsWidget, public IOriginator
+{
+	Q_OBJECT
+		signals:
+	void sigChanged();
+public:
+	PostionMarkerEditor(QGraphicsWidget* parent = nullptr);
+protected:
+	//设置数据
+	virtual void setQsData(const QString& data);
+	//获取数据
+	virtual QString toQsData();
+	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)override;
+private:
+	QLineEdit* m_editParam = nullptr;
+};
+
+class JumpMarkerEditor : public QGraphicsWidget, public IOriginator
+{
+	Q_OBJECT
+		signals :
+	void sigChanged();
+public:
+	JumpMarkerEditor(QGraphicsWidget* parent = nullptr);
+protected:
+	//设置数据
+	virtual void setQsData(const QString& data);
+	//获取数据
+	virtual QString toQsData();
+	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)override;
+private:
+	QLineEdit* m_editParam = nullptr;
+};
+
+class TriggerMarkerEditor : public QGraphicsWidget, public IOriginator
+{
+	Q_OBJECT
+		signals :
+	void sigChanged();
+public:
+	TriggerMarkerEditor(QGraphicsWidget* parent = nullptr);
+protected:
+	//设置数据
+	virtual void setQsData(const QString& data);
+	//获取数据
+	virtual QString toQsData();
+	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget /* = Q_NULLPTR */)override;
+private:
+	QLineEdit* m_editParam = nullptr;
+};
