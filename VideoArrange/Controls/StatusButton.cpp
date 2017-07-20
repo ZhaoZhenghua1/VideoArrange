@@ -49,6 +49,29 @@ QPushButton:pressed{border-image:url(%3);}
 	setStyleSheet(stylesheet.arg(normal).arg(hover).arg(hover));
 }
 
+void StatusButton::toStatus(const int status)
+{
+	if (!m_status.contains(status))
+	{
+		return;
+	}
+
+	int indexbefore = m_currentStatusIndex;
+	int indexafter = m_status.indexOf(status);
+	if (indexafter == indexbefore)
+	{
+		return;
+	}
+
+	m_currentStatusIndex = indexafter;
+
+	int statusBefore = m_status[indexbefore];
+	int statusAfter = m_status[indexafter];
+	emit statusChanged(statusBefore, statusAfter);
+
+	setStatusPixmap(statusAfter);
+}
+
 void StatusButton::onClicked()
 {
 	if (m_status.size() <= 1)

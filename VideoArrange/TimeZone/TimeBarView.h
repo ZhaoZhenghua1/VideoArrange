@@ -30,6 +30,8 @@ public:
 	TimeBarView();
 	~TimeBarView();
 	virtual void setTimeLength(unsigned int time);
+
+	qreal timeToPositon(unsigned int time);
 signals:
 	void sigTimebarClicked(qreal timePos);
 protected:

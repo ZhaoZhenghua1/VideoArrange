@@ -15,6 +15,9 @@ public:
 	void registerStatus(const QVector<int>& status);
 	//ÉèÖÃ×´Ì¬Í¼Æ¬
 	void setStatusPixmap(const int status, const QString& mapnormal, const QString& maphover);
+
+	//
+	void toStatus(const int status);
 signals:
 	void statusChanged(int before, int after);
 private slots:

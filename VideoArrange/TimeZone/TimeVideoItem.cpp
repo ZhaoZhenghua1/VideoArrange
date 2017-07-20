@@ -43,9 +43,18 @@ TimeVideoItem::TimeVideoItem()
 
 TimeVideoItem::~TimeVideoItem()
 {
-	for (EffectEditor* item : m_effectEdits)
+	//选中当前时，设置编辑数据
+	if (TimeVideoLine* tvl = dynamic_cast<TimeVideoLine*>(parentItem()))
 	{
-		delete item;
+		tvl->setOriginator(nullptr);
+	}
+	for (QPointer<EffectEditor>& item : m_effectEdits)
+	{
+		if (!item.isNull())
+		{
+			item->clearSelect();
+			delete item.data();
+		}
 	}
 }
 
@@ -265,9 +274,19 @@ void TimeVideoItem::mousePressEvent(QGraphicsSceneMouseEvent *event)
 	QGraphicsRectItem::mousePressEvent(event);
 
 	//选中当前时，设置编辑数据
+	bool selectChanged = true;
 	if (TimeVideoLine* tvl = dynamic_cast<TimeVideoLine*>(parentItem()))
 	{
+		selectChanged = tvl->originator() != this;
 		tvl->setOriginator(this);
+	}
+
+	for (QPointer<EffectEditor>& item : m_effectEdits)
+	{
+		if (selectChanged && !item.isNull())
+		{
+			item->clearSelect();
+		}
 	}
 }
 

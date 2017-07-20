@@ -14,9 +14,6 @@ public:
 	void onOpen();
 	void onSave();
 	void onNew();
-	void onAddLayer();
-	void onDelLayer();
-	void onSetProjTimeLen();
 private:
 
 };

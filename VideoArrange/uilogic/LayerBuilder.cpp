@@ -8,6 +8,7 @@
 #include <QGraphicsAnchorLayout>
 #include <QGraphicsProxyWidget>
 #include <QLabel>
+#include <QTimer>
 
 LayerBuilder::LayerBuilder()
 {
@@ -59,7 +60,7 @@ void LayerBuilder::createPlayItemLayer(const QDomElement& data)
 		rightLayers[i]->setEditor(leftFellows[i]->editor());
 	}
 
-	coverLeftWhiteWidget();
+	coverWithWhiteWidget();
 }
 
 void LayerBuilder::createPlayItemLayer()
@@ -93,7 +94,7 @@ void LayerBuilder::createMarkerItemLayer(const QDomElement& data)
 	//设置头的对应关系
 	titleLeft->setPartner(titleR);
 
-	coverLeftWhiteWidget();
+	coverWithWhiteWidget();
 }
 
 void LayerBuilder::createMarkerItemLayer()
@@ -112,13 +113,21 @@ void LayerBuilder::createMarkerItemLayer()
 	createMarkerItemLayer(createElem);
 }
 
-void LayerBuilder::coverLeftWhiteWidget()
+void LayerBuilder::coverWithWhiteWidget()
 {
 	delete m_leftWhiteWidget;
+	delete m_rightWhiteWidget;
 	
-	m_leftWhiteWidget = new LeftWhiteWidget;
+	m_leftWhiteWidget = new WhiteWidget;
+	m_rightWhiteWidget = new WhiteWidget;
 
 	m_leftWhiteWidget->init(m_leftLayout);
+	m_rightWhiteWidget->init(m_rightLayout);
+
+	QTimer::singleShot(0, [this]() {
+		m_leftWhiteWidget->adjustScene();
+		m_rightWhiteWidget->adjustScene();
+	});
 }
 
 LayerBuilder* LayerBuilder::instance()

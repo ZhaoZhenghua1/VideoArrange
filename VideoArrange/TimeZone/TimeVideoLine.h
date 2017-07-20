@@ -1,5 +1,5 @@
 #pragma once
-#include "Layer/GraphicsLayoutRectItem.h"
+//#include "Layer/GraphicsLayoutRectItem.h"
 
 #include <QDomElement>
 #include <QGraphicsWidget>

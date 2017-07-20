@@ -13,7 +13,7 @@ class PlayControlThread : public QObject
 public:
 	PlayControlThread();
 	~PlayControlThread();
-	
+	bool isPlaying();
 	void play();
 	void pause();
 	void stop();
@@ -35,7 +35,7 @@ private:
 	unsigned int m_curExeIndex = 0;
 	QMutex m_mutex;
 	//开始播放时间
-	QDateTime m_startTime;
+	quint64 m_startTime;
 private:
 	HANDLE m_hTimer = NULL;
 	HANDLE m_hTimerQueue = NULL;

@@ -77,12 +77,6 @@
     <ClCompile Include="GeneratedFiles\Release\moc_TimePointerView.cpp">
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
-    <ClCompile Include="Layer\GraphicsLayoutRectItem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Layer\GraphicsLayoutTextItem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Layer\LayerView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -102,9 +96,6 @@
       <Filter>Generated Files\Release</Filter>
     </ClCompile>
     <ClCompile Include="Table\DomItem.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Table\TableView.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TimeZone\TimeVideoItem.cpp">
@@ -230,6 +221,33 @@
     <ClCompile Include="Controls\MagnetManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Table\ResourcePanel.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_ResourcePanel.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_ResourcePanel.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="Table\ResTaskView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Table\ResTableView.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_ResTaskView.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_ResTaskView.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Debug\moc_ResTableView.cpp">
+      <Filter>Generated Files\Debug</Filter>
+    </ClCompile>
+    <ClCompile Include="GeneratedFiles\Release\moc_ResTableView.cpp">
+      <Filter>Generated Files\Release</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <CustomBuild Include="Resources\videoarrange.qrc">
@@ -286,18 +304,18 @@
     <CustomBuild Include="TimeZone\TimeVideoLine.h">
       <Filter>Header Files</Filter>
     </CustomBuild>
+    <CustomBuild Include="Table\ResourcePanel.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Table\ResTaskView.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
+    <CustomBuild Include="Table\ResTableView.h">
+      <Filter>Header Files</Filter>
+    </CustomBuild>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Layer\GraphicsLayoutRectItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Layer\GraphicsLayoutTextItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Table\DomItem.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Table\TableView.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="TimeZone\ResourceInterface.h">

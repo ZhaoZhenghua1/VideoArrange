@@ -18,6 +18,8 @@
 #include <QTimer>
 #include <QMenu>
 #include <QTimeEdit>
+#include <QApplication>
+#include <QGraphicsSceneMouseEvent>
 
 #include "LayerBuilder.h"
 #include "Document/Document.h"
@@ -59,7 +61,10 @@ TimeLineField::TimeLineField()
 	m_labelTime->setStyleSheet(R"(color: rgb(45, 140, 235);font: 10pt "Cambria Math";)");
 	connect(labelTime, &ClickTimeEdit::timeSetted, this, &TimeLineField::onTimeSetted);
 
+	//播放按钮设置为焦点窗口
 	m_btnPlay = new StatusButton(controls);
+	m_btnPlay->setShortcut(QKeySequence("Space"));
+	
 	m_btnPlay->setGeometry(2,25,33, 20);
 	m_btnPlay->registerStatus({ 1,2 });
 	m_btnPlay->setStatusPixmap(1, ":/play_off_hover.png", ":/play_off_hover.png");
@@ -75,11 +80,11 @@ TimeLineField::TimeLineField()
 
 	QPushButton* btnAddLayer = new QPushButton(controls);
 	btnAddLayer->setGeometry(187,23,33, 20);
-	QString stylesheet = R"(
-QPushButton{border-image:url(:/add_layer.png);}
+	
+	QString stylesheet = R"(QPushButton{border-image:url(:/add_layer.png);}
 QPushButton:hover{border-image:url(:/add_layer.png);}
-QPushButton:pressed{border-image:url(:/add_layer.png);}
-)";
+QPushButton:pressed{border-image:url(:/add_layer.png);})";
+
 	btnAddLayer->setStyleSheet(stylesheet);
 	connect(btnAddLayer, &QPushButton::clicked, this, &TimeLineField::onAddLayer);
 
@@ -96,6 +101,7 @@ QPushButton:pressed{border-image:url(:/add_layer.png);}
 
 	m_timeBarView = new TimeBarView;
 	m_timeVideoView = new TimeVideoView;
+	m_timeVideoView->viewport()->installEventFilter(this);
 
 	QWidget* rightW = new QWidget;
 	QVBoxLayout* rightLay = new QVBoxLayout;
@@ -130,9 +136,12 @@ QPushButton:pressed{border-image:url(:/add_layer.png);}
 	m_timeBarView->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 	m_timeBarView->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
 
- 	m_timePointerView = new TimePointerView;
+	//播放控制
 	m_playControl = new MediaPlayControl;
-	connect(m_playControl, SIGNAL(updateTimePointer(unsigned int)), this, SLOT(onTimeSetted(unsigned int)));
+	connect(m_playControl, SIGNAL(updateTimePointer(unsigned int)), this, SLOT(onUpdateRunningTime(unsigned int)));
+	connect(m_playControl, SIGNAL(sigGetDocument()), this, SLOT(onGetDocument()));
+
+ 	m_timePointerView = new TimePointerView;
  	m_timePointerView->setParent(this);
 
 	connect(timelineScrollBar, &TimeLineScrollBar::adjustWidth, m_timeVideoView, &TimeBarView::onAdjustWidth);
@@ -154,20 +163,11 @@ TimeLineField::~TimeLineField()
 
 void TimeLineField::onClickTimeBar(qreal t)
 {
-	QTime time = QTime(0, 0).addMSecs(t + 0.5);
+	unsigned int utime = t + 0.5;
+	QTime time = QTime(0, 0).addMSecs(utime);
 	m_labelTime->setText(time.toString("hh:mm:ss.zzz"));
-}
 
-void TimeLineField::onClickBtnTime()
-{
-	if (0 == m_timePointerView->currentTime())
-	{
-		m_timeBarView->horizontalScrollBar()->setValue(0);
-	}
-	else
-	{
-		emit m_timeBarView->sigTimebarClicked(0);
-	}
+	locateTo(utime);
 }
 
 void TimeLineField::onAddLayer()
@@ -194,7 +194,22 @@ void TimeLineField::onAddCtrlLayer()
 
 void TimeLineField::onTimeSetted(unsigned int time)
 {
+	qreal pos = m_timeBarView->timeToPositon(time);
+	m_timeBarView->centerOn(pos,0);
+	m_timeVideoView->centerOn(pos, 0);
+	m_timePointerView->centerOn(pos, 0);
 	emit m_timeBarView->sigTimebarClicked(time);
+}
+
+void TimeLineField::onUpdateRunningTime(unsigned int time)
+{
+	qreal pos = m_timeBarView->timeToPositon(time);
+	m_timeBarView->centerOn(pos, 0);
+	m_timeVideoView->centerOn(pos, 0);
+	m_timePointerView->centerOn(pos, 0);
+	m_timePointerView->onClickTimeBar(time);
+	QTime qtime = QTime(0, 0).addMSecs(time);
+	m_labelTime->setText(qtime.toString("hh:mm:ss.zzz"));
 }
 
 void TimeLineField::onTimeLengthSetted(unsigned int time)
@@ -225,13 +240,27 @@ void TimeLineField::onPlayChanged(int before, int after)
 	if (after == 2)
 	{
 		m_playControl->locateTo(m_timePointerView->currentTime());
-		m_playControl->setData(Document::instance()->document());
 		m_playControl->play();
 	}
 	else
 	{
 		m_playControl->pause();
 	}
+}
+
+//播放控制时间设置
+void TimeLineField::locateTo(unsigned int time)
+{
+	//暂停
+	m_playControl->pause();
+	m_btnPlay->toStatus(1);
+	//定位到时间
+	m_playControl->locateTo(time);
+}
+
+QDomDocument TimeLineField::onGetDocument()
+{
+	return Document::instance()->document();
 }
 
 void TimeLineField::resizeEvent(QResizeEvent * event)
@@ -241,6 +270,42 @@ void TimeLineField::resizeEvent(QResizeEvent * event)
 	{
 		m_timePointerView->setGeometry(mapFromGlobal(m_timeVideoView->mapToGlobal(QPoint())).x(), 10, m_timeVideoView->width(), viewport()->height());
 	});
+}
+
+bool TimeLineField::eventFilter(QObject *watched, QEvent *event)
+{
+	if (m_timeVideoView && watched == m_timeVideoView->viewport() && (event->type() == QEvent::MouseButtonPress || event->type() == QEvent::MouseMove))
+	{
+		QMouseEvent* mouseEvent = (QMouseEvent*)(event);
+		// Store some of the event's button-down data.
+		QPoint mousePressViewPoint = mouseEvent->pos();
+		mousePressViewPoint.setY(20);
+		QPointF mousePressScenePoint = m_timeBarView->mapToScene(mousePressViewPoint);
+		QPoint mousePressScreenPoint = m_timeBarView->mapToGlobal(mousePressViewPoint);//mouseEvent->globalPos();
+		QPointF lastMouseMoveScenePoint = mousePressScenePoint;
+		QPoint lastMouseMoveScreenPoint = mousePressScreenPoint;
+
+
+		QEvent::Type type = ((event->type() == QEvent::MouseButtonPress) ? QEvent::GraphicsSceneMousePress : QEvent::GraphicsSceneMouseMove);
+		// Convert and deliver the mouse event to the scene.
+		QGraphicsSceneMouseEvent scenemouseEvent(type);
+		scenemouseEvent.setWidget(m_timeBarView->viewport());
+		scenemouseEvent.setButtonDownScenePos(mouseEvent->button(), mousePressScenePoint);
+		scenemouseEvent.setButtonDownScreenPos(mouseEvent->button(), mousePressScreenPoint);
+		scenemouseEvent.setScenePos(mousePressScenePoint);
+		scenemouseEvent.setScreenPos(mousePressScreenPoint);
+		scenemouseEvent.setLastScenePos(lastMouseMoveScenePoint);
+		scenemouseEvent.setLastScreenPos(lastMouseMoveScreenPoint);
+		scenemouseEvent.setButtons(mouseEvent->buttons());
+		scenemouseEvent.setButton(mouseEvent->button());
+		scenemouseEvent.setModifiers(mouseEvent->modifiers());
+		scenemouseEvent.setSource(mouseEvent->source());
+		scenemouseEvent.setFlags(mouseEvent->flags());
+		scenemouseEvent.setAccepted(false);
+
+		QApplication::sendEvent(m_timeBarView->scene(), &scenemouseEvent);
+	}
+	return QObject::eventFilter(watched, event);
 }
 
 void TimeLineField::init()

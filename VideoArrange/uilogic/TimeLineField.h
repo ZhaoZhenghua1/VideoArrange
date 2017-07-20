@@ -23,7 +23,6 @@ public:
 	~TimeLineField();
 public slots:
 	void onClickTimeBar(qreal time);
-	void onClickBtnTime();
 	void onAddLayer();
 	void onAddVideoLayer();
 	void onAddCtrlLayer();
@@ -31,18 +30,24 @@ public slots:
 	void onTimeLengthSetted(unsigned int time);
 	void onMagnetChanged(int before, int after);
 	void onPlayChanged(int before, int after);
+	//播放控制时间同步
+	void onUpdateRunningTime(unsigned int time);
+	//播放控制时间设置
+	void locateTo(unsigned int time);
+	QDomDocument onGetDocument();
 protected:
 	virtual void resizeEvent(QResizeEvent *)Q_DECL_OVERRIDE;
+	virtual bool eventFilter(QObject *watched, QEvent *event)override;
 	virtual void init()override;
 private:
-	StatusButton* m_btnPlay;//播放
-	StatusButton* m_btnMagnet;//吸附
+	StatusButton* m_btnPlay = nullptr;//播放
+	StatusButton* m_btnMagnet = nullptr;//吸附
 
-	TimeBarView* m_timeBarView;
-	TimeVideoView* m_timeVideoView;
-	TimePointerView* m_timePointerView;
+	TimeBarView* m_timeBarView = nullptr;
+	TimeVideoView* m_timeVideoView = nullptr;
+	TimePointerView* m_timePointerView = nullptr;
 
-	LayerView* m_leftLayerView;
+	LayerView* m_leftLayerView = nullptr;
 
 	QLabel* m_labelTime = nullptr;
 	QLabel* m_labelTimeLen = nullptr;

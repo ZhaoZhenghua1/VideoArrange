@@ -56,8 +56,8 @@ void LayerView::resizeEvent(QResizeEvent *event)
 	qreal height = 0;
 	QGraphicsLayout* layout = m_rootWidget->layout();
 	//计算视图高度
-	if (layout->count() > 0)
-		height = layout->itemAt(layout->count() - 1)->geometry().bottom();
+	if (layout->count() > 1)
+		height = layout->itemAt(layout->count() - 2)->geometry().bottom();
 	height = (height > event->size().height() ? height : event->size().height()) + 200;
 	QRectF rect(QPointF(), QSizeF(event->size().width(), height));
 	//-2产生一个隔离边

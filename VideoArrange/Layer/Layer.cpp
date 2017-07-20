@@ -299,9 +299,8 @@ void LayerLeader::adjustScene()
 	if (!layout)
 		return;
 
-	layout->updateGeometry();
 	qreal height = 0;
-	for (int index = layout->count() - 1; index >= 0; --index)
+	for (int index = layout->count() - 2; index >= 0; --index)
 	{
 		if (QGraphicsWidget * pW = dynamic_cast<QGraphicsWidget*>(layout->itemAt(index)))
 		{
@@ -478,7 +477,7 @@ LayerHandle::LayerHandle()
 void LayerHandle::hoverEnterEvent(QGraphicsSceneHoverEvent *event)
 {
 	//解决闪烁问题
-	scene()->update(scene()->itemsBoundingRect());
+//	scene()->update(scene()->itemsBoundingRect());
 }
 
 void LayerHandle::hoverMoveEvent(QGraphicsSceneHoverEvent *event)

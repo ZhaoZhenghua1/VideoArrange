@@ -42,6 +42,7 @@ protected:
 					uint range = scrollbar->maximum - scrollbar->minimum;
 					sliderlen = (qint64(scrollbar->pageStep) * maxlen) / (range + scrollbar->pageStep);
 					int slidermin = proxy()->pixelMetric(PM_ScrollBarSliderMin, scrollbar, widget);
+					//比率
 					qreal k = (m_scrollBar->maxSceneLength() - m_scrollBar->pageStep()) * 1.0 / (maxlen - slidermin);
 					sliderlen = maxlen - (m_scrollBar->maximum() - m_scrollBar->pageStep()) / k;
 
@@ -63,7 +64,8 @@ protected:
 				switch (sc) {
 				case SC_ScrollBarSubLine:            // top/left button
 					if (scrollbar->orientation == Qt::Horizontal) {
-						int buttonWidth = qMin(scrollBarRect.width() / 2, sbextent);
+						//缩小按钮大小为1像素，从而不影响滚动条
+						int buttonWidth = 1;//qMin(scrollBarRect.width() / 2, sbextent);
 						ret.setRect(0, 0, buttonWidth, scrollBarRect.height());
 					}
 					else {
@@ -73,7 +75,8 @@ protected:
 					break;
 				case SC_ScrollBarAddLine:            // bottom/right button
 					if (scrollbar->orientation == Qt::Horizontal) {
-						int buttonWidth = qMin(scrollBarRect.width() / 2, sbextent);
+						//缩小按钮大小为1像素，从而不影响滚动条
+						int buttonWidth = 1;//qMin(scrollBarRect.width() / 2, sbextent);
 						ret.setRect(scrollBarRect.width() - buttonWidth, 0, buttonWidth, scrollBarRect.height());
 					}
 					else {

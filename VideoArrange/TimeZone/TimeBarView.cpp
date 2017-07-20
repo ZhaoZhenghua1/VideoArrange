@@ -31,6 +31,11 @@ void TimeBarView::setTimeLength(unsigned int time)
 	}
 }
 
+qreal TimeBarView::timeToPositon(unsigned int time)
+{
+	return timeZone()->timeToPosition(time);
+}
+
 TimeZone* TimeBarView::timeZone()
 {
 	return m_bar;
@@ -60,27 +65,6 @@ void TimeBar::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, Q
 		QTime time = QTime(0, 0).addMSecs((int)(positionToTime(x) + 0.5));
 		drawStr = time.toString("hh:mm:ss.zzz");
 		drawStr = drawStr.left(drawStr.size() - 1);
-// 		if (time.hour() > 0)
-// 		{
-// 			drawStr += QString("%1:").arg(time.hour());
-// 		}
-// 		if (!drawStr.isEmpty() || time.minute() > 0)
-// 		{
-// 			drawStr += QString("%1:").arg(time.minute());	
-// 		}
-// 		if (!drawStr.isEmpty() || time.second() > 0)
-// 		{
-// 			drawStr += QString("%1").arg(time.second());
-// 		}
-// 		if (timeSpace() < 1000)
-// 		{
-// 			QString deci = QString(".%1").arg(QTime(time.hour(), time.minute(), time.second()).msecsTo(time));
-// 			while (deci.endsWith('0'))
-// 			{
-// 				deci = deci.left(deci.size() - 1);
-// 			}
-// 			drawStr += deci;
-// 		}
 
 		int fontW = painter->fontMetrics().width(drawStr);
 		painter->setPen(QPen(QColor(163, 163, 163)));

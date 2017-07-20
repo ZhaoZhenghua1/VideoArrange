@@ -105,7 +105,7 @@ protected:
 };
 
 //左边为了盖住超出窗口的部分的空白窗口
-class LeftWhiteWidget : public LayerLeader
+class WhiteWidget : public LayerLeader
 {
 public:
 	void init(QGraphicsAnchorLayout* layout);

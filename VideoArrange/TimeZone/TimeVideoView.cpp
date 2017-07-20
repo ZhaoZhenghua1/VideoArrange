@@ -47,6 +47,8 @@ TimeVideoView::TimeVideoView()
 {
 	m_timeVideo = new TimeVideo(this);
 	scene()->addItem(m_timeVideo);
+
+	scene()->setBackgroundBrush(QColor(49, 49, 49));
 }
 
 

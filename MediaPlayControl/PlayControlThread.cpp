@@ -50,7 +50,13 @@ VOID CALLBACK TimerRoutine(PVOID lpParam, BOOLEAN TimerOrWaitFired)
 	PlayControlThread* playControl = (PlayControlThread*)lpParam;
 	QVector<ControlFunObj> timeToRun;
 	//经过的时间
-	unsigned int timeLine = QDateTime::currentDateTime().toMSecsSinceEpoch() - playControl->m_startTime.toMSecsSinceEpoch();
+	ULARGE_INTEGER unsignedlargeinteger;
+	FILETIME ft;
+	GetSystemTimePreciseAsFileTime(&ft);//单位100ns
+	unsignedlargeinteger.HighPart = ft.dwHighDateTime;
+	unsignedlargeinteger.LowPart = ft.dwLowDateTime;
+	
+	quint64 timeLine = (unsignedlargeinteger.QuadPart/10000 - playControl->m_startTime);//单位ms
 	if (timeLine - playControl->m_timePointer >= 200)//过了0.2秒钟
 	{
 		playControl->m_timePointer = timeLine;
@@ -85,10 +91,20 @@ PlayControlThread::~PlayControlThread()
 	DeleteTimerQueue(m_hTimerQueue);
 }
 
+bool PlayControlThread::isPlaying()
+{
+	return m_hTimerQueue != nullptr;
+}
+
 void PlayControlThread::play()
 {
 	//计算开始时间
-	m_startTime = QDateTime::currentDateTime().addMSecs(-m_timePointer);
+	FILETIME ft;
+	ULARGE_INTEGER unsignedlargeinteger;
+	GetSystemTimePreciseAsFileTime(&ft);
+	unsignedlargeinteger.HighPart = ft.dwHighDateTime;
+	unsignedlargeinteger.LowPart = ft.dwLowDateTime;
+	m_startTime = unsignedlargeinteger.QuadPart/10000 - m_timePointer;
 	//计算开始游标
 	for (m_curExeIndex = 0; m_curExeIndex < m_controls.size(); ++m_curExeIndex)
 	{

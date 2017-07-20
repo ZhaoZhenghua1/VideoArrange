@@ -3,6 +3,8 @@
 #include "ControlFunObj.h"
 #include <QDomDocument>
 #include "ControlFunObj.h"
+#include <QEvent>
+#include <QKeyEvent> 
 
 struct MediaPlayControlPrivate
 {
@@ -20,12 +22,6 @@ MediaPlayControl::~MediaPlayControl()
 	pause();
 }
 
-void MediaPlayControl::setData(const QDomDocument& data)
-{
-	d_func()->m_playControlThread->stop();
-	d_func()->m_playControlThread->setData(data.firstChildElement("project"));
-}
-
 void MediaPlayControl::locateTo(unsigned int time)
 {
 	d_func()->m_playControlThread->locateTo(time);
@@ -33,6 +29,8 @@ void MediaPlayControl::locateTo(unsigned int time)
 
 void MediaPlayControl::play()
 {
+	QDomDocument document = emit sigGetDocument();
+	d_func()->m_playControlThread->setData(document.firstChildElement("project"));
 	d_func()->m_playControlThread->play();
 }
 
@@ -40,3 +38,28 @@ void MediaPlayControl::pause()
 {
 	d_func()->m_playControlThread->pause();
 }
+
+bool MediaPlayControl::isPlaying()
+{
+	return d_func()->m_playControlThread->isPlaying();
+}
+
+// bool MediaPlayControl::eventFilter(QObject *watched, QEvent *event)
+// {
+// 	if (event->type() == QEvent::KeyPress)
+// 	{
+// 		QKeyEvent* keyEvent = (QKeyEvent*)(event);
+// 		if (keyEvent->key() == Qt::Key_Space)
+// 		{
+// 			if (d_func()->m_playControlThread->isPlaying())
+// 			{
+// 				d_func()->m_playControlThread->pause();
+// 			}
+// 			else
+// 			{
+// 				d_func()->m_playControlThread->play();
+// 			}
+// 		}
+// 	}
+// 	return QObject::eventFilter(watched, event);
+// }

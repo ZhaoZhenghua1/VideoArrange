@@ -9,47 +9,68 @@
 #include <QDockWidget>
 
 #include "TimeLineField.h"
-#include "Table/TableView.h"
+#include "Table/ResourcePanel.h"
 #include "Document/Document.h"
 #include "Play/PlayWidget.h"
 
 #include <QLayout>
 #include <QPushButton>
+#include <QSplitter>
 
 VideoEditor::VideoEditor(QWidget *parent)
 	: QMainWindow(parent)
 {
-	delete takeCentralWidget();
+//	delete takeCentralWidget();
+	//takeCentralWidget();
+
 	//setTabPosition(Qt::AllDockWidgetAreas, QTabWidget::North);
 	setDocumentMode(true);
 
 	TimeLineField *videoArrange = new TimeLineField;
-	TableView* tableView = new TableView;
+	ResourcePanel* tableView = new ResourcePanel;
 	PlayWidget* playWidget = new PlayWidget;
+	
+	QSplitter* hSplitter = new QSplitter(Qt::Horizontal);
+	hSplitter->setHandleWidth(3);
+	hSplitter->setChildrenCollapsible(false);
+	hSplitter->setStyleSheet("QSplitter{background-color: rgb(0, 0, 0);}");
+	hSplitter->addWidget(playWidget);
+	hSplitter->addWidget(tableView);
+	QSplitterHandle* handle = hSplitter->handle(1);
+	handle->setStyleSheet("background-color: rgb(22, 22, 22);");
+	QSplitter* vSplitter = new QSplitter(Qt::Vertical);
+	vSplitter->setHandleWidth(3);
+	vSplitter->setChildrenCollapsible(false);
+	vSplitter->setStyleSheet("QSplitter{background-color: rgb(0, 0, 0);}");
+	vSplitter->addWidget(hSplitter);
+	vSplitter->addWidget(videoArrange);
+	handle = vSplitter->handle(1);
+	handle->setStyleSheet("background-color: rgb(22, 22, 22);");
+	setCentralWidget(vSplitter);
 
-	QDockWidget* proxyWVideo = new QDockWidget();
-	proxyWVideo->layout()->setSpacing(10);
-	proxyWVideo->setWindowTitle(QString::fromLocal8Bit("节目编排"));
+//	QDockWidget* proxyWVideo = new QDockWidget();
+//	proxyWVideo->layout()->setSpacing(10);
+//	proxyWVideo->setWindowTitle(QString::fromLocal8Bit("节目编排"));
 //	proxyWVideo->setFeatures(QDockWidget::NoDockWidgetFeatures);
-	proxyWVideo->setWidget(videoArrange);
+//	proxyWVideo->setWidget(videoArrange);
 
-	QDockWidget* proxyWTable = new QDockWidget();
-	proxyWTable->setWindowTitle(QString::fromLocal8Bit("媒体资源"));
+//	QDockWidget* proxyWTable = new QDockWidget();
+//	proxyWTable->setWindowTitle(QString::fromLocal8Bit("媒体资源"));
 //	proxyWTable->setFeatures(QDockWidget::NoDockWidgetFeatures);
-	proxyWTable->setWidget(tableView);
+//	proxyWTable->setWidget(tableView);
 
-	QDockWidget* proxyWPlay = new QDockWidget();
-	proxyWPlay->setWindowTitle(QString::fromLocal8Bit("屏幕"));
+//	QDockWidget* proxyWPlay = new QDockWidget();
+//	proxyWPlay->setWindowTitle(QString::fromLocal8Bit("屏幕"));
 //	proxyWPlay->setFeatures(QDockWidget::NoDockWidgetFeatures);
-	proxyWPlay->setWidget(playWidget);
+//	proxyWPlay->setWidget(playWidget);
 
 
-	addDockWidget(Qt::LeftDockWidgetArea, proxyWPlay);
+//	addDockWidget(Qt::LeftDockWidgetArea, proxyWPlay);
 // 	addDockWidget(Qt::LeftDockWidgetArea, new QDockWidget);
 // 	addDockWidget(Qt::LeftDockWidgetArea, new QDockWidget);
 // 	addDockWidget(Qt::LeftDockWidgetArea, new QDockWidget);
-	addDockWidget(Qt::RightDockWidgetArea, proxyWTable);
-	addDockWidget(Qt::BottomDockWidgetArea, proxyWVideo);
+//	addDockWidget(Qt::RightDockWidgetArea, proxyWTable);
+//	addDockWidget(Qt::BottomDockWidgetArea, proxyWVideo);
 
 // 	QGraphicsView* view = new QGraphicsView;
 //  	QGraphicsScene* scene = new QGraphicsScene;
@@ -85,18 +106,6 @@ VideoEditor::VideoEditor(QWidget *parent)
 		connect(neW, &QAction::triggered, this, &VideoEditor::onNew);
 	}
 
-
-	{
-// 		QMenu * menu = new QMenu(QString::fromLocal8Bit("节目编排"));
-// 		menuBar()->addMenu(menu);
-// 		QAction* addlayer = menu->addAction(QString::fromLocal8Bit("添加图层"));
-// 		connect(addlayer, &QAction::triggered, this, &VideoEditor::onAddLayer);
-// 		QAction* delayer = menu->addAction(QString::fromLocal8Bit("删除图层"));
-// 		connect(delayer, &QAction::triggered, this, &VideoEditor::onDelLayer);
-// 		QAction* timelenset = menu->addAction(QString::fromLocal8Bit("设置时间长度"));
-// 		connect(timelenset, &QAction::triggered, this, &VideoEditor::onSetProjTimeLen);
-	}
-
 }
 
 VideoEditor::~VideoEditor()
@@ -118,19 +127,4 @@ void VideoEditor::onSave()
 void VideoEditor::onNew()
 {
 	QString fileName = QFileDialog::getSaveFileName(nullptr, QString::fromLocal8Bit("新建工程"), QStandardPaths::writableLocation(QStandardPaths::DocumentsLocation), "xml(*.xml)");
-}
-
-void VideoEditor::onAddLayer()
-{
-
-}
-
-void VideoEditor::onDelLayer()
-{
-
-}
-
-void VideoEditor::onSetProjTimeLen()
-{
-
 }

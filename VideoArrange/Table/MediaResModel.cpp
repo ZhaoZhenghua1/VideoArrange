@@ -70,7 +70,18 @@ void MediaResModel::addFiles(const QStringList& files)
 
 	for (auto ite = files.cbegin(); ite != files.cend(); ++ite)
 	{
-		if (Document::instance()->isValidMediaFile(*ite) && !Document::instance()->exist(*ite))
+		//防止重复加入
+		bool alreadyExist = false;
+		for (QDomElement file = resNode.firstChildElement("resource"); !file.isNull(); file = file.nextSiblingElement("resource"))
+		{
+			if (file.attribute("filePath") == *ite)
+			{
+				alreadyExist = true;
+				break;
+			}
+		}
+		//文件有限，则写入xml中
+		if (!alreadyExist && Document::instance()->isValidMediaFile(*ite) && !Document::instance()->exist(*ite))
 		{
 			QDomElement elem = Document::instance()->document().createElement("resource");
 			elem.setAttribute("filePath", *ite);

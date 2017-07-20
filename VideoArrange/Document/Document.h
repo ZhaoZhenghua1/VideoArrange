@@ -23,6 +23,7 @@ public:
 	QDomDocument document();
 	QDomElement data(const QStringList& path);
 	void addObserver(Observer * observer);
+
 private:
 	QDomDocument m_doc;
 	QString m_fileName;

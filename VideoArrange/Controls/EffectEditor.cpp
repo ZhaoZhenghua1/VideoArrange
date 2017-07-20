@@ -85,6 +85,11 @@ void EffectEditor::parentChanged(QGraphicsWidget* parent)
 	}
 }
 
+void EffectEditor::clearSelect()
+{
+	layer()->setSelected(nullptr, -1);
+}
+
 void EffectEditor::setValue(int index, const QString& value)
 {
 	QStringList datas = value.split(';');

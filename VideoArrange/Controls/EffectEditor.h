@@ -38,6 +38,8 @@ public:
 	//水平方向调整位置
 	void updatePos(qreal left, qreal width);
 	void parentChanged(QGraphicsWidget* parent);
+	//取消选择
+	void clearSelect();
 public:
 	void setValue(int index, const QString& value);
 	QString value(int index) const;

@@ -2,13 +2,14 @@
 
 
 
-PlayWidget::PlayWidget() : QWidget(nullptr, Qt::Dialog)
+PlayWidget::PlayWidget() 
 {
-	setAttribute(Qt::WA_DontCreateNativeAncestors);
-	setAttribute(Qt::WA_NativeWindow);
-	setWindowFlags(windowFlags() | Qt::MSWindowsOwnDC);
+// 	setAttribute(Qt::WA_DontCreateNativeAncestors);
+// 	setAttribute(Qt::WA_NativeWindow);
+// 	setWindowFlags(windowFlags() | Qt::MSWindowsOwnDC);
 
-	auto wid = winId();
+	setStyleSheet("background-color: rgb(0, 125, 125);");
+//	auto wid = winId();
 }
 
 

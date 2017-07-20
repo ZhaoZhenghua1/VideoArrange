@@ -296,9 +296,9 @@ void MarkerHelper::onDelete()
 	});
 }
 
-void LeftWhiteWidget::init(QGraphicsAnchorLayout* anchorLayout)
+void WhiteWidget::init(QGraphicsAnchorLayout* anchorLayout)
 {
-	QGraphicsLayoutItem* anchorTo = anchorLayout;
+	QGraphicsLayoutItem* anchorTo = anchorLayout; 
 
 	qreal spacing = 0;
 	for (int i = anchorLayout->count() - 1; i >= 0; --i)
@@ -326,7 +326,7 @@ void LeftWhiteWidget::init(QGraphicsAnchorLayout* anchorLayout)
 	anchorLayout->addAnchor(this, Qt::AnchorBottom, anchorLayout, Qt::AnchorBottom);
 }
 
-void LeftWhiteWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+void WhiteWidget::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
 {
 	painter->fillRect(rect(), QColor(49,49,49));
 }

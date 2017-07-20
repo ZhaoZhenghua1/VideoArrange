@@ -2,6 +2,7 @@
 #include <QGraphicsRectItem>
 #include <QDomElement>
 #include <QGraphicsWidget>
+#include <QPointer> 
 
 #include "Controls/EffectEditor.h"
 #include "Controls/IOriginatorEditor.h"
@@ -46,5 +47,5 @@ private:
 	//数据
 	QDomElement m_dataElem;
 	//效果编辑窗口
-	QVector<EffectEditor*> m_effectEdits;
+	QVector<QPointer<EffectEditor> > m_effectEdits;
 };

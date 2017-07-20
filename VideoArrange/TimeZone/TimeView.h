@@ -37,6 +37,7 @@ public slots:
 	void zoomIn();//∑≈¥Û
 	void zoomOut();//Àı–°
 	void onAdjustWidth(int width);
+
 public:
 	bool isTimeMinimized();
 	bool isTimeMaximized();
